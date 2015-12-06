@@ -16,7 +16,7 @@ apply plugin: 'groovy'
 group = 'net.zomis'
 version = '0.1.0-SNAPSHOT'
 
-description = "Brainfuck Java interpreter and utility"
+description = "Just trying out Neural Networks"
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
