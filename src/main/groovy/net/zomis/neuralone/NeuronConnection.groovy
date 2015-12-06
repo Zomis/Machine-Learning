@@ -4,9 +4,9 @@ class NeuronConnection {
 
     Neuron from
     Neuron to
-    float weight = 1.0f
+    double weight = 1.0f
 
-    float calculateInput() {
+    double calculateInput() {
         from.output * weight
     }
 
@@ -14,5 +14,11 @@ class NeuronConnection {
         def conn = new NeuronConnection()
         conn.from = input
         conn.to = output
+        conn
+    }
+
+    @Override
+    String toString() {
+        return "$from --> $to w($weight)"
     }
 }
