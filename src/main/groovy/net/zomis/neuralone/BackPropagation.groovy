@@ -34,7 +34,7 @@ class BackPropagation {
     }
 
 
-    static NeuralNetwork backPropagationLearning(Set<LearningData> examples, NeuralNetwork network) {
+    static NeuralNetwork backPropagationLearning(Iterable<LearningData> examples, NeuralNetwork network) {
 //        inputs: examples, a set of examples, each with input vector x and output vector y
 //        network , a multilayer network with L layers, weights wi,j , activation function g
 

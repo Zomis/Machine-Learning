@@ -17,7 +17,7 @@ class NeuralMain {
         outputLayer.createNeuron().addInputs(middleLayer)
         outputLayer.createNeuron().addInputs(middleLayer)
 
-        Set<LearningData> examples = new HashSet<LearningData>()
+        List<LearningData> examples = []
         examples << new LearningData([0, 0] as double[], [0, 0] as double[])
         examples << new LearningData([0, 1] as double[], [0, 1] as double[])
         examples << new LearningData([1, 0] as double[], [0, 1] as double[])
@@ -26,11 +26,10 @@ class NeuralMain {
 
         network.printAll()
 
-        // Deltas are [-0.001254393261558168, -0.001669496114341458, -0.011844828972942834, 0.014466386462268437, -0.1438964290513059, 0.06944575122635648]
-        println network.run([0, 0] as double[])
-        println network.run([0, 1] as double[])
-        println network.run([1, 0] as double[])
-        println network.run([1, 1] as double[])
+        for (LearningData data : examples) {
+            def output = network.run(data.inputs)
+            println "$data.inputs --> $output"
+        }
         network.printAll()
     }
 
