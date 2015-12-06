@@ -21,7 +21,7 @@ description = "Brainfuck Java interpreter and utility"
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
-mainClassName = 'net.zomis.brainf.ui.Brainduck'
+mainClassName = 'net.zomis.neuralone.NeuralMain'
 
 repositories {
     mavenCentral()
