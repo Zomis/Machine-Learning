@@ -43,9 +43,10 @@ class BackPropagation {
         Deltas deltas = new Deltas(network)
         int iterations = 0
 
+        network.links().forEach({it.weight = random.nextDouble()})
         while (true) {
-            network.links().forEach({it.weight = random.nextDouble()})
-
+            deltas.log()
+            iterations++
             for (LearningData data : examples) {
                 /* Propagate the inputs forward to compute the outputs */
                 int neuronIndexInLayer = 0
@@ -77,14 +78,20 @@ class BackPropagation {
 
                 /* Update every weight in network using deltas */
                 def learningRate = 0.2f
-                network.links().forEach({it.weight = it.weight + learningRate * it.from.output * deltas.get(it.to)})
+
+                for (NeuronLayer layer : network.getLayers()) {
+                    for (Neuron node : layer) {
+                        for (NeuronLink link : node.getInputs()) {
+                            link.weight = link.weight + learningRate * link.getInputValue() * deltas.get(node)
+                        }
+                    }
+                }
             }
-            if (iterations++ > 1000) {
+            if (iterations > 1000) {
                 break;
-            } else {
-                deltas.log()
             }
         }
+        deltas.log()
         return network
     }
 

@@ -28,8 +28,8 @@ class NeuralNetwork {
         layers.size()
     }
 
-    Stream<NeuronConnection> links() {
-        this.layers.stream().flatMap({it.neurons.stream()}).flatMap({it.outputs.stream()})
+    Stream<NeuronLink> links() {
+        this.layers.stream().flatMap({it.neurons.stream()}).flatMap({it.inputs.stream()})
     }
 
     void printAll() {
@@ -45,21 +45,26 @@ class NeuralNetwork {
         double[] output = new double[outputLayer.size()]
         assert input.length == inputLayer.size()
         for (int i = 0; i < inputLayer.size(); i++) {
-            inputLayer.getNeurons().get(i).weight0 = input[i]
+            inputLayer.getNeurons().get(i).output = input[i]
         }
 
+        int layerIndex = 0
         for (NeuronLayer layer : layers) {
+            if (layerIndex++ == 0) {
+                // Do not process input layer
+                continue
+            }
             for (Neuron node : layer) {
-                node.calculateInput()
-                node.calculateOutput(node.input)
+                node.input = node.calculateInput()
+                node.output = node.calculateOutput(node.input)
             }
         }
         for (int i = 0; i < outputLayer.size(); i++) {
             output[i] = outputLayer.getNeurons().get(i).output
         }
-        for (int i = 0; i < inputLayer.size(); i++) {
-            inputLayer.getNeurons().get(i).weight0 = 1
-        }
+/*        for (int i = 0; i < inputLayer.size(); i++) {
+            inputLayer.getNeurons().get(i).output = 1
+        }*/
 
         output
     }

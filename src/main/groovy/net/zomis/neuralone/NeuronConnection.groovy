@@ -1,13 +1,18 @@
 package net.zomis.neuralone
 
-class NeuronConnection {
+class NeuronConnection implements NeuronLink {
 
     Neuron from
     Neuron to
     double weight = 1.0f
 
     double calculateInput() {
-        from.output * weight
+        return getInputValue() * getWeight()
+    }
+
+    @Override
+    double getInputValue() {
+        return from.output
     }
 
     static NeuronConnection create(Neuron input, Neuron output) {

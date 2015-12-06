@@ -19,10 +19,9 @@ class Neuron {
         // (double) sigmoid.value(it)
     }
 
-    List<NeuronConnection> inputs = []
+    List<NeuronLink> inputs = [new DummyConnection()]
     List<NeuronConnection> outputs = []
     NeuronFunction function = SIGMOID_FUNCTION
-    double weight0
     double input
     double output
     String name
@@ -40,7 +39,11 @@ class Neuron {
     }
 
     double calculateInput() {
-        weight0 + inputs.stream().mapToDouble({it.calculateInput()}).sum()
+        double sum = 0
+        for (NeuronLink link : inputs) {
+            sum += link.calculateInput()
+        }
+        return sum
     }
 
     double calculateOutput(double value) {
@@ -55,11 +58,11 @@ class Neuron {
 
     double gPrimInput() {
         // derivative of function at input. g'(input)
-        return sigmoid.derivative().value(input)
+        return derivative.applyAsDouble(input)
     }
 
     void printInfo() {
-        println "Node $this inputs $inputs outputs $outputs weight0 $weight0 input $input output $output"
+        println "Node $this inputs $inputs outputs $outputs input $input output $output"
     }
 
     @Override
