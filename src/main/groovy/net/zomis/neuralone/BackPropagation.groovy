@@ -86,7 +86,7 @@ class BackPropagation {
                     }
                 }
             }
-            if (iterations > 1000) {
+            if (iterations > 100000) {
                 break;
             }
         }
