@@ -69,4 +69,9 @@ class Neuron {
     String toString() {
         name
     }
+
+    void process() {
+        this.@input = this.calculateInput()
+        this.@output = this.calculateOutput(this.@input)
+    }
 }

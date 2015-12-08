@@ -56,8 +56,7 @@ class BackPropagation {
                 for (int layerIndex = 1; layerIndex < network.getLayerCount(); layerIndex++) {
                     NeuronLayer layer = network.getLayer(layerIndex)
                     for (Neuron node : layer) {
-                        node.input = node.calculateInput()
-                        node.output = node.calculateOutput(node.input)
+                        node.process()
                     }
                 }
 

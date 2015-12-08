@@ -55,8 +55,7 @@ class NeuralNetwork {
                 continue
             }
             for (Neuron node : layer) {
-                node.input = node.calculateInput()
-                node.output = node.calculateOutput(node.input)
+                node.process()
             }
         }
         for (int i = 0; i < outputLayer.size(); i++) {
