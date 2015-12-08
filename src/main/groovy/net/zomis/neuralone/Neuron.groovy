@@ -15,7 +15,7 @@ class Neuron {
     }
     public static final NeuronFunction SIGMOID_FUNCTION = {x ->
         double ePowerMinusX = Math.exp(-x)
-        return 1 / ePowerMinusX
+        return 1 / (1 + ePowerMinusX)
         // (double) sigmoid.value(it)
     }
 
