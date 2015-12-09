@@ -45,7 +45,6 @@ class BackPropagation {
 
         network.links().forEach({it.weight = random.nextDouble()})
         while (true) {
-            deltas.log()
             iterations++
             for (LearningData data : examples) {
                 /* Propagate the inputs forward to compute the outputs */
@@ -90,7 +89,6 @@ class BackPropagation {
                 break;
             }
         }
-        deltas.log()
         return network
     }
 
