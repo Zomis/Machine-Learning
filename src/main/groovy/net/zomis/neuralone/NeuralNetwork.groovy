@@ -29,7 +29,10 @@ class NeuralNetwork {
     }
 
     Stream<NeuronLink> links() {
-        this.layers.stream().flatMap({it.neurons.stream()}).flatMap({it.inputs.stream()})
+        this.layers.stream()
+            .skip(1)
+            .flatMap({it.neurons.stream()})
+            .flatMap({it.inputs.stream()})
     }
 
     void printAll() {

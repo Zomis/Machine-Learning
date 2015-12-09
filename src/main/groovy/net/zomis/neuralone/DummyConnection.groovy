@@ -2,7 +2,7 @@ package net.zomis.neuralone
 
 class DummyConnection implements NeuronLink {
 
-    private double weight
+    private double weight = 1
 
     @Override
     double calculateInput() {

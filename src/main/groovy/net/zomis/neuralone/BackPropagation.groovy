@@ -77,7 +77,8 @@ class BackPropagation {
                 /* Update every weight in network using deltas */
                 def learningRate = 0.2f
 
-                for (NeuronLayer layer : network.getLayers()) {
+                for (int layerIndex = 1; layerIndex < network.getLayerCount(); layerIndex++) {
+                    NeuronLayer layer = network.getLayer(layerIndex)
                     for (Neuron node : layer) {
                         for (NeuronLink link : node.getInputs()) {
                             link.weight = link.weight + learningRate * link.getInputValue() * deltas.get(node)
