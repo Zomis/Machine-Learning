@@ -62,7 +62,7 @@ class Neuron {
     }
 
     void printInfo() {
-        println "Node $this inputs $inputs outputs $outputs input $input output $output"
+        println "Node $this\n inputs $inputs\n outputs $outputs\n input $input output $output"
     }
 
     @Override

@@ -29,8 +29,9 @@ class NeuralMain {
         for (LearningData data : examples) {
             def output = network.run(data.inputs)
             println "$data.inputs --> $output"
+            network.printAll()
+            println "-----------------"
         }
-        network.printAll()
     }
 
 }
