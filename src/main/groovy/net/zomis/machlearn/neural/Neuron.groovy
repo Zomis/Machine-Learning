@@ -1,4 +1,4 @@
-package net.zomis.neuralone
+package net.zomis.machlearn.neural
 
 import org.apache.commons.math3.analysis.function.Sigmoid
 

@@ -1,4 +1,4 @@
-package net.zomis.neuralone
+package net.zomis.machlearn.neural
 
 interface NeuronLink {
 
