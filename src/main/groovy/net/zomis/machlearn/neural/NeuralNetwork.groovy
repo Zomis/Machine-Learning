@@ -70,4 +70,9 @@ class NeuralNetwork {
 
         output
     }
+
+    public NeuronLayer getLastLayer() {
+        getLayer(layers.size() - 1)
+    }
+
 }

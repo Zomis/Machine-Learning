@@ -22,7 +22,7 @@ class NeuralMain {
         examples << new LearningData([0, 1] as double[], [0, 1] as double[])
         examples << new LearningData([1, 0] as double[], [0, 1] as double[])
         examples << new LearningData([1, 1] as double[], [1, 1] as double[])
-        BackPropagation.backPropagationLearning(examples, network)
+        new BackPropagation(0.2, 100000).backPropagationLearning(examples, network)
 
         network.printAll()
 

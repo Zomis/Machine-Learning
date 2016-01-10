@@ -1,9 +1,18 @@
 package net.zomis.machlearn.neural
 
+import java.util.stream.DoubleStream
+
 class BackPropagation {
 
-    private BackPropagation() {
+    final double learningRate
+    final int iterations
+    int logRate
 
+    public BackPropagation(double learningRate, int iterations) {
+        assert 0 < learningRate
+        assert learningRate < 1
+        this.learningRate = learningRate
+        this.iterations = iterations
     }
 
     static class Deltas {
@@ -31,10 +40,15 @@ class BackPropagation {
         def log() {
             println "Deltas are $deltaValues"
         }
+
+        @Override
+        String toString() {
+            Arrays.toString(deltaValues)
+        }
     }
 
-
-    static NeuralNetwork backPropagationLearning(Iterable<LearningData> examples, NeuralNetwork network) {
+    NeuralNetwork backPropagationLearning(Iterable<LearningData> examples, NeuralNetwork network) {
+        int[] layerSizes = network.layers.stream().mapToInt({it.size()}).toArray()
 //        inputs: examples, a set of examples, each with input vector x and output vector y
 //        network , a multilayer network with L layers, weights wi,j , activation function g
 
@@ -75,8 +89,6 @@ class BackPropagation {
                 }
 
                 /* Update every weight in network using deltas */
-                def learningRate = 0.2f
-
                 for (int layerIndex = 1; layerIndex < network.getLayerCount(); layerIndex++) {
                     NeuronLayer layer = network.getLayer(layerIndex)
                     for (Neuron node : layer) {
@@ -86,7 +98,11 @@ class BackPropagation {
                     }
                 }
             }
-            if (iterations > 100000) {
+            if (iterations % logRate == 0) {
+                DoubleSummaryStatistics data = DoubleStream.of(deltas.deltaValues).summaryStatistics()
+                println "BackPropagation $layerSizes iteration $iterations : $data"
+            }
+            if (iterations > this.iterations) {
                 break;
             }
         }
