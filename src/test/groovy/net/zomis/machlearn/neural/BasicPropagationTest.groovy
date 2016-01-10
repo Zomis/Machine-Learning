@@ -1,8 +1,5 @@
-package net.zomis.neuralone
+package net.zomis.machlearn.neural
 
-import net.zomis.machlearn.neural.BackPropagation
-import net.zomis.machlearn.neural.LearningData
-import net.zomis.machlearn.neural.NeuralNetwork
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith

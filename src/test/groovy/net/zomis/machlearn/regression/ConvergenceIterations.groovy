@@ -1,4 +1,4 @@
-package net.zomis.regression
+package net.zomis.machlearn.regression
 
 import java.util.function.Predicate
 
