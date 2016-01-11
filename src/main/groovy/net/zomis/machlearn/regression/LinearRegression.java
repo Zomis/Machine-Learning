@@ -1,6 +1,8 @@
-package net.zomis.machlearn.regression
+package net.zomis.machlearn.regression;
 
-class LinearRegression {
+import java.util.Arrays;
+
+public class LinearRegression {
 
     public static double linearHypothesis(double[] theta, double[] x) {
         if (x.length != theta.length - 1) {
