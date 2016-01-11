@@ -1,0 +1,19 @@
+language: groovy
+jdk:
+- oraclejdk8
+sudo: false
+cache:
+    directories:
+    - $HOME/.gradle
+
+addons:
+    apt:
+        packages:
+            - oracle-java8-installer
+
+# Shell nop (install handled by gradle dependency management, no need to first assemble and then test)
+
+install: ":"
+before_script:
+- export GRADLE_OPTS='-Dorg.gradle.daemon=false'
+- chmod +x gradlew
