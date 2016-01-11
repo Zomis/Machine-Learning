@@ -1,5 +1,7 @@
 package net.zomis.machlearn.images;
 
+import net.zomis.machlearn.neural.BackPropagation;
+
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -27,7 +29,7 @@ public class Screenshoter {
             .classify("clicked", analyze.imagePart(image, 790, 241))
             .classify("flag", analyze.imagePart(image, 790, 197))
             .classifyNone(analyze.imagePart(image, 0, 0))
-            .learn();
+            .learn(new BackPropagation(0.42, 100));
 //        SlidingWindowResult points = analyze.slidingWindow(network, image).scaleX(25, 60).step(4).overlapping(false).run();
         network.getNetwork().printAll();
 
