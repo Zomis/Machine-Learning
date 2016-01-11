@@ -6,7 +6,7 @@ class BackPropagation {
 
     final double learningRate
     final int iterations
-    int logRate
+    int logRate = Integer.MAX_VALUE
 
     public BackPropagation(double learningRate, int iterations) {
         assert 0 < learningRate
