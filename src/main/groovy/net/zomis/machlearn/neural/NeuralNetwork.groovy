@@ -1,5 +1,6 @@
 package net.zomis.machlearn.neural
 
+import java.nio.file.Path
 import java.util.stream.Stream
 
 class NeuralNetwork {
@@ -42,6 +43,53 @@ class NeuralNetwork {
             println()
         })
         println()
+    }
+
+    void save(OutputStream output) {
+        new DataOutputStream(output).withCloseable {
+            it.writeInt(layerCount)
+            for (NeuronLayer layer : layers) {
+                it.writeInt(layer.size())
+                it.writeInt(layer.name.length())
+                it.writeBytes(layer.name)
+            }
+            for (NeuronLayer layer : layers) {
+                for (Neuron neuron : layer) {
+                    for (NeuronLink link : neuron.inputs) {
+                        it.writeDouble(link.weight)
+                    }
+                }
+            }
+        }
+    }
+
+    static NeuralNetwork load(InputStream input) {
+        def network = new NeuralNetwork()
+        new DataInputStream(input).withCloseable {
+            int layers = it.readInt()
+            for (int i = 0; i < layers; i++) {
+                int size = it.readInt()
+                int nameLength = it.readInt()
+                StringBuilder name = new StringBuilder()
+                for (int nameIndex = 0; nameIndex < nameLength; nameIndex++) {
+                    name.append((char) it.readByte())
+                }
+                NeuronLayer layer = network.createLayer(name.toString())
+                size.times { layer.createNeuron() }
+            }
+            for (int i = 0; i < layers; i++) {
+                NeuronLayer layer = network.getLayer(i)
+                if (i > 0) {
+                    layer.neurons.each {it.addInputs(network.getLayer(i - 1))}
+                }
+                for (Neuron neuron : layer) {
+                    for (NeuronLink link : neuron.inputs) {
+                        link.weight = it.readDouble()
+                    }
+                }
+            }
+        }
+        network
     }
 
     double[] run(double[] input) {
