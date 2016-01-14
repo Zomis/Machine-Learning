@@ -9,9 +9,11 @@ class Neuron {
     private static final Sigmoid sigmoid = new Sigmoid()
     private static final DoubleUnaryOperator derivative = {x ->
         // e^(-x)/(1+e^(-x))^2
-        double ePowerMinusX = Math.exp(-x)
-        double onePlusEPowerMinusX = 1 + ePowerMinusX
-        return ePowerMinusX / (onePlusEPowerMinusX * onePlusEPowerMinusX)
+//        double ePowerMinusX = Math.exp(-x)
+//        double onePlusEPowerMinusX = 1 + ePowerMinusX
+//        return ePowerMinusX / (onePlusEPowerMinusX * onePlusEPowerMinusX)
+        double sigmoid = SIGMOID_FUNCTION.calculate(x)
+        return sigmoid * (1 - sigmoid)
     }
     public static final NeuronFunction SIGMOID_FUNCTION = {x ->
         double ePowerMinusX = Math.exp(-x)
