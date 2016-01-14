@@ -25,7 +25,7 @@ public class Screenshoter {
         }
         BufferedImage image = ImageIO.read(url);
         ImageAnalysis analyze = new ImageAnalysis(39, 39, true);
-        ImageNetwork network = analyze.neuralNetwork(40, 20, 10)
+        ImageNetwork network = analyze.neuralNetwork(40)
             .classify("unclicked", analyze.imagePart(image, 619, 197))
             .classify("clicked", analyze.imagePart(image, 662, 197))
             .classify("clicked", analyze.imagePart(image, 790, 241))
