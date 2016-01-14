@@ -1,6 +1,7 @@
 package net.zomis.machlearn.images;
 
 import net.zomis.machlearn.neural.BackPropagation;
+import net.zomis.machlearn.neural.Neuron;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -8,6 +9,7 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Arrays;
+import java.util.Map;
 
 public class Screenshoter {
 
@@ -51,8 +53,19 @@ public class Screenshoter {
         test(network, text, values);
     }
 
-    private static void test(ImageNetwork network, String text, double[] values) {
-        System.out.printf("%10s: %s values %s", text, network.run(values), Arrays.toString(values));
+    private static void test(ImageNetwork network, String text, double[] inputs) {
+        double[] output = network.getNetwork().run(inputs);
+        Map<Object, Double> map = network.run(inputs);
+     /*   network.getNetwork().getLayers()
+            .forEach(layer -> {
+                double[] layerOutput = layer.getNeurons()
+                        .stream().mapToDouble(Neuron::getOutput).toArray();
+                System.out.println("Layer " + layer.getName() + ": " + Arrays.toString(layerOutput));
+            });*/
+        System.out.printf("%10s: %s (%s) inputs %s", text,
+                map,
+                Arrays.toString(output),
+                Arrays.toString(inputs));
     }
 
 }
