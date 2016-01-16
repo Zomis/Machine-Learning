@@ -63,6 +63,7 @@ class BackPropagation {
         network.links().forEach({it.weight = random.nextDouble()})
         while (true) {
             iterations++
+            double cost = 0
             for (LearningData data : examples) {
                 /* Propagate the inputs forward to compute the outputs */
                 int neuronIndexInLayer = 0
@@ -100,10 +101,15 @@ class BackPropagation {
                         }
                     }
                 }
+                cost += costFunction(network, data)
             }
+
+            double regularizationTerm = 0
+            cost = (-cost / examples.size()) + regularizationTerm
+
             if (iterations % logRate == 0) {
                 DoubleSummaryStatistics data = DoubleStream.of(deltas.deltaValues).summaryStatistics()
-                println "BackPropagation $layerSizes iteration $iterations : $data"
+                println "BackPropagation $layerSizes iteration $iterations : $data cost $cost"
             }
             if (iterations > this.iterations) {
                 break;
@@ -112,4 +118,20 @@ class BackPropagation {
         return network
     }
 
+    static double costFunction(NeuralNetwork network, LearningData learningData) {
+        double sum = 0
+        double[] out = learningData.outputs
+
+        NeuronLayer outputLayer = network.getOutputLayer()
+        for (int i = 0; i < out.length; i++) {
+            double expected = out[i]
+            double actual = outputLayer.neurons.get(i).output
+            sum += logisticCost(expected, actual)
+        }
+        sum
+    }
+
+    static double logisticCost(double expected, double actual) {
+        expected * Math.log(actual) + (1 - expected) * Math.log(1 - actual)
+    }
 }
