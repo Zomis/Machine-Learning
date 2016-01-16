@@ -47,11 +47,11 @@ class BackPropagation {
         }
     }
 
-    NeuralNetwork backPropagationLearning(Iterable<LearningData> examples, NeuralNetwork network) {
+    NeuralNetwork backPropagationLearning(Collection<LearningData> examples, NeuralNetwork network) {
         backPropagationLearning(examples, network, new Random())
     }
 
-    NeuralNetwork backPropagationLearning(Iterable<LearningData> examples, NeuralNetwork network, Random random) {
+    NeuralNetwork backPropagationLearning(Collection<LearningData> examples, NeuralNetwork network, Random random) {
         int[] layerSizes = network.layers.stream().mapToInt({it.size()}).toArray()
 //        inputs: examples, a set of examples, each with input vector x and output vector y
 //        network , a multilayer network with L layers, weights wi,j , activation function g
