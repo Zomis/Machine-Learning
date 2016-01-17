@@ -118,6 +118,32 @@ class BackPropagation {
         return network
     }
 
+    static double gradientCheck(NeuronLink link, NeuralNetwork network, Collection<LearningData> datas) {
+        double originalWeight = link.weight
+        final double EPSILON = 0.0001
+
+        link.weight = originalWeight + EPSILON
+        double costPlus = costFunction(network, datas)
+
+        link.weight = originalWeight - EPSILON
+        double costMinus = costFunction(network, datas)
+
+        // println "Cost plus $costPlus cost minus $costMinus"
+        link.weight = originalWeight
+
+        return (costPlus - costMinus) / (2 * EPSILON)
+    }
+
+    static double costFunction(NeuralNetwork network, Collection<LearningData> datas) {
+        double sum = 0
+        for (LearningData data : datas) {
+            network.run(data.inputs)
+            sum += costFunction(network, data)
+        }
+        // println "costFunction sum $sum training set ${datas.size()}"
+        return (-1d / datas.size()) * sum
+    }
+
     static double costFunction(NeuralNetwork network, LearningData learningData) {
         double sum = 0
         double[] out = learningData.outputs
