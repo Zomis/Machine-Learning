@@ -32,7 +32,7 @@ public class Screenshoter {
             .classify("clicked", analyze.imagePart(image, 790, 241))
             .classify("flag", analyze.imagePart(image, 790, 197))
             .classifyNone(analyze.imagePart(image, 0, 0))
-            .learn(new BackPropagation(0.42, 100), new Random(42));
+            .learn(new BackPropagation(0.1, 100), new Random(42));
 //        SlidingWindowResult points = analyze.slidingWindow(network, image).scaleX(25, 60).step(4).overlapping(false).run();
         // network.getNetwork().printAll();
 
