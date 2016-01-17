@@ -36,7 +36,7 @@ public class ImageNetworkBuilder {
         return this;
     }
 
-    public ImageNetwork learn(BackPropagation backprop) {
+    public ImageNetwork learn(BackPropagation backprop, Random random) {
         int outputNodes = classifications.size() - 1;
 
         NeuronLayer parentLayer = this.network.getLastLayer();
@@ -60,7 +60,7 @@ public class ImageNetworkBuilder {
                 .collect(Collectors.toList()));
         }
         backprop.setLogRate(10);
-        backprop.backPropagationLearning(learningData, network);
+        backprop.backPropagationLearning(learningData, network, random != null ? random : new Random());
 
         return new ImageNetwork(network, objects);
     }
