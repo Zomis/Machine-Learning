@@ -10,7 +10,7 @@ class NeuronLayer implements Iterable<Neuron> {
     }
 
     Neuron createNeuron() {
-        def neuron = new Neuron(name + '-' + neurons.size())
+        def neuron = new Neuron(neurons.size(), name + '-' + neurons.size())
         this.neurons << neuron
         neuron
     }

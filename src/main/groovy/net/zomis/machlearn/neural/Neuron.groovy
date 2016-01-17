@@ -27,8 +27,10 @@ class Neuron {
     double input
     double output
     String name
+    final int indexInLayer
 
-    Neuron(String name) {
+    Neuron(int index, String name) {
+        this.indexInLayer = index
         this.name = name
     }
 
