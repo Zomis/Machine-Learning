@@ -1,5 +1,8 @@
 package net.zomis.machlearn.neural
 
+import groovy.transform.ToString
+
+@ToString
 class LearningData {
 
     double[] inputs
