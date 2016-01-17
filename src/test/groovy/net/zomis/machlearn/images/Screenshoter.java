@@ -34,7 +34,7 @@ public class Screenshoter {
             .classifyNone(analyze.imagePart(image, 0, 0))
             .learn(new BackPropagation(0.42, 100), new Random(42));
 //        SlidingWindowResult points = analyze.slidingWindow(network, image).scaleX(25, 60).step(4).overlapping(false).run();
-        network.getNetwork().printAll();
+        // network.getNetwork().printAll();
 
         test(network, analyze, image, "clicked 2", 834, 284);
         test(network, analyze, image, "clicked 2", 1178, 370);
@@ -63,10 +63,9 @@ public class Screenshoter {
                         .stream().mapToDouble(Neuron::getOutput).toArray();
                 System.out.println("Layer " + layer.getName() + ": " + Arrays.toString(layerOutput));
             });*/
-        System.out.printf("%10s: %s (%s) inputs %s", text,
+        System.out.printf("%10s: %s (%s)%n", text,
                 map,
-                Arrays.toString(output),
-                Arrays.toString(inputs));
+                Arrays.toString(output));
     }
 
 }

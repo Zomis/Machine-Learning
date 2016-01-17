@@ -27,7 +27,6 @@ public class ImageNetwork {
 
     public Map<Object, Double> run(double[] imageData) {
         double[] outputs = network.run(imageData);
-        System.out.println(Arrays.toString(outputs));
         Map<Object, Double> result = new HashMap<>();
         for (int i = 0; i < outputs.length; i++) {
             result.put(this.outputs[i], outputs[i]);
