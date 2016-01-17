@@ -60,17 +60,8 @@ public class Screenshoter {
     }
 
     private static void test(ImageNetwork network, String text, double[] inputs) {
-        double[] output = network.getNetwork().run(inputs);
         Map<Object, Double> map = network.run(inputs);
-     /*   network.getNetwork().getLayers()
-            .forEach(layer -> {
-                double[] layerOutput = layer.getNeurons()
-                        .stream().mapToDouble(Neuron::getOutput).toArray();
-                System.out.println("Layer " + layer.getName() + ": " + Arrays.toString(layerOutput));
-            });*/
-        System.out.printf("%10s: %s (%s)%n", text,
-                map,
-                Arrays.toString(output));
+        System.out.printf("%10s: %s%n", text, map);
     }
 
 }
