@@ -36,6 +36,11 @@ public class Screenshoter {
 //        SlidingWindowResult points = analyze.slidingWindow(network, image).scaleX(25, 60).step(4).overlapping(false).run();
         // network.getNetwork().printAll();
 
+        test(network, analyze, image, "t unclicked", 619, 197);
+        test(network, analyze, image, "t clicked", 662, 197);
+        test(network, analyze, image, "t clicked", 790, 241);
+        test(network, analyze, image, "t flag", 790, 197);
+
         test(network, analyze, image, "clicked 2", 834, 284);
         test(network, analyze, image, "clicked 2", 1178, 370);
         test(network, analyze, image, "clicked 4", 1092, 327);
