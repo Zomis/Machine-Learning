@@ -30,11 +30,11 @@ public class ImageAnalysis {
             for (int xx = x; xx < x + width; xx++) {
                 double[] rgbGray = getRGB(image, xx, yy);
                 if (useGrayscale) {
-                    result[i++] = rgbGray[3];
+                    result[i++] = rgbGray[4];
                 } else {
-                    result[i++] = rgbGray[0];
                     result[i++] = rgbGray[1];
                     result[i++] = rgbGray[2];
+                    result[i++] = rgbGray[3];
                 }
             }
         }
