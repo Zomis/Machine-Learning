@@ -38,4 +38,8 @@ public class ImageNetwork {
         return this.network;
     }
 
+    public Object getObject(int index) {
+        return outputs[index];
+    }
+
 }

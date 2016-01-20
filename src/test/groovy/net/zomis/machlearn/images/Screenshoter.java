@@ -33,7 +33,9 @@ public class Screenshoter {
             .classify("flag", analyze.imagePart(image, 790, 197))
             .classifyNone(analyze.imagePart(image, 0, 0))
             .learn(new Backpropagation(0.1, 100), new Random(42));
-//        SlidingWindowResult points = analyze.slidingWindow(network, image).scaleX(25, 60).step(4).overlapping(false).run();
+        SlidingWindowResult points = analyze.slidingWindow(network, image)
+            .scaleX(25, 59).step(4).overlapping(false).run();
+        System.out.println(points.getPoints());
         // network.getNetwork().printAll();
 
         test(network, analyze, image, "t unclicked", 619, 197);

@@ -9,6 +9,9 @@ public class ImageAnalysis {
     private final boolean useGrayscale;
 
     public ImageAnalysis(int width, int height, boolean useGrayscale) {
+        if (width != height) {
+            throw new IllegalArgumentException("Different width and height is not yet supported");
+        }
         this.width = width;
         this.height = height;
         this.useGrayscale = useGrayscale;
@@ -46,7 +49,7 @@ public class ImageAnalysis {
     }
 
     public SlidingWindow slidingWindow(ImageNetwork network, BufferedImage image) {
-        return new SlidingWindow(network, image);
+        return new SlidingWindow(this, network, image);
     }
 
     /**
@@ -73,7 +76,12 @@ public class ImageAnalysis {
         return new double[] { a / 255d, r / 255d, g / 255d, b / 255d, gray / 255d };
     }
 
-    public void image(BufferedImage image) {
-
+    public int getWidth() {
+        return width;
     }
+
+    public int getHeight() {
+        return height;
+    }
+
 }
