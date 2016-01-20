@@ -13,4 +13,8 @@ class LearningData {
         this.outputs = outputs
     }
 
+    double getInput(int i) {
+        return inputs[i];
+    }
+
 }

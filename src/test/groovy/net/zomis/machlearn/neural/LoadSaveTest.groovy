@@ -25,7 +25,7 @@ class LoadSaveTest {
 
         def outputLayer = network.createLayer('OUT')
         outputLayer.createNeuron().addInputs(middleLayer)
-        new BackPropagation(0.2, 100000).backPropagationLearning(examples, network, new Random(42))
+        new Backpropagation(0.2, 100000).backPropagationLearning(examples, network, new Random(42))
 
         def savedNetwork = new ByteArrayOutputStream()
         network.save(savedNetwork)

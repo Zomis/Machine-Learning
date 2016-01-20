@@ -1,6 +1,6 @@
 package net.zomis.machlearn.images;
 
-import net.zomis.machlearn.neural.BackPropagation;
+import net.zomis.machlearn.neural.Backpropagation;
 import net.zomis.machlearn.neural.LearningData;
 import net.zomis.machlearn.neural.NeuralNetwork;
 import net.zomis.machlearn.neural.NeuronLayer;
@@ -36,7 +36,7 @@ public class ImageNetworkBuilder {
         return this;
     }
 
-    public ImageNetwork learn(BackPropagation backprop, Random random) {
+    public ImageNetwork learn(Backpropagation backprop, Random random) {
         int outputNodes = classifications.size() - 1;
 
         NeuronLayer parentLayer = this.network.getLastLayer();
