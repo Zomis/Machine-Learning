@@ -89,7 +89,7 @@ public class Backpropagation {
                     for (int nodei = 0; nodei < layer.size(); nodei++) {
                         Neuron neuron = layer.getNeurons().get(nodei);
                         double sum = neuron.getOutputs().stream().mapToDouble(link ->
-                            link.getWeight() * deltas[layerIdx][link.getTo().getIndexInLayer()]
+                            link.getWeight() * deltas[layerIdx][link.getTo().indexInLayer]
                         ).sum();
                         double gPrim = neuron.getOutput() * (1 - neuron.getOutput());
                         double delta = sum * gPrim;
