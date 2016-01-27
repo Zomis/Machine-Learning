@@ -16,6 +16,9 @@ public class SlidingWindow {
     private boolean overlapping;
 
     public SlidingWindow(ImageAnalysis analysis, ImageNetwork network, BufferedImage image) {
+        if (analysis.getWidth() != analysis.getHeight()) {
+            throw new IllegalArgumentException("Different width and height is not yet supported");
+        }
         this.analysis = analysis;
         this.network = network;
         this.image = image;

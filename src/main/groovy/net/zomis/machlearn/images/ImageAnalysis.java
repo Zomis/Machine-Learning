@@ -9,9 +9,6 @@ public class ImageAnalysis {
     private final boolean useGrayscale;
 
     public ImageAnalysis(int width, int height, boolean useGrayscale) {
-        if (width != height) {
-            throw new IllegalArgumentException("Different width and height is not yet supported");
-        }
         this.width = width;
         this.height = height;
         this.useGrayscale = useGrayscale;
