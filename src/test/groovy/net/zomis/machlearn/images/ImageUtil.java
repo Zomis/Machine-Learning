@@ -32,7 +32,7 @@ public class ImageUtil {
 
     public static void save(BufferedImage img, File out) {
         try {
-            ImageIO.write(img, "PNG", );
+            ImageIO.write(img, "PNG", out);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
