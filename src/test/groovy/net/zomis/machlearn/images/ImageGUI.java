@@ -58,8 +58,10 @@ public class ImageGUI extends Application {
         **/
         BorderPane root = new BorderPane();
         Scene scene = new Scene(root);
+        String file = "challenge-flags-16x16.png";
+//        String file = "challenge-press-24x14.png";
         bigImage = new Image(getClass().getClassLoader()
-            .getResourceAsStream("challenge-flags-16x16.png"));
+            .getResourceAsStream(file));
         imageView = new ImageView(bigImage);
         FlowPane flowPane = new FlowPane();
         Button button = new Button("Test");
