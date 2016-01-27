@@ -13,8 +13,10 @@ import javafx.scene.layout.FlowPane;
 import javafx.stage.Stage;
 import org.imgscalr.Scalr;
 
+import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
-import java.util.stream.DoubleStream;
+import java.io.File;
+import java.io.IOException;
 import java.util.stream.Stream;
 
 public class ImageGUI extends Application {
@@ -46,13 +48,23 @@ public class ImageGUI extends Application {
 
     @Override
     public void start(Stage primaryStage) {
+        /*
+        * Select image
+        * x Select size
+        * Choose training set or create a new one
+        * Choose file to run on, or to use a screenshot
+        * Groovy script? to specify how to run the network
+        * Highlight areas in image depending on Neural Network result
+        **/
         BorderPane root = new BorderPane();
         Scene scene = new Scene(root);
         bigImage = new Image(getClass().getClassLoader()
             .getResourceAsStream("challenge-flags-16x16.png"));
         imageView = new ImageView(bigImage);
         FlowPane flowPane = new FlowPane();
-        flowPane.getChildren().add(new Button("Test"));
+        Button button = new Button("Test");
+        button.setOnAction(ev -> MinesweeperScan.scan());
+        flowPane.getChildren().add(button);
         initSpinners(bigImage);
         flowPane.getChildren().add(spinX);
         flowPane.getChildren().add(spinY);
