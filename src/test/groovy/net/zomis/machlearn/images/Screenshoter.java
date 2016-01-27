@@ -15,16 +15,10 @@ import java.util.Random;
 public class Screenshoter {
 
     public static void main(String[] args) throws AWTException, IOException {
-        Rectangle screenRect = new Rectangle(Toolkit.getDefaultToolkit().getScreenSize());
-        // BufferedImage capture = new Robot().createScreenCapture(screenRect);
 
         String fileName = "challenge-flags-16x16.png";
 //        String fileName = "different-colors.png";
-        URL url = Screenshoter.class.getClassLoader().getResource(fileName);
-        if (url == null) {
-            throw new NullPointerException(fileName + " not found");
-        }
-        BufferedImage image = ImageIO.read(url);
+        BufferedImage image = ImageUtil.resource(fileName);
         ImageAnalysis analyze = new ImageAnalysis(39, 39, true);
         ImageNetwork network = analyze.neuralNetwork(40)
             .classify("unclicked", analyze.imagePart(image, 619, 197))
