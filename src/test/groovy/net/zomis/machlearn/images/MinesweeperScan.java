@@ -62,11 +62,13 @@ public class MinesweeperScan {
         for (Map.Entry<Character, ZPoint> ee : trainingSet.entrySet()) {
             int yy = ee.getValue().getY();
             int xx = ee.getValue().getX();
-            for (int y = 4; y <= 4; y += 2) {
-                for (int x = 4; x <= 4; x += 2) {
-                    networkBuilder = networkBuilder.classify(ee.getKey(), analyze.imagePart(image, xx + x, yy + y));
-                }
-            }
+            networkBuilder = networkBuilder.classify(ee.getKey(), analyze.imagePart(image, xx + 0, yy + 0));
+//            for (int y = 4; y <= 4; y += 2) {
+//                for (int x = 4; x <= 4; x += 2) {
+//                    networkBuilder = networkBuilder.classify(ee.getKey(), analyze.imagePart(image, xx + x, yy + y));
+//                }
+//            }
+
         }
         ImageNetwork network = networkBuilder.classifyNone(analyze.imagePart(image, 0, 0))
                 .classifyNone(analyze.imagePart(image, 878, 456))
