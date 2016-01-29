@@ -48,16 +48,27 @@ public class MinesweeperScan {
         String fileName = "challenge-flags-16x16.png";
         BufferedImage image = MyImageUtil.resource(fileName);
         ImageAnalysis analyze = new ImageAnalysis(36, 36, true);
-        ImageNetwork network = analyze.neuralNetwork(40)
-                .classify('_', analyze.imagePart(image, 622, 200))
-                .classify('1', analyze.imagePart(image, 793, 287))
-                .classify('2', analyze.imagePart(image, 665, 200))
-                .classify('3', analyze.imagePart(image, 793, 244))
-                .classify('4', analyze.imagePart(image, 750, 416))
-                .classify('5', analyze.imagePart(image, 664, 502))
-                .classify('6', analyze.imagePart(image, 707, 502))
-                .classify('a', analyze.imagePart(image, 793, 200))
-                .classifyNone(analyze.imagePart(image, 0, 0))
+        Map<Character, ZPoint> trainingSet = new HashMap<>();
+        trainingSet.put('_', new ZPoint(622, 200));
+        trainingSet.put('1', new ZPoint(793, 287));
+        trainingSet.put('2', new ZPoint(665, 200));
+        trainingSet.put('3', new ZPoint(793, 244));
+        trainingSet.put('4', new ZPoint(750, 416));
+        trainingSet.put('5', new ZPoint(664, 502));
+        trainingSet.put('6', new ZPoint(707, 502));
+        trainingSet.put('a', new ZPoint(793, 200));
+
+        ImageNetworkBuilder networkBuilder = analyze.neuralNetwork(40);
+        for (Map.Entry<Character, ZPoint> ee : trainingSet.entrySet()) {
+            int yy = ee.getValue().getY();
+            int xx = ee.getValue().getX();
+            for (int y = 4; y <= 4; y += 2) {
+                for (int x = 4; x <= 4; x += 2) {
+                    networkBuilder = networkBuilder.classify(ee.getKey(), analyze.imagePart(image, xx + x, yy + y));
+                }
+            }
+        }
+        ImageNetwork network = networkBuilder.classifyNone(analyze.imagePart(image, 0, 0))
                 .classifyNone(analyze.imagePart(image, 878, 456))
                 .classifyNone(analyze.imagePart(image, 903, 456))
                 .classifyNone(analyze.imagePart(image, 948, 456))
