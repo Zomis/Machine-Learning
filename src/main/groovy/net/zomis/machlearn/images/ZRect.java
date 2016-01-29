@@ -16,4 +16,12 @@ public class ZRect {
                 ", bottom=" + bottom +
                 '}';
     }
+
+    public int width() {
+        return this.right - this.left;
+    }
+
+    public int height() {
+        return this.bottom - this.top;
+    }
 }
