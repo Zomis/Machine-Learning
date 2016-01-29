@@ -7,7 +7,6 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.*;
 import java.util.List;
-import java.util.function.ToDoubleFunction;
 
 public class MinesweeperScan {
 
@@ -72,6 +71,9 @@ public class MinesweeperScan {
         ImagePainter painter = new ImagePainter(runImage.getWidth(), runImage.getHeight());
 
         // MinesweeperScan.runOnImage(analyze, network, runImage, m -> m.values().stream().mapToDouble(d -> d).max().getAsDouble());
+        ImagePainter.visualizeNetwork(network, gridLocations[0][0].width(), gridLocations[0][0].height(), runImage,
+            scaledInput(gridLocations[0][0].width(), gridLocations[0][0].height()),
+            out -> Arrays.stream(out).max().getAsDouble()).save(new File("certainty-detailed.png"));
 
         for (int y = 0; y < gridLocations.length; y++) {
             for (int x = 0; x < gridLocations[y].length; x++) {
@@ -88,6 +90,21 @@ public class MinesweeperScan {
         }
         painter.save(new File("certainty.png"));
         return result;
+    }
+
+    private static XYToDoubleArray scaledInput(int width, int height) {
+        return new XYToDoubleArray() {
+            @Override
+            public double[] toInput(ImageNetwork network, BufferedImage image, int x, int y) {
+                int min = Math.min(network.getWidth(), network.getHeight());
+                int minRect = Math.min(width, height);
+//                System.out.printf("x %d, y %d, width %d, height %d, MIN %d, MIN_RECT %d%n",
+//                    x, y, width, height, min, minRect);
+                BufferedImage cropped = Scalr.crop(image, x, y, minRect, minRect);
+                BufferedImage run = Scalr.resize(cropped, min, min);
+                return network.imagePart(run, 0, 0);
+            }
+        };
     }
 
     private static char charForOutput(Map<Object, Double> output) {
