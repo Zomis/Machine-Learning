@@ -3,16 +3,16 @@ package net.zomis.machlearn.images;
 import net.zomis.machlearn.neural.Backpropagation;
 import org.imgscalr.Scalr;
 
-import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.*;
 import java.util.List;
+import java.util.function.ToDoubleFunction;
 
 public class MinesweeperScan {
 
     private static String LEARN_IMAGE = "challenge-flags-16x16.png";
-    private static BufferedImage img = ImageUtil.resource(LEARN_IMAGE);
+    private static BufferedImage img = MyImageUtil.resource(LEARN_IMAGE);
 
     public static void scan() {
         ImageAnalysis analysis = new ImageAnalysis(1, 100, true);
@@ -30,7 +30,7 @@ public class MinesweeperScan {
                 .classify(true, analysis.imagePart(img, 670, 540))
                 .learn(new Backpropagation(0.1, 10000), new Random(42));
 
-        BufferedImage runImage = ImageUtil.resource("challenge-press-26x14.png");
+        BufferedImage runImage = MyImageUtil.resource("challenge-press-26x14.png");
         ZRect rect = findEdges(network, analysis, runImage);
         System.out.println("Edges: " + rect);
         // also try find separations by scanning lines and finding the line with the lowest delta diff
@@ -48,7 +48,7 @@ public class MinesweeperScan {
     private static char[][] scanGrid(BufferedImage runImage, ZRect[][] gridLocations) {
         String fileName = "challenge-flags-16x16.png";
 //        String fileName = "different-colors.png";
-        BufferedImage image = ImageUtil.resource(fileName);
+        BufferedImage image = MyImageUtil.resource(fileName);
         ImageAnalysis analyze = new ImageAnalysis(36, 36, true);
         ImageNetwork network = analyze.neuralNetwork(40)
                 .classify('_', analyze.imagePart(image, 622, 200))
@@ -70,14 +70,24 @@ public class MinesweeperScan {
                 .learn(new Backpropagation(0.1, 4000), new Random(42));
 
         char[][] result = new char[gridLocations.length][gridLocations[0].length];
+        ImagePainter painter = new ImagePainter(runImage.getWidth(), runImage.getHeight());
+
+        // MinesweeperScan.runOnImage(analyze, network, runImage, m -> m.values().stream().mapToDouble(d -> d).max().getAsDouble());
+
         for (int y = 0; y < gridLocations.length; y++) {
             for (int x = 0; x < gridLocations[y].length; x++) {
                 ZRect rect = gridLocations[y][x];
                 Map<Object, Double> output = scanSquare(analyze, network, runImage, rect);
+                if (output != null) {
+                    double value = output.values().stream().mapToDouble(d -> d).max().getAsDouble();
+                    if (value >= 0.5) painter.drawRGB(rect, 0, value, 0);
+                    else painter.drawRGB(rect, 1 - value, 0, 0);
+                }
                 char ch = charForOutput(output);
                 result[y][x] = ch;
             }
         }
+        painter.save(new File("certainty.png"));
         return result;
     }
 
@@ -239,21 +249,18 @@ public class MinesweeperScan {
     }
 
     private static void runAndSave(ImageAnalysis analysis, ImageNetwork network, BufferedImage image) {
-        BufferedImage[] networkResult = runOnImage(analysis, network, image);
+        ImagePainter[] networkResult = runOnImage(analysis, network, image);
         for (int i = 0; i < networkResult.length; i++) {
-            ImageUtil.save(networkResult[i], new File("network-result-" + i + ".png"));
+            MyImageUtil.save(networkResult[i].getImage(), new File("network-result-" + i + ".png"));
         }
     }
 
-    private static BufferedImage[] runOnImage(ImageAnalysis analysis, ImageNetwork network, BufferedImage runImage) {
+    private static ImagePainter[] runOnImage(ImageAnalysis analysis, ImageNetwork network, BufferedImage runImage) {
         int maxY = runImage.getHeight() - analysis.getHeight();
         int maxX = runImage.getWidth() - analysis.getWidth();
-        BufferedImage[] images = new BufferedImage[network.getNetwork().getOutputLayer().size()];
+        ImagePainter[] images = new ImagePainter[network.getNetwork().getOutputLayer().size()];
         for (int i = 0; i < images.length; i++) {
-            images[i] = new BufferedImage(runImage.getWidth(), runImage.getHeight(), BufferedImage.TYPE_INT_ARGB);
-            Graphics2D graphics = images[i].createGraphics();
-            graphics.setColor(Color.MAGENTA);
-            graphics.fillRect(0, 0, runImage.getWidth(), runImage.getHeight());
+            images[i] = new ImagePainter(runImage.getWidth(), runImage.getHeight());
         }
 
         for (int y = 0; y < maxY; y++) {
@@ -265,10 +272,8 @@ public class MinesweeperScan {
                 double[] output = network.getNetwork().run(input);
                 for (int i = 0; i < output.length; i++) {
                     double value = output[i];
-                    int grayscaleValue = (int) (value * 255);
 //                    System.out.println(x + ", " + y + ": " + grayscaleValue + " -- " + value);
-                    int rgb = 0xff << 24 | grayscaleValue << 16 | grayscaleValue << 8 | grayscaleValue;
-                    images[i].setRGB(x, y, rgb);
+                    images[i].drawGrayscale(x, y, value);
                 }
             }
         }

@@ -7,7 +7,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 
-public class ImageUtil {
+public class MyImageUtil {
 
     public static BufferedImage screenshot() {
         Rectangle screenRect = new Rectangle(Toolkit.getDefaultToolkit().getScreenSize());

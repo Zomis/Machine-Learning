@@ -1,13 +1,10 @@
 package net.zomis.machlearn.images;
 
 import net.zomis.machlearn.neural.Backpropagation;
-import net.zomis.machlearn.neural.Neuron;
 
-import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
-import java.net.URL;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Random;
@@ -18,7 +15,7 @@ public class Screenshoter {
 
         String fileName = "challenge-flags-16x16.png";
 //        String fileName = "different-colors.png";
-        BufferedImage image = ImageUtil.resource(fileName);
+        BufferedImage image = MyImageUtil.resource(fileName);
         ImageAnalysis analyze = new ImageAnalysis(39, 39, true);
         ImageNetwork network = analyze.neuralNetwork(40)
             .classify("unclicked", analyze.imagePart(image, 619, 197))
