@@ -12,8 +12,10 @@ public class ImageNetworkBuilder {
 
     private final NeuralNetwork network;
     private final Map<Object, List<double[]>> classifications = new HashMap<>();
+    private final ImageAnalysis analysis;
 
-    public ImageNetworkBuilder(int inputSize, int... hiddenLayerSizes) {
+    public ImageNetworkBuilder(ImageAnalysis analysis, int inputSize, int... hiddenLayerSizes) {
+        this.analysis = analysis;
         this.network = new NeuralNetwork();
         NeuronLayer layer = this.network.createLayer("INPUT");
         for (int i = 0; i < inputSize; i++) {
@@ -62,7 +64,7 @@ public class ImageNetworkBuilder {
         backprop.setLogRate(200);
         backprop.backPropagationLearning(learningData, network, random != null ? random : new Random());
 
-        return new ImageNetwork(network, objects);
+        return new ImageNetwork(analysis, network, objects);
     }
 
     public ImageNetworkBuilder classifyNone(double[] input) {

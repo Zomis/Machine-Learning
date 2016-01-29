@@ -15,7 +15,7 @@ public class ImageAnalysis {
     }
 
     public ImageNetworkBuilder neuralNetwork(int... hiddenLayerSizes) {
-        return new ImageNetworkBuilder(width * height * partsPerPixel(), hiddenLayerSizes);
+        return new ImageNetworkBuilder(this, width * height * partsPerPixel(), hiddenLayerSizes);
     }
 
     public double[] imagePart(BufferedImage image, int x, int y) {

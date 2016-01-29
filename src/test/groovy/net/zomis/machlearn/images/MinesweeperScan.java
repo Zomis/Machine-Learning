@@ -31,7 +31,7 @@ public class MinesweeperScan {
                 .learn(new Backpropagation(0.1, 10000), new Random(42));
 
         BufferedImage runImage = MyImageUtil.resource("challenge-press-26x14.png");
-        ZRect rect = findEdges(network, analysis, runImage);
+        ZRect rect = findEdges(network, runImage);
         System.out.println("Edges: " + rect);
         // also try find separations by scanning lines and finding the line with the lowest delta diff
 
@@ -47,7 +47,6 @@ public class MinesweeperScan {
 
     private static char[][] scanGrid(BufferedImage runImage, ZRect[][] gridLocations) {
         String fileName = "challenge-flags-16x16.png";
-//        String fileName = "different-colors.png";
         BufferedImage image = MyImageUtil.resource(fileName);
         ImageAnalysis analyze = new ImageAnalysis(36, 36, true);
         ImageNetwork network = analyze.neuralNetwork(40)
@@ -77,7 +76,7 @@ public class MinesweeperScan {
         for (int y = 0; y < gridLocations.length; y++) {
             for (int x = 0; x < gridLocations[y].length; x++) {
                 ZRect rect = gridLocations[y][x];
-                Map<Object, Double> output = scanSquare(analyze, network, runImage, rect);
+                Map<Object, Double> output = scanSquare(network, runImage, rect);
                 if (output != null) {
                     double value = output.values().stream().mapToDouble(d -> d).max().getAsDouble();
                     if (value >= 0.5) painter.drawRGB(rect, 0, value, 0);
@@ -103,17 +102,17 @@ public class MinesweeperScan {
         return (Character) max.getKey();
     }
 
-    private static Map<Object, Double> scanSquare(ImageAnalysis analyze, ImageNetwork network, BufferedImage runImage, ZRect rect) {
+    private static Map<Object, Double> scanSquare(ImageNetwork network, BufferedImage runImage, ZRect rect) {
         if (rect == null) {
             return null;
         }
-        int min = Math.min(analyze.getWidth(), analyze.getHeight());
+        int min = Math.min(network.getWidth(), network.getHeight());
         int minRect = Math.min(rect.width(), rect.height());
         BufferedImage image = Scalr.crop(runImage, rect.left, rect.top, minRect, minRect);
         BufferedImage run = Scalr.resize(image, min, min);
         System.out.printf("Running on %s with target size %d, %d run image is %d, %d%n", rect,
-                analyze.getWidth(), analyze.getHeight(), run.getWidth(), run.getHeight());
-        return network.run(analyze.imagePart(run, 0, 0));
+                network.getWidth(), network.getHeight(), run.getWidth(), run.getHeight());
+        return network.run(network.imagePart(run, 0, 0));
     }
 
     private static ZRect[][] findGrid(BufferedImage runImage, ZRect rect) {
@@ -248,16 +247,16 @@ public class MinesweeperScan {
         return result;
     }
 
-    private static void runAndSave(ImageAnalysis analysis, ImageNetwork network, BufferedImage image) {
-        ImagePainter[] networkResult = runOnImage(analysis, network, image);
+    private static void runAndSave(ImageNetwork network, BufferedImage image) {
+        ImagePainter[] networkResult = runOnImage(network, image);
         for (int i = 0; i < networkResult.length; i++) {
             MyImageUtil.save(networkResult[i].getImage(), new File("network-result-" + i + ".png"));
         }
     }
 
-    private static ImagePainter[] runOnImage(ImageAnalysis analysis, ImageNetwork network, BufferedImage runImage) {
-        int maxY = runImage.getHeight() - analysis.getHeight();
-        int maxX = runImage.getWidth() - analysis.getWidth();
+    private static ImagePainter[] runOnImage(ImageNetwork network, BufferedImage runImage) {
+        int maxY = runImage.getHeight() - network.getHeight();
+        int maxX = runImage.getWidth() - network.getWidth();
         ImagePainter[] images = new ImagePainter[network.getNetwork().getOutputLayer().size()];
         for (int i = 0; i < images.length; i++) {
             images[i] = new ImagePainter(runImage.getWidth(), runImage.getHeight());
@@ -268,7 +267,7 @@ public class MinesweeperScan {
                 System.out.println("process y " + y);
             }
             for (int x = 0; x < maxX; x++) {
-                double[] input = analysis.imagePart(runImage, x, y);
+                double[] input = network.imagePart(runImage, x, y);
                 double[] output = network.getNetwork().run(input);
                 for (int i = 0; i < output.length; i++) {
                     double value = output[i];
@@ -280,27 +279,27 @@ public class MinesweeperScan {
         return images;
     }
 
-    private static ZRect findEdges(ImageNetwork network, ImageAnalysis analysis, BufferedImage runImage) {
+    private static ZRect findEdges(ImageNetwork network, BufferedImage runImage) {
         ZRect rect = new ZRect();
         int x = runImage.getWidth() - 1;
         int y = runImage.getHeight() / 2;
 
-        rect.left  = findEdge(network, analysis, runImage, 0, y, 3, 0).getX();
-        rect.right = findEdge(network, analysis, runImage, x, y, -3, 0).getX();
+        rect.left  = findEdge(network, runImage, 0, y, 3, 0).getX();
+        rect.right = findEdge(network, runImage, x, y, -3, 0).getX();
 
-        int imgBottom = runImage.getHeight() - analysis.getHeight();
-        rect.top    = findEdge(network, analysis, runImage, rect.left, 0, 0, 3).getY();
-        rect.bottom = findEdge(network, analysis, runImage, rect.left, imgBottom, 0, -3).getY()
-            + analysis.getHeight();
+        int imgBottom = runImage.getHeight() - network.getHeight();
+        rect.top    = findEdge(network, runImage, rect.left, 0, 0, 3).getY();
+        rect.bottom = findEdge(network, runImage, rect.left, imgBottom, 0, -3).getY()
+            + network.getHeight();
 
         return rect;
     }
 
     private static ZPoint findEdge(ImageNetwork network,
-           ImageAnalysis analysis, BufferedImage runImage,
+           BufferedImage runImage,
            int x, int y, int deltaX, int deltaY) {
         while (true) {
-            double[] input = analysis.imagePart(runImage, x, y);
+            double[] input = network.imagePart(runImage, x, y);
             double[] output = network.getNetwork().run(input);
             for (double v : output) {
                 if (v >= 0.7) {
