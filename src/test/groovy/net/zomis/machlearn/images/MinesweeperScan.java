@@ -82,9 +82,9 @@ public class MinesweeperScan {
         ImagePainter painter = new ImagePainter(runImage.getWidth(), runImage.getHeight());
 
         // MinesweeperScan.runOnImage(analyze, network, runImage, m -> m.values().stream().mapToDouble(d -> d).max().getAsDouble());
-        ImagePainter.visualizeNetwork(network, gridLocations[0][0].width(), gridLocations[0][0].height(), runImage,
-            scaledInput(gridLocations[0][0].width(), gridLocations[0][0].height()),
-            out -> Arrays.stream(out).max().getAsDouble()).save(new File("certainty-detailed.png"));
+//        ImagePainter.visualizeNetwork(network, gridLocations[0][0].width(), gridLocations[0][0].height(), runImage,
+//            scaledInput(gridLocations[0][0].width(), gridLocations[0][0].height()),
+//            out -> Arrays.stream(out).max().getAsDouble()).save(new File("certainty-detailed.png"));
 
         for (int y = 0; y < gridLocations.length; y++) {
             for (int x = 0; x < gridLocations[y].length; x++) {
@@ -138,8 +138,8 @@ public class MinesweeperScan {
         int minRect = Math.min(rect.width(), rect.height());
         BufferedImage image = Scalr.crop(runImage, rect.left, rect.top, minRect, minRect);
         BufferedImage run = Scalr.resize(image, min, min);
-        System.out.printf("Running on %s with target size %d, %d run image is %d, %d%n", rect,
-                network.getWidth(), network.getHeight(), run.getWidth(), run.getHeight());
+//        System.out.printf("Running on %s with target size %d, %d run image is %d, %d%n", rect,
+//                network.getWidth(), network.getHeight(), run.getWidth(), run.getHeight());
         return network.run(network.imagePart(run, 0, 0));
     }
 
