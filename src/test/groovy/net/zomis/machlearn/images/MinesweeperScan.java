@@ -20,13 +20,15 @@ public class MinesweeperScan {
     private final ImageNetwork horizontal;
 
     public MinesweeperScan() {
+        Backpropagation fastBackprop = new Backpropagation(0.1, 10000);
+        fastBackprop.setLogRate(1000);
         ImageAnalysis horizontalAnalysis = new ImageAnalysis(50, 2, true);
         horizontal = horizontalAnalysis.neuralNetwork(20)
                 .classify(true, horizontalAnalysis.imagePart(img, 600, 235))
                 .classify(true, horizontalAnalysis.imagePart(img, 700, 235))
                 .classifyNone(horizontalAnalysis.imagePart(img, 600, 249))
                 .classifyNone(horizontalAnalysis.imagePart(img, 664, 249))
-                .learn(new Backpropagation(0.1, 10000), new Random(42));
+                .learn(fastBackprop, new Random(42));
 
         ImageAnalysis verticalAnalysis = new ImageAnalysis(2, 50, true);
         vertical = verticalAnalysis.neuralNetwork(20)
@@ -41,7 +43,7 @@ public class MinesweeperScan {
                 .classifyNone(verticalAnalysis.imagePart(img, 722, 497))
                 .classifyNone(verticalAnalysis.imagePart(img, 770, 249))
                 .classifyNone(verticalAnalysis.imagePart(img, 719, 497))
-                .learn(new Backpropagation(0.1, 10000), new Random(42));
+                .learn(fastBackprop, new Random(42));
 
         ImageAnalysis analysis = new ImageAnalysis(1, 100, true);
         this.edgeFind = analysis.neuralNetwork(40)
@@ -56,7 +58,7 @@ public class MinesweeperScan {
                 .classify(true, analysis.imagePart(img, 625, 540))
                 .classify(true, analysis.imagePart(img, 630, 540))
                 .classify(true, analysis.imagePart(img, 670, 540))
-                .learn(new Backpropagation(0.1, 10000), new Random(42));
+                .learn(fastBackprop, new Random(42));
 
 
         String fileName = "challenge-flags-16x16.png";
@@ -72,6 +74,7 @@ public class MinesweeperScan {
         trainingSet.put('6', new ZPoint(707, 502));
         trainingSet.put('a', new ZPoint(793, 200));
 
+        Backpropagation slowBackprop = new Backpropagation(0.1, 4000);
         ImageNetworkBuilder networkBuilder = analyze.neuralNetwork(40);
         for (Map.Entry<Character, ZPoint> ee : trainingSet.entrySet()) {
             int yy = ee.getValue().getY();
@@ -84,15 +87,15 @@ public class MinesweeperScan {
             MyImageUtil.save(MyImageUtil.grayscale(Scalr.crop(image, xx, yy, analyze.getWidth(), analyze.getHeight())), "train-" + ee.getKey());
             networkBuilder = networkBuilder.classify(ee.getKey(), analyze.imagePart(image, xx + 0, yy + 0));
         }
-        squareRecognition = networkBuilder.classifyNone(analyze.imagePart(image, 0, 0))
+        ImageNetworkBuilder squareNetworkBuilder = networkBuilder.classifyNone(analyze.imagePart(image, 0, 0))
                 .classifyNone(analyze.imagePart(image, 878, 456))
                 .classifyNone(analyze.imagePart(image, 903, 456))
                 .classifyNone(analyze.imagePart(image, 948, 456))
                 .classifyNone(analyze.imagePart(image, 1004, 558))
                 .classifyNone(analyze.imagePart(image, 921, 496))
                 .classifyNone(analyze.imagePart(image, 921, 536))
-                .classifyNone(analyze.imagePart(image, 963, 536))
-                .learn(new Backpropagation(0.1, 4000), new Random(42));
+                .classifyNone(analyze.imagePart(image, 963, 536));
+        squareRecognition = squareNetworkBuilder.learn(slowBackprop, new Random(42));
 
     }
 
