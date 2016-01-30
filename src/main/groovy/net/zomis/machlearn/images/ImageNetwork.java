@@ -57,4 +57,8 @@ public class ImageNetwork {
         return analysis.imagePart(image, x, y);
     }
 
+    public ImageAnalysis getAnalysis() {
+        return analysis;
+    }
+
 }
