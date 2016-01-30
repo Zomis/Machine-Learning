@@ -127,9 +127,11 @@ public class MinesweeperScan {
                     wrongAnswers += (expectedChar != ch) ? 1 : 0;
                     checkedAnswers++;
                     if (expectedChar != ch) {
-                        double expectedScore = output == null ? 0 : output.getResult().get(expectedChar);
+                        Map.Entry<Object, Double> expectedEntry = output == null ? null : output.getResult().entrySet().stream()
+                                .filter(e -> String.valueOf(e.getKey()).charAt(0) == expectedChar)
+                                .findFirst().orElse(null);
                         System.out.printf("Square %d, %d was %s but expected %s. Score was %f vs expected %f%n",
-                            x, y, ch, expectedChar, score, expectedScore);
+                            x, y, ch, expectedChar, score, expectedEntry == null ? 0d : expectedEntry.getValue());
                     }
                 }
             }
