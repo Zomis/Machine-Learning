@@ -1,8 +1,11 @@
 package net.zomis.machlearn.images;
 
 import net.zomis.combinatorics.Binero;
+import net.zomis.combinatorics.IntegerPoints;
 import net.zomis.machlearn.neural.Backpropagation;
 import net.zomis.minesweeper.analyze.AnalyzeFactory;
+import net.zomis.minesweeper.analyze.AnalyzeResult;
+import net.zomis.minesweeper.analyze.Solution;
 
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
@@ -20,11 +23,20 @@ public class BineroScan {
         System.out.println(board);
         ByteArrayInputStream stream = new ByteArrayInputStream(board.getBytes(StandardCharsets.UTF_8));
         try {
-            AtomicInteger size = new AtomicInteger();
+            AtomicInteger size = new AtomicInteger(boardRects.length);
             AnalyzeFactory<Integer> analyzeFactory = Binero.binero(stream, size);
             if (size.get() != boardRects.length) {
                 throw new IllegalStateException(size.get() + " vs. " + boardRects.length);
             }
+            AnalyzeResult<Integer> analysis = analyzeFactory.solve();
+            System.out.println(analysis);
+            System.out.println(analysis.getRules());
+            for (Solution<Integer> ee : analysis.getSolutions()) {
+                System.out.println(ee);
+                System.out.println(IntegerPoints.map(ee.getSetGroupValues(), size.get()));
+                System.out.println("---");
+            }            System.out.println(analysis.getSolutions());
+            System.out.println(analysis.getTotal());
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
