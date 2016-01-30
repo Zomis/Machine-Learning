@@ -67,7 +67,7 @@ public class BineroScan {
     private static ImageNetwork constructRectToNumberNetwork() {
         BufferedImage learningImage = MyImageUtil.resource("binero.png");
         ImageAnalysis analysis = new ImageAnalysis(30, 30, true);
-        Backpropagation backprop = new Backpropagation(0.1, 10000).setLogRate(400);
+        Backpropagation backprop = new Backpropagation(0.1, 2000).setLogRate(400);
         return analysis.neuralNetwork(20)
             .classify(0, analysis.imagePart(learningImage, 626, 76))
             .classify(1, analysis.imagePart(learningImage, 458, 76))
