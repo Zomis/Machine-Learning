@@ -122,7 +122,7 @@ public class MinesweeperScan {
                 runRect.right = x + rect.width();
                 runRect.bottom = y + rect.height();
 
-                BufferedImage scaledRunImage = scaledRunImage(network, runImage, rect);
+                BufferedImage scaledRunImage = scaledRunImage(network, runImage, runRect);
                 Map<Object, Double> map = network.run(network.imagePart(scaledRunImage, 0, 0));
                 double score = map.values().stream().mapToDouble(d -> d).max().getAsDouble();
                 if (score > bestScore) {
