@@ -47,7 +47,7 @@ public class MinesweeperScan {
     private static char[][] scanGrid(BufferedImage runImage, ZRect[][] gridLocations) {
         String fileName = "challenge-flags-16x16.png";
         BufferedImage image = MyImageUtil.resource(fileName);
-        ImageAnalysis analyze = new ImageAnalysis(36, 36, true);
+        ImageAnalysis analyze = new ImageAnalysis(36, 36, false);
         Map<Character, ZPoint> trainingSet = new HashMap<>();
         trainingSet.put('_', new ZPoint(622, 200));
         trainingSet.put('1', new ZPoint(793, 287));
