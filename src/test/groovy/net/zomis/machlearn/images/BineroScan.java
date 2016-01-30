@@ -31,12 +31,42 @@ public class BineroScan {
             AnalyzeResult<Integer> analysis = analyzeFactory.solve();
             System.out.println(analysis);
             System.out.println(analysis.getRules());
+
             for (Solution<Integer> ee : analysis.getSolutions()) {
                 System.out.println(ee);
-                System.out.println(IntegerPoints.map(ee.getSetGroupValues(), size.get()));
+                String solution = IntegerPoints.map(analysis.getSolutions().get(0).getSetGroupValues(), size.get());
+                System.out.println(solution);
                 System.out.println("---");
-            }            System.out.println(analysis.getSolutions());
+            }
+            System.out.println(analysis.getSolutions());
             System.out.println(analysis.getTotal());
+            if (analysis.getTotal() == 1) {
+                String solution = IntegerPoints.map(analysis.getSolutions().get(0).getSetGroupValues(), size.get());
+                String[] solutionRows = solution.split("\n");
+                System.out.println("Start clicking? (Y/N)");
+                int in = System.in.read();
+                if (in == 'y') {
+                    MyRobot robot = new MyRobot();
+                    for (int y = 0; y < solutionRows.length; y++) {
+                        String solutionRow = solutionRows[y];
+                        String boardRow = board.split("\n")[y];
+                        for (int x = 0; x < solutionRow.length(); x++) {
+                            char original = boardRow.charAt(x);
+                            char current = solutionRow.charAt(x);
+                            if (original != current) {
+                                ZRect rect = boardRects[y][x];
+                                int clickX = rect.left + rect.width() / 2;
+                                int clickY = rect.top + rect.height() / 2;
+                                boolean isOne = current == '1';
+                                int clickTimes = isOne ? 2 : 1;
+                                for (int i = 0; i < clickTimes; i++) {
+                                    robot.clickOn(clickX, clickY);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
