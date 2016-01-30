@@ -111,26 +111,24 @@ public class MinesweeperScan {
             String expectedRow = expectedRows == null || expectedRows.length <= y ? null : expectedRows[y];
             for (int x = 0; x < gridLocations[y].length; x++) {
                 ZRect rect = gridLocations[y][x];
-                Map<Object, Double> output = findBestSquare(network, runImage, rect);
+                SquareRunResult output = findBestSquare(network, runImage, rect);
                 double score = 0;
                 if (output != null) {
-                    double value = output.values().stream().mapToDouble(d -> d).max().getAsDouble();
+                    double value = output.getBestScore();
                     score = value;
                     if (value >= 0.5) painter.drawRGB(rect, 0, value, 0);
                     else painter.drawRGB(rect, 1 - value, 0, 0);
                 }
-                char ch = charForOutput(output);
+                char ch = charForOutput(output == null ? null : output.getResult());
                 result[y][x] = ch;
                 if (expectedRow != null && expectedRow.length() > x) {
                     char expectedChar = expectedRow.charAt(x);
                     wrongAnswers += (expectedChar != ch) ? 1 : 0;
                     checkedAnswers++;
                     if (expectedChar != ch) {
-                        Map.Entry<Object, Double> expectedEntry = output == null ? null : output.entrySet().stream()
-                            .filter(e -> String.valueOf(e.getKey()).charAt(0) == expectedChar)
-                                .findFirst().orElse(null);
+                        double expectedScore = output == null ? 0 : output.getResult().get(expectedChar);
                         System.out.printf("Square %d, %d was %s but expected %s. Score was %f vs expected %f%n",
-                            x, y, ch, expectedChar, score, expectedEntry == null ? 0d : expectedEntry.getValue());
+                            x, y, ch, expectedChar, score, expectedScore);
                     }
                 }
             }
@@ -140,12 +138,14 @@ public class MinesweeperScan {
         return result;
     }
 
-    private static Map<Object, Double> findBestSquare(ImageNetwork network, BufferedImage runImage, ZRect rect) {
+    private static SquareRunResult findBestSquare(ImageNetwork network, BufferedImage runImage, ZRect rect) {
         if (rect == null) {
             return null;
         }
         double bestScore = 0;
         Map<Object, Double> best = null;
+        BufferedImage bestImage = null;
+        ZRect bestRect = null;
         ZRect runRect = new ZRect();
         for (int y = rect.top; y < rect.top + rect.height() / 4; y += 2) {
             for (int x = rect.left; x < rect.left + rect.width() / 4; x += 2) {
@@ -160,12 +160,15 @@ public class MinesweeperScan {
                 if (score > bestScore) {
                     bestScore = score;
                     best = map;
+                    bestImage = scaledRunImage;
+                    bestRect = runRect;
+                    runRect = new ZRect();
 //                    System.out.printf("New best score %f result %s. Run on %s with real rect %s%n",
 //                        score, map, runRect, rect);
                 }
             }
         }
-        return best;
+        return new SquareRunResult(best, bestImage, bestRect);
     }
 
     private static XYToDoubleArray scaledInput(int width, int height) {
