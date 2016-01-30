@@ -3,7 +3,6 @@ package net.zomis.machlearn.images;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.util.function.Function;
 import java.util.function.ToDoubleFunction;
 
 public class ImagePainter {
@@ -68,6 +67,33 @@ public class ImagePainter {
             }
         }
         return painter;
+    }
+
+    public static ImagePainter[] visualizeNetworks(ImageNetwork network,
+            int rightBorder, int bottomBorder,
+            BufferedImage image, XYToDoubleArray inputFunction) {
+        ImagePainter[] painters = new ImagePainter[network.getOutputs().length];
+        for (int i = 0; i < painters.length; i++) {
+            ImagePainter painter = new ImagePainter(image.getWidth(), image.getHeight());
+            painters[i] = painter;
+        }
+
+        int maxX = image.getWidth() - rightBorder;
+        int maxY = image.getHeight() - bottomBorder;
+
+        for (int y = 0; y < maxY; y++) {
+            if (y % 40 == 0) {
+                System.out.println("process y " + y);
+            }
+            for (int x = 0; x < maxX; x++) {
+                double[] input = inputFunction.toInput(network, image, x, y);
+                double[] output = network.getNetwork().run(input);
+                for (int i = 0; i < output.length; i++) {
+                    painters[i].drawGrayscale(x, y, output[i]);
+                }
+            }
+        }
+        return painters;
     }
 
 }
