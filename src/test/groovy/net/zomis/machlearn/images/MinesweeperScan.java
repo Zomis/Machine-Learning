@@ -99,6 +99,36 @@ public class MinesweeperScan {
 
     }
 
+    private ImageNetwork learnFromMinesweeperBoard(MinesweeperTrainingBoard minesweeperTrainingBoard) {
+        BufferedImage image = minesweeperTrainingBoard.getImage();
+        ZRect rect = findEdges(edgeFind, image);
+        ZRect[][] gridLocations = findGrid(image, rect);
+        int width = gridLocations[0][0].width();
+        int height = gridLocations[0][0].height();
+        int minWH = Math.min(width, height);
+        ImageAnalysis analysis = new ImageAnalysis(minWH, minWH, false);
+        ImageNetworkBuilder builder = analysis.neuralNetwork(40);
+
+        String[] expectedRows = minesweeperTrainingBoard.getExpected().split("\n");
+        Set<Character> trainingChars = new HashSet<>();
+        for (int y = 0; y < expectedRows.length; y++) {
+            String expectedRow = expectedRows[y].trim();
+            for (int x = 0; x < expectedRow.length(); x++) {
+                char expectedChar = expectedRow.charAt(x);
+                if (trainingChars.add(expectedChar)) {
+                    ZRect runRect = gridLocations[y][x];
+                    BufferedImage runImage = scaledRunImage(analysis, image, runRect);
+                    MyImageUtil.save(runImage, String.format("train-%d,%d-%s", x, y, expectedChar));
+                    builder = builder.classify(expectedChar, analysis.imagePart(runImage, 0, 0));
+                }
+            }
+        }
+
+        Backpropagation backprop = new Backpropagation(0.1, 5000);
+        backprop.setLogRate(200);
+        return builder.learn(backprop, new Random(42));
+    }
+
     public void scan() {
 
         String defaultData = "challenge-press-26x14";
