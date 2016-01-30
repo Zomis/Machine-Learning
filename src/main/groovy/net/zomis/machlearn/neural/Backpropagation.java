@@ -235,8 +235,9 @@ public class Backpropagation {
         return expected * Math.log(actual) + (1 - expected) * Math.log(1 - actual);
     }
 
-    public void setLogRate(int logRate) {
+    public Backpropagation setLogRate(int logRate) {
         this.logRate = logRate;
+        return this;
     }
 
     public int getLogRate() {
