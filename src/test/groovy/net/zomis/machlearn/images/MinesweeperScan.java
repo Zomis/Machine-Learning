@@ -184,7 +184,7 @@ public class MinesweeperScan {
                 runRect.right = x + rect.width();
                 runRect.bottom = y + rect.height();
 
-                BufferedImage scaledRunImage = scaledRunImage(network, runImage, runRect);
+                BufferedImage scaledRunImage = scaledRunImage(network.getAnalysis(), runImage, runRect);
                 Map<Object, Double> map = network.run(network.imagePart(scaledRunImage, 0, 0));
                 double score = map.values().stream().mapToDouble(d -> d).max().getAsDouble();
                 if (score > bestScore) {
@@ -228,7 +228,7 @@ public class MinesweeperScan {
         return (Character) max.getKey();
     }
 
-    private static BufferedImage scaledRunImage(ImageNetwork network, BufferedImage runImage, ZRect rect) {
+    private static BufferedImage scaledRunImage(ImageAnalysis network, BufferedImage runImage, ZRect rect) {
         if (rect == null) {
             return null;
         }
