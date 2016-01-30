@@ -35,7 +35,22 @@ public class MinesweeperScan {
         // also try find separations by scanning lines and finding the line with the lowest delta diff
 
         ZRect[][] gridLocations = findGrid(runImage, rect);
-        char[][] gridValues = scanGrid(runImage, gridLocations);
+        String expected =
+                "__________________2_1_____\n" +
+                "_____4___4__1_____3___23__\n" +
+                "___44____2__________2___3_\n" +
+                "_______2______2___________\n" +
+                "_4_____________1____1___3_\n" +
+                "2_______1__####____1______\n" +
+                "___________####__2_____1__\n" +
+                "___2_______####1______2___\n" +
+                "0____2_1___####___________\n" +
+                "_______1_____3_________3_1\n" +
+                "____1___1_________________\n" +
+                "________3___4_________1___\n" +
+                "1_____________________2___\n" +
+                "_______1_______________4_2";
+        char[][] gridValues = scanGrid(runImage, gridLocations, expected);
         for (int y = 0; y < gridValues.length; y++) {
             for (int x = 0; x < gridValues[y].length; x++) {
                 System.out.print(gridValues[y][x]);
@@ -44,7 +59,7 @@ public class MinesweeperScan {
         }
     }
 
-    private static char[][] scanGrid(BufferedImage runImage, ZRect[][] gridLocations) {
+    private static char[][] scanGrid(BufferedImage runImage, ZRect[][] gridLocations, String expected) {
         String fileName = "challenge-flags-16x16.png";
         BufferedImage image = MyImageUtil.resource(fileName);
         ImageAnalysis analyze = new ImageAnalysis(36, 36, false);
@@ -88,7 +103,12 @@ public class MinesweeperScan {
 //            scaledInput(gridLocations[0][0].width(), gridLocations[0][0].height()),
 //            out -> Arrays.stream(out).max().getAsDouble()).save(new File("certainty-detailed.png"));
 
+
+        String[] expectedRows = expected == null ? null : expected.split("\n");
+        int wrongAnswers = 0;
+        int checkedAnswers = 0;
         for (int y = 0; y < gridLocations.length; y++) {
+            String expectedRow = expectedRows == null || expectedRows.length <= y ? null : expectedRows[y];
             for (int x = 0; x < gridLocations[y].length; x++) {
                 ZRect rect = gridLocations[y][x];
                 Map<Object, Double> output = findBestSquare(network, runImage, rect);
@@ -100,10 +120,22 @@ public class MinesweeperScan {
                     else painter.drawRGB(rect, 1 - value, 0, 0);
                 }
                 char ch = charForOutput(output);
-                System.out.printf("Square %d, %d was recognized as %s with score %f%n", x, y, ch, score);
                 result[y][x] = ch;
+                if (expectedRow != null && expectedRow.length() > x) {
+                    char expectedChar = expectedRow.charAt(x);
+                    wrongAnswers += (expectedChar != ch) ? 1 : 0;
+                    checkedAnswers++;
+                    if (expectedChar != ch) {
+                        Map.Entry<Object, Double> expectedEntry = output == null ? null : output.entrySet().stream()
+                            .filter(e -> String.valueOf(e.getKey()).charAt(0) == expectedChar)
+                                .findFirst().orElse(null);
+                        System.out.printf("Square %d, %d was %s but expected %s. Score was %f vs expected %f%n",
+                            x, y, ch, expectedChar, score, expectedEntry == null ? 0d : expectedEntry.getValue());
+                    }
+                }
             }
         }
+        System.out.printf("Wrong answers: %d of %d%n", wrongAnswers, checkedAnswers);
         painter.save(new File("certainty.png"));
         return result;
     }
