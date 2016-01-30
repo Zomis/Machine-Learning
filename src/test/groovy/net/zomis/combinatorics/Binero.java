@@ -33,6 +33,9 @@ public class Binero {
 		readLine(analyze, 0, line);
 		for (int y = 1; y < size; y++) {
 			line = bis.readLine();
+            if (line == null) {
+                break;
+            }
 			readLine(analyze, y, line);
 		}
 		bis.close();
