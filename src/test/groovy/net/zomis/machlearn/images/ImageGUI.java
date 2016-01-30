@@ -27,6 +27,7 @@ public class ImageGUI extends Application {
     private Spinner<Double> spinHeight;
     private ImageView imageView;
     private Image bigImage;
+    private MinesweeperScan minesweeperScan;
 
     private void initSpinners(Image image) {
         spinX = new Spinner<>(0, image.getWidth(), 0);
@@ -65,7 +66,7 @@ public class ImageGUI extends Application {
         imageView = new ImageView(bigImage);
         FlowPane flowPane = new FlowPane();
         Button button = new Button("Test");
-        button.setOnAction(ev -> MinesweeperScan.scan());
+        button.setOnAction(ev -> this.minesweeperScan());
         flowPane.getChildren().add(button);
         initSpinners(bigImage);
         flowPane.getChildren().add(spinX);
@@ -77,6 +78,13 @@ public class ImageGUI extends Application {
         primaryStage.setScene(scene);
         primaryStage.centerOnScreen();
         primaryStage.show();
+    }
+
+    private void minesweeperScan() {
+        if (minesweeperScan == null) {
+            minesweeperScan = new MinesweeperScan();
+        }
+        minesweeperScan.scan();
     }
 
     public static void main(String[] args) {
