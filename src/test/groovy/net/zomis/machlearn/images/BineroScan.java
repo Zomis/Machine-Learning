@@ -82,8 +82,6 @@ public class BineroScan {
             diffsX[i] = value - old;
             old = value;
         }
-        System.out.println(xSeparatorLines);
-        System.out.println(Arrays.toString(diffsX));
         int[] sortedX = Arrays.copyOf(diffsX, diffsX.length);
         Arrays.sort(sortedX);
         int squareSize = 0;
@@ -93,35 +91,28 @@ public class BineroScan {
                 break;
             }
         }
-        System.out.println(Arrays.toString(sortedX));
-        System.out.println(squareSize);
         int firstIndex = 0;
         int lastIndex = diffsX.length - 1;
         while (Math.abs(diffsX[firstIndex] - squareSize) >= 2) firstIndex++;
         while (Math.abs(diffsX[lastIndex] - squareSize) >= 2) lastIndex--;
-        System.out.println(Arrays.toString(Arrays.copyOfRange(values, firstIndex - 1, lastIndex + 1)));
 
         List<Integer> result = new ArrayList<>();
-        System.out.println("Add F: " + xSeparatorLines.get(firstIndex - 1));
         result.add(xSeparatorLines.get(firstIndex - 1));
         for (int i = firstIndex; i <= lastIndex; i++) {
             if (diffsX[i] < squareSize) {
                 continue;
             }
             int a = xSeparatorLines.get(i);
-            System.out.println("Add A: " + a);
             result.add(a);
             int skip = 0;
             while (diffsX.length > i + skip + 1 && diffsX[i + skip + 1] < squareSize) {
                 skip++;
             }
             int b = xSeparatorLines.get(i + skip);
-            System.out.println("Add B: " + b);
             result.add(b);
             i += skip;
         }
         result.remove(result.size() - 1);
-        System.out.println(result);
 
         return result.stream().mapToInt(i -> i).toArray();
     }
