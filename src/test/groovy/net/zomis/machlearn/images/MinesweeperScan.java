@@ -147,8 +147,8 @@ public class MinesweeperScan {
         double bestScore = 0;
         Map<Object, Double> best = null;
         ZRect runRect = new ZRect();
-        for (int y = rect.top; y < rect.top + rect.height() / 2; y += 2) {
-            for (int x = rect.left; x < rect.left + rect.width() / 2; x += 2) {
+        for (int y = rect.top; y < rect.top + rect.height() / 4; y += 2) {
+            for (int x = rect.left; x < rect.left + rect.width() / 4; x += 2) {
                 runRect.left = x;
                 runRect.top = y;
                 runRect.right = x + rect.width();
