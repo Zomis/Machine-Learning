@@ -155,6 +155,10 @@ public class MinesweeperScan {
                                 .findFirst().orElse(null);
                         System.out.printf("Square %d, %d was %s but expected %s. Score was %f vs expected %f%n",
                             x, y, ch, expectedChar, score, expectedEntry == null ? 0d : expectedEntry.getValue());
+                        if (output != null) {
+                            String saveFileName = String.format("best-%d-%d--%s-%f", x, y, ch, output.getBestScore());
+                            MyImageUtil.save(output.getBestImage(), saveFileName);
+                        }
                     }
                 }
             }
