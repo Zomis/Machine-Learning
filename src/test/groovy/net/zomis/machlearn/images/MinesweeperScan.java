@@ -122,7 +122,8 @@ public class MinesweeperScan {
                 runRect.right = x + rect.width();
                 runRect.bottom = y + rect.height();
 
-                Map<Object, Double> map = scanSquare(network, runImage, runRect);
+                BufferedImage scaledRunImage = scaledRunImage(network, runImage, rect);
+                Map<Object, Double> map = network.run(network.imagePart(scaledRunImage, 0, 0));
                 double score = map.values().stream().mapToDouble(d -> d).max().getAsDouble();
                 if (score > bestScore) {
                     bestScore = score;
@@ -162,17 +163,16 @@ public class MinesweeperScan {
         return (Character) max.getKey();
     }
 
-    private static Map<Object, Double> scanSquare(ImageNetwork network, BufferedImage runImage, ZRect rect) {
+    private static BufferedImage scaledRunImage(ImageNetwork network, BufferedImage runImage, ZRect rect) {
         if (rect == null) {
             return null;
         }
         int min = Math.min(network.getWidth(), network.getHeight());
         int minRect = Math.min(rect.width(), rect.height());
         BufferedImage image = Scalr.crop(runImage, rect.left, rect.top, minRect, minRect);
-        BufferedImage run = Scalr.resize(image, min, min);
+        return Scalr.resize(image, min, min);
 //        System.out.printf("Running on %s with target size %d, %d run image is %d, %d%n", rect,
 //                network.getWidth(), network.getHeight(), run.getWidth(), run.getHeight());
-        return network.run(network.imagePart(run, 0, 0));
     }
 
     private static ZRect[][] findGrid(BufferedImage runImage, ZRect rect) {
