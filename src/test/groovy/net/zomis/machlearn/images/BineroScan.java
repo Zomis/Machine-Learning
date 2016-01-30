@@ -16,8 +16,26 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class BineroScan {
 
+    private final ImageNetwork imageToRects;
+    private final ImageNetwork rectsToNumber;
+
+    public BineroScan() {
+        imageToRects = constructImageToRectsNetwork();
+        rectsToNumber = constructRectToNumberNetwork();
+    }
+
     public static void main(String[] args) {
-        BufferedImage image = MyImageUtil.screenshot();
+        Scanner scanner = new Scanner(System.in);
+        BineroScan scan = new BineroScan();
+        do {
+            BufferedImage image = MyImageUtil.screenshot();
+            scan.run(image, scanner);
+            System.out.println("Go again?");
+        } while (scanner.nextLine().equals("y"));
+        scanner.close();
+    }
+
+    public void run(BufferedImage image, Scanner scanner) {
         ZRect[][] boardRects = imageToRects(image);
         String board = valuesForBoard(image, boardRects);
         System.out.println(board);
@@ -44,8 +62,8 @@ public class BineroScan {
                 String solution = IntegerPoints.map(analysis.getSolutions().get(0).getSetGroupValues(), size.get());
                 String[] solutionRows = solution.split("\n");
                 System.out.println("Start clicking? (Y/N)");
-                int in = System.in.read();
-                if (in == 'y') {
+                String in = "y";
+                if (in.equals("y")) {
                     MyRobot robot = new MyRobot();
                     for (int y = 0; y < solutionRows.length; y++) {
                         String solutionRow = solutionRows[y];
@@ -72,8 +90,8 @@ public class BineroScan {
         }
     }
 
-    private static String valuesForBoard(BufferedImage image, ZRect[][] boardRects) {
-        ImageNetwork network = constructRectToNumberNetwork();
+    private String valuesForBoard(BufferedImage image, ZRect[][] boardRects) {
+        ImageNetwork network = this.rectsToNumber;
         StringBuilder str = new StringBuilder();
         for (int y = 0; y < boardRects.length; y++) {
             for (int x = 0; x < boardRects[y].length; x++) {
@@ -105,8 +123,8 @@ public class BineroScan {
             .learn(backprop, new Random(42));
     }
 
-    private static ZRect[][] imageToRects(BufferedImage image) {
-        ImageNetwork network = constructImageToRectsNetwork();
+    private ZRect[][] imageToRects(BufferedImage image) {
+        ImageNetwork network = this.imageToRects;
 
         int middleY = image.getHeight() / 2;
         List<Integer> xSeparatorLines = new ArrayList<>();
