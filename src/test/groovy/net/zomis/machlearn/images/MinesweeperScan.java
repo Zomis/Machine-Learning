@@ -168,7 +168,8 @@ public class MinesweeperScan {
             expectedRow = expectedRow == null ? null : expectedRow.trim();
             for (int x = 0; x < gridLocations[y].length; x++) {
                 ZRect rect = gridLocations[y][x];
-                SquareRunResult output = findBestSquare(squareRecognition, runImage, rect);
+                SquareRunResult output = findBestSquare(squareRecognition, runImage, rect,
+                    rect.width() / 4, rect.height() / 4);
                 double score = 0;
                 if (output != null) {
                     double value = output.getBestScore();
@@ -201,7 +202,8 @@ public class MinesweeperScan {
         return result;
     }
 
-    private static SquareRunResult findBestSquare(ImageNetwork network, BufferedImage runImage, ZRect rect) {
+    private static SquareRunResult findBestSquare(ImageNetwork network, BufferedImage runImage, ZRect rect,
+              int windowWidth, int windowHeight) {
         if (rect == null) {
             return null;
         }
@@ -210,8 +212,8 @@ public class MinesweeperScan {
         BufferedImage bestImage = null;
         ZRect bestRect = null;
         ZRect runRect = new ZRect();
-        for (int y = rect.top; y < rect.top + rect.height() / 4; y += 2) {
-            for (int x = rect.left; x < rect.left + rect.width() / 4; x += 2) {
+        for (int y = rect.top; y < rect.top + windowHeight; y += 2) {
+            for (int x = rect.left; x < rect.left + windowWidth; x += 2) {
                 runRect.left = x;
                 runRect.top = y;
                 runRect.right = x + rect.width();
