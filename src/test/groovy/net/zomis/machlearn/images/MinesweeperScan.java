@@ -12,6 +12,7 @@ public class MinesweeperScan {
 
     private static String LEARN_IMAGE = "challenge-flags-16x16.png";
     private static BufferedImage img = MyImageUtil.resource(LEARN_IMAGE);
+    private static double THRESHOLD = 0.3d;
 
     public static void scan() {
         ImageAnalysis analysis = new ImageAnalysis(1, 100, true);
@@ -116,7 +117,7 @@ public class MinesweeperScan {
                 if (output != null) {
                     double value = output.getBestScore();
                     score = value;
-                    if (value >= 0.5) painter.drawRGB(rect, 0, value, 0);
+                    if (value >= THRESHOLD) painter.drawRGB(rect, 0, value, 0);
                     else painter.drawRGB(rect, 1 - value, 0, 0);
                 }
                 char ch = charForOutput(output == null ? null : output.getResult());
@@ -192,7 +193,7 @@ public class MinesweeperScan {
         }
         Map.Entry<Object, Double> max = output.entrySet().stream()
                 .max(Comparator.comparingDouble(e -> e.getValue())).get();
-        if (max.getValue() < 0.5) {
+        if (max.getValue() < THRESHOLD) {
             return '#';
         }
         return (Character) max.getKey();
