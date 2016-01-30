@@ -67,7 +67,14 @@ public class BineroScan {
     }
 
     public static ZRect[][] createRectsFromLines(List<Integer> xSeparatorLines, List<Integer> ySeparatorLines) {
-        int[] values = xSeparatorLines.stream().mapToInt(i -> i).toArray();
+        int[] xBoxes = createBox(xSeparatorLines);
+        int[] yBoxes = createBox(ySeparatorLines);
+        System.out.println(Arrays.toString(xBoxes));
+        System.out.println(Arrays.toString(yBoxes));
+        return null;
+    }
+
+    private static int[] createBox(List<Integer> xSeparatorLines) {
         int[] diffsX = new int[xSeparatorLines.size()];
         int old = 0;
         for (int i = 0; i < xSeparatorLines.size(); i++) {
@@ -105,19 +112,18 @@ public class BineroScan {
             System.out.println("Add A: " + a);
             result.add(a);
             int skip = 0;
-            while (diffsX[i + skip + 1] < squareSize) {
+            while (diffsX.length > i + skip + 1 && diffsX[i + skip + 1] < squareSize) {
                 skip++;
             }
             int b = xSeparatorLines.get(i + skip);
             System.out.println("Add B: " + b);
             result.add(b);
             i += skip;
-            int diff = diffsX[i];
-            System.out.println(diff);
         }
+        result.remove(result.size() - 1);
         System.out.println(result);
 
-        return new ZRect[0][];
+        return result.stream().mapToInt(i -> i).toArray();
     }
 
     private static ImageNetwork constructImageToRectsNetwork() {
