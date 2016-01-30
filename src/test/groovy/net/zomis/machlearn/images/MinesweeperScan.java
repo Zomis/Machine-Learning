@@ -66,6 +66,7 @@ public class MinesweeperScan {
         ImageAnalysis analyze = new ImageAnalysis(36, 36, false);
         Map<Character, ZPoint> trainingSet = new HashMap<>();
         trainingSet.put('_', new ZPoint(622, 200));
+        // trainingSet.put('0', new ZPoint(964, 327));
         trainingSet.put('1', new ZPoint(793, 287));
         trainingSet.put('2', new ZPoint(665, 200));
         trainingSet.put('3', new ZPoint(793, 244));
@@ -97,6 +98,7 @@ public class MinesweeperScan {
                 .classifyNone(analyze.imagePart(image, 921, 536))
                 .classifyNone(analyze.imagePart(image, 963, 536));
         squareRecognition = squareNetworkBuilder.learn(slowBackprop, new Random(42));
+//        squareRecognition = learnFromMinesweeperBoard(MinesweeperTrainingBoard.fromResource("challenge-flags-16x16"));
 
     }
 
@@ -156,10 +158,11 @@ public class MinesweeperScan {
         ImagePainter painter = new ImagePainter(runImage.getWidth(), runImage.getHeight());
 
         // MinesweeperScan.runOnImage(analyze, network, runImage, m -> m.values().stream().mapToDouble(d -> d).max().getAsDouble());
-//        ImagePainter.visualizeNetwork(network, gridLocations[0][0].width(), gridLocations[0][0].height(), runImage,
-//            scaledInput(gridLocations[0][0].width(), gridLocations[0][0].height()),
-//            out -> Arrays.stream(out).max().getAsDouble()).save(new File("certainty-detailed.png"));
-
+//        ImagePainter[] painters = ImagePainter.visualizeNetworks(network, gridLocations[0][0].width(), gridLocations[0][0].height(), runImage,
+//                scaledInput(gridLocations[0][0].width(), gridLocations[0][0].height()));
+//        for (int i = 0; i < painters.length; i++) {
+//            painters[i].save(new File("output-" + network.getOutputs()[i] + ".png"));
+//        }
 
         String[] expectedRows = expected == null ? null : expected.split("\n");
         int wrongAnswers = 0;
@@ -234,6 +237,10 @@ public class MinesweeperScan {
                 }
             }
         }
+//        Map.Entry<Object, Double> bestEntry = best.entrySet().stream()
+//            .max(Comparator.comparingDouble(Map.Entry::getValue)).get();
+//        MyImageUtil.save(bestImage, String.format("best-%d,%d-%s-%f", rect.left, rect.top,
+//            bestEntry.getKey(), bestEntry.getValue()));
         return new SquareRunResult(best, bestImage, bestRect);
     }
 
