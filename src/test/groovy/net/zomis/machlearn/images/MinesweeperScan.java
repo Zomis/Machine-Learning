@@ -137,7 +137,7 @@ public class MinesweeperScan {
             }
         }
         System.out.printf("Wrong answers: %d of %d%n", wrongAnswers, checkedAnswers);
-        painter.save(new File("certainty.png"));
+        painter.save("certainty");
         return result;
     }
 
@@ -348,7 +348,7 @@ public class MinesweeperScan {
     private static void runAndSave(ImageNetwork network, BufferedImage image) {
         ImagePainter[] networkResult = runOnImage(network, image);
         for (int i = 0; i < networkResult.length; i++) {
-            MyImageUtil.save(networkResult[i].getImage(), new File("network-result-" + i + ".png"));
+            MyImageUtil.save(networkResult[i].getImage(), "network-result-" + i);
         }
     }
 

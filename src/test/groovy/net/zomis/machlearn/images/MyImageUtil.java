@@ -9,6 +9,8 @@ import java.net.URL;
 
 public class MyImageUtil {
 
+    private static final File SAVE_DIRECTORY = new File("visualize");
+
     public static BufferedImage screenshot() {
         Rectangle screenRect = new Rectangle(Toolkit.getDefaultToolkit().getScreenSize());
         try {
@@ -30,9 +32,10 @@ public class MyImageUtil {
         }
     }
 
-    public static void save(BufferedImage img, File out) {
+    public static void save(BufferedImage img, String fileName) {
+        SAVE_DIRECTORY.mkdirs();
         try {
-            ImageIO.write(img, "PNG", out);
+            ImageIO.write(img, "PNG", new File(SAVE_DIRECTORY, fileName + ".png"));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

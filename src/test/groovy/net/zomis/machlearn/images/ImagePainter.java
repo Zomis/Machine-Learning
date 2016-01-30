@@ -33,7 +33,7 @@ public class ImagePainter {
         graphics.fillRect(rect.left, rect.top, rect.width(), rect.height());
     }
 
-    public void save(File file) {
+    public void save(String file) {
         MyImageUtil.save(img, file);
     }
 
