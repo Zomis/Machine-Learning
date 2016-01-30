@@ -37,4 +37,17 @@ public class MyImageUtil {
             throw new RuntimeException(e);
         }
     }
+
+    public static BufferedImage grayscale(BufferedImage image) {
+        ImagePainter painter = new ImagePainter(image.getWidth(), image.getHeight());
+        for (int y = 0; y < image.getHeight(); y++) {
+            for (int x = 0; x < image.getWidth(); x++) {
+                double[] pixel = ImageAnalysis.getRGB(image, x, y);
+                double gray = pixel[4];
+                painter.drawGrayscale(x, y, gray);
+            }
+        }
+        return painter.getImage();
+    }
+
 }
