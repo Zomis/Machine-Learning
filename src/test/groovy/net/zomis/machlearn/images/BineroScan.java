@@ -71,7 +71,25 @@ public class BineroScan {
         int[] yBoxes = createBox(ySeparatorLines);
         System.out.println(Arrays.toString(xBoxes));
         System.out.println(Arrays.toString(yBoxes));
-        return null;
+
+        int height = yBoxes.length / 2;
+        int width = xBoxes.length / 2;
+        ZRect[][] result = new ZRect[height][width];
+        for (int y = 0; y < height; y++) {
+            int startY = yBoxes[y * 2];
+            int endY = yBoxes[y * 2 + 1];
+            for (int x = 0; x < width; x++) {
+                int startX = xBoxes[x * 2];
+                int endX = xBoxes[x * 2 + 1];
+                ZRect rect = new ZRect();
+                rect.left = startX;
+                rect.right = endX;
+                rect.top = startY;
+                rect.bottom = endY;
+                result[y][x] = rect;
+            }
+        }
+        return result;
     }
 
     private static int[] createBox(List<Integer> values) {
