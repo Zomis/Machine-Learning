@@ -57,7 +57,7 @@ class BasicPropagationTest {
 
     @Test
     void learn() {
-        new Backpropagation(0.2, 100000).backPropagationLearning(examples, network)
+        new Backpropagation(0.2, 100000).backPropagationLearning(examples, network, new Random(42))
 
         network.printAll()
 
