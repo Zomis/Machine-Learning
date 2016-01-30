@@ -17,7 +17,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class BineroScan {
 
     public static void main(String[] args) {
-        BufferedImage image = MyImageUtil.resource("binero.png");
+        BufferedImage image = MyImageUtil.screenshot();
         ZRect[][] boardRects = imageToRects(image);
         String board = valuesForBoard(image, boardRects);
         System.out.println(board);
