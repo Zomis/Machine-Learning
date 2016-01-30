@@ -74,11 +74,11 @@ public class BineroScan {
         return null;
     }
 
-    private static int[] createBox(List<Integer> xSeparatorLines) {
-        int[] diffsX = new int[xSeparatorLines.size()];
+    private static int[] createBox(List<Integer> values) {
+        int[] diffsX = new int[values.size()];
         int old = 0;
-        for (int i = 0; i < xSeparatorLines.size(); i++) {
-            int value = xSeparatorLines.get(i);
+        for (int i = 0; i < values.size(); i++) {
+            int value = values.get(i);
             diffsX[i] = value - old;
             old = value;
         }
@@ -97,18 +97,18 @@ public class BineroScan {
         while (Math.abs(diffsX[lastIndex] - squareSize) >= 2) lastIndex--;
 
         List<Integer> result = new ArrayList<>();
-        result.add(xSeparatorLines.get(firstIndex - 1));
+        result.add(values.get(firstIndex - 1));
         for (int i = firstIndex; i <= lastIndex; i++) {
             if (diffsX[i] < squareSize) {
                 continue;
             }
-            int a = xSeparatorLines.get(i);
+            int a = values.get(i);
             result.add(a);
             int skip = 0;
             while (diffsX.length > i + skip + 1 && diffsX[i + skip + 1] < squareSize) {
                 skip++;
             }
-            int b = xSeparatorLines.get(i + skip);
+            int b = values.get(i + skip);
             result.add(b);
             i += skip;
         }
