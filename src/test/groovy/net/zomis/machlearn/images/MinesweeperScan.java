@@ -75,6 +75,7 @@ public class MinesweeperScan {
         trainingSet.put('a', new ZPoint(793, 200));
 
         Backpropagation slowBackprop = new Backpropagation(0.1, 4000);
+        slowBackprop.setLogRate(100);
         ImageNetworkBuilder networkBuilder = analyze.neuralNetwork(40);
         for (Map.Entry<Character, ZPoint> ee : trainingSet.entrySet()) {
             int yy = ee.getValue().getY();
@@ -168,7 +169,7 @@ public class MinesweeperScan {
             expectedRow = expectedRow == null ? null : expectedRow.trim();
             for (int x = 0; x < gridLocations[y].length; x++) {
                 ZRect rect = gridLocations[y][x];
-                SquareRunResult output = findBestSquare(squareRecognition, runImage, rect,
+                SquareRunResult output = rect == null ? null : findBestSquare(squareRecognition, runImage, rect,
                     rect.width() / 4, rect.height() / 4);
                 double score = 0;
                 if (output != null) {
