@@ -1,10 +1,11 @@
 package net.zomis.machlearn.images;
 
+import javafx.scene.control.TextInputDialog;
+import javafx.stage.FileChooser;
 import net.zomis.machlearn.neural.Backpropagation;
 import org.imgscalr.Scalr;
 
 import java.awt.image.BufferedImage;
-import java.io.File;
 import java.util.*;
 import java.util.List;
 
@@ -30,28 +31,17 @@ public class MinesweeperScan {
                 .classify(true, analysis.imagePart(img, 670, 540))
                 .learn(new Backpropagation(0.1, 10000), new Random(42));
 
-        BufferedImage runImage = MyImageUtil.resource("challenge-press-26x14.png");
-        ZRect rect = findEdges(network, runImage);
+        String defaultData = "challenge-press-26x14";
+        TextInputDialog dialog = new TextInputDialog(defaultData);
+        String dataSet = dialog.showAndWait().orElse(defaultData);
+        MinesweeperTrainingBoard board = MinesweeperTrainingBoard.fromResource(dataSet);
+
+        ZRect rect = findEdges(network, board.getImage());
         System.out.println("Edges: " + rect);
         // also try find separations by scanning lines and finding the line with the lowest delta diff
 
-        ZRect[][] gridLocations = findGrid(runImage, rect);
-        String expected =
-                "__________________2_1_____\n" +
-                "_____4___4__1_____3___23__\n" +
-                "___44____2__________2___3_\n" +
-                "_______2______2___________\n" +
-                "_4_____________1____1___3_\n" +
-                "2_______1__####____1______\n" +
-                "___________####__2_____1__\n" +
-                "___2_______####1______2___\n" +
-                "0____2_1___####___________\n" +
-                "_______1_____3_________3_1\n" +
-                "____1___1_________________\n" +
-                "________3___4_________1___\n" +
-                "1_____________________2___\n" +
-                "_______1_______________4_2";
-        char[][] gridValues = scanGrid(runImage, gridLocations, expected);
+        ZRect[][] gridLocations = findGrid(board.getImage(), rect);
+        char[][] gridValues = scanGrid(board.getImage(), gridLocations, board.getExpected());
         for (int y = 0; y < gridValues.length; y++) {
             for (int x = 0; x < gridValues[y].length; x++) {
                 System.out.print(gridValues[y][x]);
@@ -110,6 +100,7 @@ public class MinesweeperScan {
         int checkedAnswers = 0;
         for (int y = 0; y < gridLocations.length; y++) {
             String expectedRow = expectedRows == null || expectedRows.length <= y ? null : expectedRows[y];
+            expectedRow = expectedRow == null ? null : expectedRow.trim();
             for (int x = 0; x < gridLocations[y].length; x++) {
                 ZRect rect = gridLocations[y][x];
                 SquareRunResult output = findBestSquare(network, runImage, rect);
