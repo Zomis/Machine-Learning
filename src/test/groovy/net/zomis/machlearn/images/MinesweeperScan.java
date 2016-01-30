@@ -1,7 +1,6 @@
 package net.zomis.machlearn.images;
 
 import javafx.scene.control.TextInputDialog;
-import javafx.stage.FileChooser;
 import net.zomis.machlearn.neural.Backpropagation;
 import org.imgscalr.Scalr;
 
@@ -15,9 +14,37 @@ public class MinesweeperScan {
     private static BufferedImage img = MyImageUtil.resource(LEARN_IMAGE);
     private static double THRESHOLD = 0.3d;
 
-    public static void scan() {
+    private final ImageNetwork edgeFind;
+    private final ImageNetwork squareRecognition;
+    private final ImageNetwork vertical;
+    private final ImageNetwork horizontal;
+
+    public MinesweeperScan() {
+        ImageAnalysis horizontalAnalysis = new ImageAnalysis(50, 2, true);
+        horizontal = horizontalAnalysis.neuralNetwork(20)
+                .classify(true, horizontalAnalysis.imagePart(img, 600, 235))
+                .classify(true, horizontalAnalysis.imagePart(img, 700, 235))
+                .classifyNone(horizontalAnalysis.imagePart(img, 600, 249))
+                .classifyNone(horizontalAnalysis.imagePart(img, 664, 249))
+                .learn(new Backpropagation(0.1, 10000), new Random(42));
+
+        ImageAnalysis verticalAnalysis = new ImageAnalysis(2, 50, true);
+        vertical = verticalAnalysis.neuralNetwork(20)
+                .classify(true, verticalAnalysis.imagePart(img, 700, 300))
+                .classify(true, verticalAnalysis.imagePart(img, 700, 400))
+                .classifyNone(verticalAnalysis.imagePart(img, 682, 279))
+                .classifyNone(verticalAnalysis.imagePart(img, 765, 279))
+                .classifyNone(verticalAnalysis.imagePart(img, 630, 249))
+                .classifyNone(verticalAnalysis.imagePart(img, 795, 290))
+                .classifyNone(verticalAnalysis.imagePart(img, 795, 365))
+                .classifyNone(verticalAnalysis.imagePart(img, 795, 465))
+                .classifyNone(verticalAnalysis.imagePart(img, 722, 497))
+                .classifyNone(verticalAnalysis.imagePart(img, 770, 249))
+                .classifyNone(verticalAnalysis.imagePart(img, 719, 497))
+                .learn(new Backpropagation(0.1, 10000), new Random(42));
+
         ImageAnalysis analysis = new ImageAnalysis(1, 100, true);
-        ImageNetwork network = analysis.neuralNetwork(40)
+        this.edgeFind = analysis.neuralNetwork(40)
                 .classifyNone(analysis.imagePart(img, 0, 540))
                 .classifyNone(analysis.imagePart(img, 100, 540))
                 .classifyNone(analysis.imagePart(img, 200, 540))
@@ -31,26 +58,7 @@ public class MinesweeperScan {
                 .classify(true, analysis.imagePart(img, 670, 540))
                 .learn(new Backpropagation(0.1, 10000), new Random(42));
 
-        String defaultData = "challenge-press-26x14";
-        TextInputDialog dialog = new TextInputDialog(defaultData);
-        String dataSet = dialog.showAndWait().orElse(defaultData);
-        MinesweeperTrainingBoard board = MinesweeperTrainingBoard.fromResource(dataSet);
 
-        ZRect rect = findEdges(network, board.getImage());
-        System.out.println("Edges: " + rect);
-        // also try find separations by scanning lines and finding the line with the lowest delta diff
-
-        ZRect[][] gridLocations = findGrid(board.getImage(), rect);
-        char[][] gridValues = scanGrid(board.getImage(), gridLocations, board.getExpected());
-        for (int y = 0; y < gridValues.length; y++) {
-            for (int x = 0; x < gridValues[y].length; x++) {
-                System.out.print(gridValues[y][x]);
-            }
-            System.out.println();
-        }
-    }
-
-    private static char[][] scanGrid(BufferedImage runImage, ZRect[][] gridLocations, String expected) {
         String fileName = "challenge-flags-16x16.png";
         BufferedImage image = MyImageUtil.resource(fileName);
         ImageAnalysis analyze = new ImageAnalysis(36, 36, false);
@@ -68,15 +76,15 @@ public class MinesweeperScan {
         for (Map.Entry<Character, ZPoint> ee : trainingSet.entrySet()) {
             int yy = ee.getValue().getY();
             int xx = ee.getValue().getX();
-            networkBuilder = networkBuilder.classify(ee.getKey(), analyze.imagePart(image, xx + 0, yy + 0));
 //            for (int y = 4; y <= 4; y += 2) {
 //                for (int x = 4; x <= 4; x += 2) {
 //                    networkBuilder = networkBuilder.classify(ee.getKey(), analyze.imagePart(image, xx + x, yy + y));
 //                }
 //            }
-
+            MyImageUtil.save(MyImageUtil.grayscale(Scalr.crop(image, xx, yy, analyze.getWidth(), analyze.getHeight())), "train-" + ee.getKey());
+            networkBuilder = networkBuilder.classify(ee.getKey(), analyze.imagePart(image, xx + 0, yy + 0));
         }
-        ImageNetwork network = networkBuilder.classifyNone(analyze.imagePart(image, 0, 0))
+        squareRecognition = networkBuilder.classifyNone(analyze.imagePart(image, 0, 0))
                 .classifyNone(analyze.imagePart(image, 878, 456))
                 .classifyNone(analyze.imagePart(image, 903, 456))
                 .classifyNone(analyze.imagePart(image, 948, 456))
@@ -86,6 +94,30 @@ public class MinesweeperScan {
                 .classifyNone(analyze.imagePart(image, 963, 536))
                 .learn(new Backpropagation(0.1, 4000), new Random(42));
 
+    }
+
+    public void scan() {
+
+        String defaultData = "challenge-press-26x14";
+        TextInputDialog dialog = new TextInputDialog(defaultData);
+        String dataSet = dialog.showAndWait().orElse(defaultData);
+        MinesweeperTrainingBoard board = MinesweeperTrainingBoard.fromResource(dataSet);
+
+        ZRect rect = findEdges(edgeFind, board.getImage());
+        System.out.println("Edges: " + rect);
+        // also try find separations by scanning lines and finding the line with the lowest delta diff
+
+        ZRect[][] gridLocations = findGrid(board.getImage(), rect);
+        char[][] gridValues = scanGrid(board.getImage(), gridLocations, board.getExpected());
+        for (int y = 0; y < gridValues.length; y++) {
+            for (int x = 0; x < gridValues[y].length; x++) {
+                System.out.print(gridValues[y][x]);
+            }
+            System.out.println();
+        }
+    }
+
+    private char[][] scanGrid(BufferedImage runImage, ZRect[][] gridLocations, String expected) {
         char[][] result = new char[gridLocations.length][gridLocations[0].length];
         ImagePainter painter = new ImagePainter(runImage.getWidth(), runImage.getHeight());
 
@@ -103,7 +135,7 @@ public class MinesweeperScan {
             expectedRow = expectedRow == null ? null : expectedRow.trim();
             for (int x = 0; x < gridLocations[y].length; x++) {
                 ZRect rect = gridLocations[y][x];
-                SquareRunResult output = findBestSquare(network, runImage, rect);
+                SquareRunResult output = findBestSquare(squareRecognition, runImage, rect);
                 double score = 0;
                 if (output != null) {
                     double value = output.getBestScore();
@@ -204,31 +236,8 @@ public class MinesweeperScan {
 //                network.getWidth(), network.getHeight(), run.getWidth(), run.getHeight());
     }
 
-    private static ZRect[][] findGrid(BufferedImage runImage, ZRect rect) {
+    private ZRect[][] findGrid(BufferedImage runImage, ZRect rect) {
         // Classify the line separator as true
-        ImageAnalysis horizontalAnalysis = new ImageAnalysis(50, 2, true);
-        ImageNetwork horizontal = horizontalAnalysis.neuralNetwork(20)
-                .classify(true, horizontalAnalysis.imagePart(img, 600, 235))
-                .classify(true, horizontalAnalysis.imagePart(img, 700, 235))
-                .classifyNone(horizontalAnalysis.imagePart(img, 600, 249))
-                .classifyNone(horizontalAnalysis.imagePart(img, 664, 249))
-                .learn(new Backpropagation(0.1, 10000), new Random(42));
-
-        ImageAnalysis verticalAnalysis = new ImageAnalysis(2, 50, true);
-        ImageNetwork vertical = verticalAnalysis.neuralNetwork(20)
-                .classify(true, verticalAnalysis.imagePart(img, 700, 300))
-                .classify(true, verticalAnalysis.imagePart(img, 700, 400))
-                .classifyNone(verticalAnalysis.imagePart(img, 682, 279))
-                .classifyNone(verticalAnalysis.imagePart(img, 765, 279))
-                .classifyNone(verticalAnalysis.imagePart(img, 630, 249))
-                .classifyNone(verticalAnalysis.imagePart(img, 795, 290))
-                .classifyNone(verticalAnalysis.imagePart(img, 795, 365))
-                .classifyNone(verticalAnalysis.imagePart(img, 795, 465))
-                .classifyNone(verticalAnalysis.imagePart(img, 722, 497))
-                .classifyNone(verticalAnalysis.imagePart(img, 770, 249))
-                .classifyNone(verticalAnalysis.imagePart(img, 719, 497))
-                .learn(new Backpropagation(0.1, 10000), new Random(42));
-
         List<Integer> horizontalLines = new ArrayList<>();
         for (int y = rect.top; y + horizontal.getHeight() < rect.bottom; y++) {
             double[] input = horizontal.imagePart(runImage, rect.left + 10, y);
