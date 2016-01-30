@@ -230,8 +230,8 @@ public class MinesweeperScan {
                 .learn(new Backpropagation(0.1, 10000), new Random(42));
 
         List<Integer> horizontalLines = new ArrayList<>();
-        for (int y = rect.top; y + horizontalAnalysis.getHeight() < rect.bottom; y++) {
-            double[] input = horizontalAnalysis.imagePart(runImage, rect.left + 10, y);
+        for (int y = rect.top; y + horizontal.getHeight() < rect.bottom; y++) {
+            double[] input = horizontal.imagePart(runImage, rect.left + 10, y);
             double[] output = horizontal.getNetwork().run(input);
             double result = output[0];
             if (result > 0.7) {
@@ -240,8 +240,8 @@ public class MinesweeperScan {
         }
 
         List<Integer> verticalLines = new ArrayList<>();
-        for (int x = rect.left; x + verticalAnalysis.getWidth() < rect.right; x++) {
-            double[] input = verticalAnalysis.imagePart(runImage, x, rect.top + 10);
+        for (int x = rect.left; x + vertical.getWidth() < rect.right; x++) {
+            double[] input = vertical.imagePart(runImage, x, rect.top + 10);
             double[] output = vertical.getNetwork().run(input);
             double result = output[0];
             if (result > 0.7) {
