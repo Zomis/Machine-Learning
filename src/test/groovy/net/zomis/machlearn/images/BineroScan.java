@@ -1,6 +1,5 @@
 package net.zomis.machlearn.images;
 
-import javafx.scene.image.Image;
 import net.zomis.combinatorics.Binero;
 import net.zomis.machlearn.neural.Backpropagation;
 import net.zomis.minesweeper.analyze.AnalyzeFactory;
@@ -9,10 +8,7 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class BineroScan {
@@ -21,6 +17,7 @@ public class BineroScan {
         BufferedImage image = MyImageUtil.resource("binero.png");
         ZRect[][] boardRects = imageToRects(image);
         String board = valuesForBoard(image, boardRects);
+        System.out.println(board);
         ByteArrayInputStream stream = new ByteArrayInputStream(board.getBytes(StandardCharsets.UTF_8));
         try {
             AtomicInteger size = new AtomicInteger();
@@ -34,7 +31,36 @@ public class BineroScan {
     }
 
     private static String valuesForBoard(BufferedImage image, ZRect[][] boardRects) {
-        return "";
+        ImageNetwork network = constructRectToNumberNetwork();
+        StringBuilder str = new StringBuilder();
+        for (int y = 0; y < boardRects.length; y++) {
+            for (int x = 0; x < boardRects[y].length; x++) {
+                ZRect rect = boardRects[y][x];
+                BufferedImage runImage = MinesweeperScan.scaledRunImage(network.getAnalysis(), image, rect);
+                Map<Object, Double> values = network.run(network.imagePart(runImage, 0, 0));
+                Map.Entry<Object, Double> best = values.entrySet().stream()
+                    .max(Comparator.comparingDouble(Map.Entry::getValue)).get();
+                if (best.getValue() > 0.5) {
+                    str.append(best.getKey());
+                } else {
+                    str.append(' ');
+                }
+            }
+            str.append('\n');
+        }
+
+        return str.toString();
+    }
+
+    private static ImageNetwork constructRectToNumberNetwork() {
+        BufferedImage learningImage = MyImageUtil.resource("binero.png");
+        ImageAnalysis analysis = new ImageAnalysis(30, 30, true);
+        Backpropagation backprop = new Backpropagation(0.1, 10000).setLogRate(400);
+        return analysis.neuralNetwork(20)
+            .classify(0, analysis.imagePart(learningImage, 626, 76))
+            .classify(1, analysis.imagePart(learningImage, 458, 76))
+            .classifyNone(analysis.imagePart(learningImage, 593, 76))
+            .learn(backprop, new Random(42));
     }
 
     private static ZRect[][] imageToRects(BufferedImage image) {

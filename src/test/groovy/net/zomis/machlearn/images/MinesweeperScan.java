@@ -271,7 +271,7 @@ public class MinesweeperScan {
         return (Character) max.getKey();
     }
 
-    private static BufferedImage scaledRunImage(ImageAnalysis network, BufferedImage runImage, ZRect rect) {
+    public static BufferedImage scaledRunImage(ImageAnalysis network, BufferedImage runImage, ZRect rect) {
         if (rect == null) {
             return null;
         }
@@ -279,8 +279,6 @@ public class MinesweeperScan {
         int minRect = Math.min(rect.width(), rect.height());
         BufferedImage image = Scalr.crop(runImage, rect.left, rect.top, minRect, minRect);
         return Scalr.resize(image, min, min);
-//        System.out.printf("Running on %s with target size %d, %d run image is %d, %d%n", rect,
-//                network.getWidth(), network.getHeight(), run.getWidth(), run.getHeight());
     }
 
     private ZRect[][] findGrid(BufferedImage runImage, ZRect rect) {
