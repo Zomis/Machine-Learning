@@ -160,8 +160,8 @@ public class MinesweeperScan {
                 if (score > bestScore) {
                     bestScore = score;
                     best = map;
-                    System.out.printf("New best score %f result %s. Run on %s with real rect %s%n",
-                        score, map, runRect, rect);
+//                    System.out.printf("New best score %f result %s. Run on %s with real rect %s%n",
+//                        score, map, runRect, rect);
                 }
             }
         }
