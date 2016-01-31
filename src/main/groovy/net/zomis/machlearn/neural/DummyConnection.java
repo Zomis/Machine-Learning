@@ -26,7 +26,7 @@ class DummyConnection implements NeuronLink {
 
     @Override
     public String toString() {
-        return "w0 $weight";
+        return "w0 " + weight;
     }
 
 }

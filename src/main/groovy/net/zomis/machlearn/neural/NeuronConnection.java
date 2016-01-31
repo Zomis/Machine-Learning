@@ -34,7 +34,7 @@ public class NeuronConnection implements NeuronLink {
 
     @Override
     public String toString() {
-        return "$from --> $to w($weight)";
+        return String.format("%s --> %s w(%f)", from, to, weight);
     }
 
     public Neuron getTo() {
