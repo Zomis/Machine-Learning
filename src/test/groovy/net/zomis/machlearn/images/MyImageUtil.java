@@ -35,7 +35,9 @@ public class MyImageUtil {
     public static void save(BufferedImage img, String fileName) {
         SAVE_DIRECTORY.mkdirs();
         try {
-            ImageIO.write(img, "PNG", new File(SAVE_DIRECTORY, fileName + ".png"));
+            File file = new File(SAVE_DIRECTORY, fileName + ".png");
+            ImageIO.write(img, "PNG", file);
+            System.out.println("Saved " + file.getAbsolutePath());
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
