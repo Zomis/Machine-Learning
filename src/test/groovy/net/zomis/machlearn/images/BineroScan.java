@@ -11,6 +11,8 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -29,7 +31,14 @@ public class BineroScan {
         BineroScan scan = new BineroScan();
         do {
             BufferedImage image = MyImageUtil.screenshot();
-            scan.run(image, true);
+            try {
+                scan.run(image, true);
+            } catch (RuntimeException ex) {
+                System.out.println("Error analyzing board. Board was probably not in the center of screen");
+                String time = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd_HHmmss"));
+                MyImageUtil.save(image, "failure-" + time);
+                ex.printStackTrace();
+            }
             System.out.println("Go again?");
         } while (scanner.nextLine().equals("y"));
         scanner.close();
