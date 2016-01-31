@@ -86,7 +86,11 @@ public class MinesweeperScan {
 //                    networkBuilder = networkBuilder.classify(ee.getKey(), analyze.imagePart(image, xx + x, yy + y));
 //                }
 //            }
-            MyImageUtil.save(MyImageUtil.grayscale(Scalr.crop(image, xx, yy, analyze.getWidth(), analyze.getHeight())), "train-" + ee.getKey());
+            BufferedImage trainImage = Scalr.crop(image, xx, yy, analyze.getWidth(), analyze.getHeight());
+            if (analyze.isGrayscale()) {
+                trainImage = MyImageUtil.grayscale(trainImage);
+            }
+            MyImageUtil.save(trainImage, "train-" + ee.getKey());
             networkBuilder = networkBuilder.classify(ee.getKey(), analyze.imagePart(image, xx + 0, yy + 0));
         }
         ImageNetworkBuilder squareNetworkBuilder = networkBuilder.classifyNone(analyze.imagePart(image, 0, 0))

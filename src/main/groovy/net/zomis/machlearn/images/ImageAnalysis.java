@@ -81,4 +81,8 @@ public class ImageAnalysis {
         return height;
     }
 
+    public boolean isGrayscale() {
+        return this.useGrayscale;
+    }
+
 }
