@@ -11,6 +11,10 @@ public class ZRect {
         this(0, 0, 0, 0);
     }
 
+    public ZRect(ZRect copyOf) {
+        this(copyOf.left, copyOf.top, copyOf.right, copyOf.bottom);
+    }
+
     public ZRect(int left, int top, int right, int bottom) {
         this.left = left;
         this.top = top;
@@ -34,5 +38,13 @@ public class ZRect {
 
     public int height() {
         return this.bottom - this.top;
+    }
+
+    public ZRect expand(int amount) {
+        this.left -= amount;
+        this.top -= amount;
+        this.right += amount;
+        this.bottom += amount;
+        return this;
     }
 }
