@@ -144,6 +144,9 @@ public class MinesweeperScan {
         MinesweeperTrainingBoard board = MinesweeperTrainingBoard.fromResource(dataSet);
 
         ZRect rect = findEdges(edgeFind, board.getImage());
+        ImagePainter rectDraw = new ImagePainter(board.getImage());
+        rectDraw.drawRect(rect, new Color(1, 1, 1, 0.6f));
+        rectDraw.save("rect");
         System.out.println("Edges: " + rect);
         // also try find separations by scanning lines and finding the line with the lowest delta diff
 

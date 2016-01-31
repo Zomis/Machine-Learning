@@ -113,9 +113,13 @@ public class ImagePainter {
                     continue;
                 }
                 Color color = colors[(y * 2 + x) % colors.length];
-                graphics.setColor(color);
-                graphics.fillRect(rect.left, rect.top, rect.width(), rect.height());
+                this.drawRect(rect, color);
             }
         }
+    }
+
+    public void drawRect(ZRect rect, Color color) {
+        graphics.setColor(color);
+        graphics.fillRect(rect.left, rect.top, rect.width(), rect.height());
     }
 }
