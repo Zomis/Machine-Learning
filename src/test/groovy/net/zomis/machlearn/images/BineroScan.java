@@ -29,13 +29,13 @@ public class BineroScan {
         BineroScan scan = new BineroScan();
         do {
             BufferedImage image = MyImageUtil.screenshot();
-            scan.run(image, scanner);
+            scan.run(image, true);
             System.out.println("Go again?");
         } while (scanner.nextLine().equals("y"));
         scanner.close();
     }
 
-    public void run(BufferedImage image, Scanner scanner) {
+    public void run(BufferedImage image, boolean click) {
         ZRect[][] boardRects = imageToRects(imageToRects, imageToRects.flip(), image);
         String board = valuesForBoard(image, boardRects);
         System.out.println(board);
@@ -61,9 +61,7 @@ public class BineroScan {
             if (analysis.getTotal() == 1) {
                 String solution = IntegerPoints.map(analysis.getSolutions().get(0).getSetGroupValues(), size.get());
                 String[] solutionRows = solution.split("\n");
-                System.out.println("Start clicking? (Y/N)");
-                String in = "y";
-                if (in.equals("y")) {
+                if (click) {
                     MyRobot robot = new MyRobot();
                     for (int y = 0; y < solutionRows.length; y++) {
                         String solutionRow = solutionRows[y];
