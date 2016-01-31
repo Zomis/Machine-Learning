@@ -4,6 +4,7 @@ import javafx.scene.control.TextInputDialog;
 import net.zomis.machlearn.neural.Backpropagation;
 import org.imgscalr.Scalr;
 
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.*;
 import java.util.List;
