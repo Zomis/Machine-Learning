@@ -57,7 +57,7 @@ public class ImagePainter {
             int rightBorder, int bottomBorder,
             BufferedImage image, XYToDoubleArray inputFunction,
             ToDoubleFunction<double[]> outputFunction) {
-        ImagePainter painter = new ImagePainter(image.getWidth(), image.getHeight());
+        ImagePainter painter = new ImagePainter(image);
 
         int maxX = image.getWidth() - rightBorder;
         int maxY = image.getHeight() - bottomBorder;
@@ -70,10 +70,16 @@ public class ImagePainter {
                 double[] input = inputFunction.toInput(network, image, x, y);
                 double[] output = network.getNetwork().run(input);
                 double value = outputFunction.applyAsDouble(output);
-                painter.drawGrayscale(x, y, value);
+                painter.drawGrayscaleAlpha(x, y, value, 0.6f);
             }
         }
         return painter;
+    }
+
+    private void drawGrayscaleAlpha(int x, int y, double value, float alpha) {
+        float f = (float) value;
+        graphics.setColor(new Color(f, f, f, alpha));
+        graphics.fillRect(x, y, 1, 1);
     }
 
     public static ImagePainter[] visualizeNetworks(ImageNetwork network,
@@ -81,7 +87,7 @@ public class ImagePainter {
             BufferedImage image, XYToDoubleArray inputFunction) {
         ImagePainter[] painters = new ImagePainter[network.getOutputs().length];
         for (int i = 0; i < painters.length; i++) {
-            ImagePainter painter = new ImagePainter(image.getWidth(), image.getHeight());
+            ImagePainter painter = new ImagePainter(image);
             painters[i] = painter;
         }
 
@@ -122,4 +128,9 @@ public class ImagePainter {
         graphics.setColor(color);
         graphics.fillRect(rect.left, rect.top, rect.width(), rect.height());
     }
+
+    public static double[] normalInput(ImageNetwork network, BufferedImage image, int x, int y) {
+        return network.imagePart(image, x, y);
+    }
+
 }

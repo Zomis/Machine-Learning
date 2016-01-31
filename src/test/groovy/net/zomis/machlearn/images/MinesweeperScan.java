@@ -146,7 +146,6 @@ public class MinesweeperScan {
     }
 
     public void scan() {
-
         String defaultData = "challenge-press-26x14";
         TextInputDialog dialog = new TextInputDialog(defaultData);
         String dataSet = dialog.showAndWait().orElse(defaultData);
@@ -158,6 +157,12 @@ public class MinesweeperScan {
         rectDraw.save("rect");
         System.out.println("Edges: " + rect);
         // also try find separations by scanning lines and finding the line with the lowest delta diff
+
+        ImagePainter.visualizeNetwork(horizontal, horizontal.getWidth(), horizontal.getHeight(),
+                board.getImage(), ImagePainter::normalInput, out -> out[0]).save("horizontal");
+
+        ImagePainter.visualizeNetwork(vertical, vertical.getWidth(), vertical.getHeight(),
+                board.getImage(), ImagePainter::normalInput, out -> out[0]).save("vertical");
 
         ZRect[][] gridLocations = findGrid(board.getImage(), rect);
         ImagePainter painter = new ImagePainter(board.getImage());
