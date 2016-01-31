@@ -45,7 +45,9 @@ public class BineroScan {
     }
 
     public void run(BufferedImage image, boolean click) {
-        ZRect[][] boardRects = imageToRects(imageToRects, imageToRects.flip(), image);
+        ZRect[][] boardRects = imageToRects(imageToRects, imageToRects.flip(), image,
+            new ZRect(0, 0, image.getWidth(), image.getHeight()),
+            image.getHeight() / 2);
         String board = valuesForBoard(image, boardRects);
         System.out.println(board);
         ByteArrayInputStream stream = new ByteArrayInputStream(board.getBytes(StandardCharsets.UTF_8));
@@ -130,22 +132,28 @@ public class BineroScan {
             .learn(backprop, new Random(42));
     }
 
-    public static ZRect[][] imageToRects(ImageNetwork networkX, ImageNetwork networkY, BufferedImage image) {
-        int middleY = image.getHeight() / 2;
+    public static ZRect[][] imageToRects(ImageNetwork networkX, ImageNetwork networkY, BufferedImage image,
+             ZRect scanArea, int middleY) {
         List<Integer> xSeparatorLines = new ArrayList<>();
-        for (int x = 0; x <= image.getWidth() - networkX.getWidth(); x++) {
+        for (int x = scanArea.left; x <= scanArea.right; x++) {
+            if (x > image.getWidth() - networkX.getWidth()) {
+                break;
+            }
             double[] output = networkX.getNetwork().run(networkX.imagePart(image, x, middleY));
             if (output[0] > 0.6) {
                 xSeparatorLines.add(x);
             }
         }
         System.out.println(xSeparatorLines);
+        int[] xBoxes = createBox(xSeparatorLines);
 
-        int middleX = xSeparatorLines.get(xSeparatorLines.size() / 2);
+        int middleX = xBoxes[xBoxes.length / 2];
 
         List<Integer> ySeparatorLines = new ArrayList<>();
-        for (int y = 0; y <= image.getHeight() - networkY.getHeight(); y++) {
-            // running with the same network should work as we have the same sizes
+        for (int y = scanArea.top; y <= scanArea.bottom; y++) {
+            if (y > image.getHeight() - networkY.getHeight()) {
+                break;
+            }
             double[] output = networkY.getNetwork().run(ImageAnalysis.imagePart(image, middleX, y,
                     networkY.getWidth(), networkY.getHeight(), true));
             if (output[0] > 0.6) {
@@ -153,8 +161,6 @@ public class BineroScan {
             }
         }
         System.out.println(ySeparatorLines);
-
-        int[] xBoxes = createBox(xSeparatorLines);
         int[] yBoxes = createBox(ySeparatorLines);
         return createRectsFromLines(xBoxes, yBoxes);
     }
