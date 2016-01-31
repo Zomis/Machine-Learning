@@ -9,6 +9,12 @@ import java.awt.image.BufferedImage;
 import java.util.*;
 import java.util.List;
 
+/**
+ * Minesweeper pipeline:
+ * - Scan for grid edges
+ * - Scan for square separators, construct ZRect[][]
+ * - Scan each square to determine the value
+ */
 public class MinesweeperScan {
 
     private static final boolean SAVE_ERROR_SQUARES = true;
