@@ -124,7 +124,7 @@ public class BineroScan {
     public static ZRect[][] imageToRects(ImageNetwork networkX, ImageNetwork networkY, BufferedImage image) {
         int middleY = image.getHeight() / 2;
         List<Integer> xSeparatorLines = new ArrayList<>();
-        for (int x = 0; x < image.getWidth(); x++) {
+        for (int x = 0; x <= image.getWidth() - networkX.getWidth(); x++) {
             double[] output = networkX.getNetwork().run(networkX.imagePart(image, x, middleY));
             if (output[0] > 0.6) {
                 xSeparatorLines.add(x);
@@ -135,7 +135,7 @@ public class BineroScan {
         int middleX = xSeparatorLines.get(xSeparatorLines.size() / 2);
 
         List<Integer> ySeparatorLines = new ArrayList<>();
-        for (int y = 0; y < image.getHeight(); y++) {
+        for (int y = 0; y <= image.getHeight() - networkY.getHeight(); y++) {
             // running with the same network should work as we have the same sizes
             double[] output = networkY.getNetwork().run(ImageAnalysis.imagePart(image, middleX, y,
                     networkY.getWidth(), networkY.getHeight(), true));
