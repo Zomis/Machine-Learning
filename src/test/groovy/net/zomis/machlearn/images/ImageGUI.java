@@ -8,6 +8,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Spinner;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.FlowPane;
 import javafx.stage.Stage;
@@ -34,8 +35,10 @@ public class ImageGUI extends Application {
         spinY = new Spinner<>(0, image.getHeight(), 0);
         spinWidth = new Spinner<>(1, image.getWidth(), 1);
         spinHeight = new Spinner<>(1, image.getHeight(), 1);
-        Stream.of(spinX, spinY, spinWidth, spinHeight).forEach(sp ->
-                sp.valueProperty().addListener(this::spinUpdate));
+        Stream.of(spinX, spinY, spinWidth, spinHeight).forEach(sp -> {
+            sp.valueProperty().addListener(this::spinUpdate);
+            sp.setEditable(true);
+        });
     }
 
     private void spinUpdate(ObservableValue<? extends Double> observable, Double oldValue, Double newValue) {
@@ -45,6 +48,9 @@ public class ImageGUI extends Application {
                 spinHeight.getValue().intValue());
         Image fxImage = SwingFXUtils.toFXImage(img, null);
         imageView.setImage(fxImage);
+    }
+
+    private void clicked(MouseEvent event) {
     }
 
     @Override
@@ -59,11 +65,13 @@ public class ImageGUI extends Application {
         **/
         BorderPane root = new BorderPane();
         Scene scene = new Scene(root);
+//        String file = "binero.png";
         String file = "challenge-flags-16x16.png";
-//        String file = "challenge-press-24x14.png";
+//        String file = "challenge-press-26x14.png";
         bigImage = new Image(getClass().getClassLoader()
             .getResourceAsStream(file));
         imageView = new ImageView(bigImage);
+        imageView.addEventHandler(MouseEvent.MOUSE_CLICKED, this::clicked);
         FlowPane flowPane = new FlowPane();
         Button button = new Button("Test");
         button.setOnAction(ev -> this.minesweeperScan());
