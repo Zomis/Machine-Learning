@@ -36,7 +36,7 @@ public class BineroScan {
     }
 
     public void run(BufferedImage image, Scanner scanner) {
-        ZRect[][] boardRects = imageToRects(image);
+        ZRect[][] boardRects = imageToRects(imageToRects, imageToRects.flip(), image);
         String board = valuesForBoard(image, boardRects);
         System.out.println(board);
         ByteArrayInputStream stream = new ByteArrayInputStream(board.getBytes(StandardCharsets.UTF_8));
@@ -123,13 +123,11 @@ public class BineroScan {
             .learn(backprop, new Random(42));
     }
 
-    private ZRect[][] imageToRects(BufferedImage image) {
-        ImageNetwork network = this.imageToRects;
-
+    public static ZRect[][] imageToRects(ImageNetwork networkX, ImageNetwork networkY, BufferedImage image) {
         int middleY = image.getHeight() / 2;
         List<Integer> xSeparatorLines = new ArrayList<>();
         for (int x = 0; x < image.getWidth(); x++) {
-            double[] output = network.getNetwork().run(network.imagePart(image, x, middleY));
+            double[] output = networkX.getNetwork().run(networkX.imagePart(image, x, middleY));
             if (output[0] > 0.6) {
                 xSeparatorLines.add(x);
             }
@@ -141,8 +139,8 @@ public class BineroScan {
         List<Integer> ySeparatorLines = new ArrayList<>();
         for (int y = 0; y < image.getHeight(); y++) {
             // running with the same network should work as we have the same sizes
-            double[] output = network.getNetwork().run(ImageAnalysis.imagePart(image, middleX, y,
-                    network.getHeight(), network.getWidth(), true)); // height and width has been flipped here
+            double[] output = networkY.getNetwork().run(ImageAnalysis.imagePart(image, middleX, y,
+                    networkY.getWidth(), networkY.getHeight(), true));
             if (output[0] > 0.6) {
                 ySeparatorLines.add(y);
             }

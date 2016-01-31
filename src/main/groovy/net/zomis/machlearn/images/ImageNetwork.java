@@ -61,4 +61,10 @@ public class ImageNetwork {
         return analysis;
     }
 
+    public ImageNetwork flip() {
+        // flip XY of this network
+        ImageAnalysis flipped = new ImageAnalysis(getHeight(), getWidth(), getAnalysis().isGrayscale());
+        return new ImageNetwork(flipped, this.network, getOutputs());
+    }
+
 }
