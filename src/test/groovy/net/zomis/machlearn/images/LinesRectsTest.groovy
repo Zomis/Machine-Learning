@@ -8,7 +8,9 @@ class LinesRectsTest {
     void testRectsFromLines() {
         def xLines = [47, 285, 286, 287, 320, 321, 322, 354, 388, 422, 455, 456, 489, 490, 1296]
         def yLines = [72, 73, 74, 107, 108, 141, 175, 209, 242, 243, 276]
-        def rects = BineroScan.createRectsFromLines(xLines, yLines);
+        int[] xBoxes = BineroScan.createBox(xLines);
+        int[] yBoxes = BineroScan.createBox(yLines);
+        def rects = BineroScan.createRectsFromLines(xBoxes, yBoxes);
         assert rects != null;
         assert rects.length == 6;
         for (int y = 0; y < rects.length; y++) {

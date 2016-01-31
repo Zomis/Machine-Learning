@@ -154,12 +154,12 @@ public class BineroScan {
         }
         System.out.println(ySeparatorLines);
 
-        return createRectsFromLines(xSeparatorLines, ySeparatorLines);
-    }
-
-    public static ZRect[][] createRectsFromLines(List<Integer> xSeparatorLines, List<Integer> ySeparatorLines) {
         int[] xBoxes = createBox(xSeparatorLines);
         int[] yBoxes = createBox(ySeparatorLines);
+        return createRectsFromLines(xBoxes, yBoxes);
+    }
+
+    public static ZRect[][] createRectsFromLines(int[] xBoxes, int[] yBoxes) {
         System.out.println(Arrays.toString(xBoxes));
         System.out.println(Arrays.toString(yBoxes));
 
@@ -183,7 +183,7 @@ public class BineroScan {
         return result;
     }
 
-    private static int[] createBox(List<Integer> values) {
+    public static int[] createBox(List<Integer> values) {
         int[] diffsX = new int[values.size()];
         int old = 0;
         for (int i = 0; i < values.size(); i++) {
