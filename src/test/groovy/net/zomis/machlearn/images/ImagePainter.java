@@ -3,6 +3,7 @@ package net.zomis.machlearn.images;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.util.Random;
 import java.util.function.ToDoubleFunction;
 
 public class ImagePainter {
@@ -14,6 +15,12 @@ public class ImagePainter {
         graphics = img.createGraphics();
         graphics.setColor(Color.MAGENTA);
         graphics.fillRect(0, 0, width, width);
+    }
+
+    public ImagePainter(BufferedImage image) {
+        img = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_INT_ARGB);
+        graphics = img.createGraphics();
+        graphics.drawImage(image, 0, 0, null);
     }
 
     public void drawGrayscale(int x, int y, double value) {
@@ -96,4 +103,19 @@ public class ImagePainter {
         return painters;
     }
 
+    public void drawGrids(ZRect[][] gridLocations) {
+        Color[] colors = { new Color(1, 0, 0, 0.6f), new Color(0, 1, 0, 0.6f), new Color(0, 0, 1, 0.6f),
+                new Color(1, 1, 0, 0.6f), new Color(1, 0, 1, 0.6f), new Color(0, 1, 1, 0.6f)};
+        for (int y = 0; y < gridLocations.length; y++) {
+            for (int x = 0; x < gridLocations[y].length; x++) {
+                ZRect rect = gridLocations[y][x];
+                if (rect == null) {
+                    continue;
+                }
+                Color color = colors[(y * 2 + x) % colors.length];
+                graphics.setColor(color);
+                graphics.fillRect(rect.left, rect.top, rect.width(), rect.height());
+            }
+        }
+    }
 }

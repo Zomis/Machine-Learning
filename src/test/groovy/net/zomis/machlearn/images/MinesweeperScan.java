@@ -148,6 +148,10 @@ public class MinesweeperScan {
         // also try find separations by scanning lines and finding the line with the lowest delta diff
 
         ZRect[][] gridLocations = findGrid(board.getImage(), rect);
+        ImagePainter painter = new ImagePainter(board.getImage());
+        painter.drawGrids(gridLocations);
+        painter.save("grids");
+
         char[][] gridValues = scanGrid(board.getImage(), gridLocations, board.getExpected());
         for (int y = 0; y < gridValues.length; y++) {
             for (int x = 0; x < gridValues[y].length; x++) {
@@ -159,7 +163,7 @@ public class MinesweeperScan {
 
     private char[][] scanGrid(BufferedImage runImage, ZRect[][] gridLocations, String expected) {
         char[][] result = new char[gridLocations.length][gridLocations[0].length];
-        ImagePainter painter = new ImagePainter(runImage.getWidth(), runImage.getHeight());
+        ImagePainter painter = new ImagePainter(runImage);
 
         // MinesweeperScan.runOnImage(analyze, network, runImage, m -> m.values().stream().mapToDouble(d -> d).max().getAsDouble());
 //        ImagePainter[] painters = ImagePainter.visualizeNetworks(network, gridLocations[0][0].width(), gridLocations[0][0].height(), runImage,
