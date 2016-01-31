@@ -43,7 +43,7 @@ public class NeuralNetwork {
     }
 
     public void printAll() {
-        System.out.println("$layerCount layers:");
+        System.out.println(getLayerCount() + " layers:");
         layers.stream().forEach(it -> {
             it.printNodes();
             System.out.println();

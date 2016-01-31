@@ -69,7 +69,8 @@ public class Neuron {
     }
 
     public void printInfo() {
-        System.out.println("Node $this\n inputs $inputs\n outputs $outputs\n input $input output $output");
+        System.out.printf("Node %s\n inputs %s\n outputs %s\n input %f output %f%n",
+            this, inputs, outputs, input, output);
     }
 
     @Override
