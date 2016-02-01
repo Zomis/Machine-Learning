@@ -29,7 +29,7 @@ public class Backpropagation {
         // local variables: Δ, a vector of errors, indexed by network node
         int iterations = 0;
 
-        network.links().forEach(it -> it.setWeight(random.nextDouble() - 0.5));
+        network.links().forEach(it -> it.setWeight(random.nextDouble() / 2 - 0.25));
         double[][] deltas = new double[network.getLayerCount() - 1][];
         for (int layeri = 0; layeri < network.getLayerCount() - 1; layeri++) {
             NeuronLayer layer = network.getLayer(layeri + 1);
