@@ -8,6 +8,8 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.*;
 import java.util.List;
+import java.util.stream.DoubleStream;
+import java.util.stream.IntStream;
 
 /**
  * Minesweeper pipeline:
@@ -31,15 +33,16 @@ public class MinesweeperScan {
     public MinesweeperScan() {
         Backpropagation fastBackprop = new Backpropagation(0.1, 10000);
         fastBackprop.setLogRate(1000);
-        ImageAnalysis horizontalAnalysis = new ImageAnalysis(50, 2, true);
-        horizontal = horizontalAnalysis.neuralNetwork(20)
+        ImageAnalysis horizontalAnalysis = new ImageAnalysis(50, 1, true);
+        ImageNetworkBuilder horizontal = horizontalAnalysis.neuralNetwork(20)
                 .classify(true, horizontalAnalysis.imagePart(img, 600, 235))
                 .classify(true, horizontalAnalysis.imagePart(img, 700, 235))
                 .classifyNone(horizontalAnalysis.imagePart(img, 600, 249))
-                .classifyNone(horizontalAnalysis.imagePart(img, 664, 249))
-                .learn(fastBackprop, new Random(42));
+                .classifyNone(horizontalAnalysis.imagePart(img, 664, 249));
+        classifyRange(horizontal, true, img, new ZRect(600, 195, 600 + 750, 195), 5, 1);
+        this.horizontal = horizontal.learn(fastBackprop, new Random(42));
 
-        ImageAnalysis verticalAnalysis = new ImageAnalysis(2, 50, true);
+        ImageAnalysis verticalAnalysis = new ImageAnalysis(1, 50, true);
         vertical = verticalAnalysis.neuralNetwork(20)
                 .classify(true, verticalAnalysis.imagePart(img, 700, 300))
                 .classify(true, verticalAnalysis.imagePart(img, 700, 400))
@@ -115,6 +118,16 @@ public class MinesweeperScan {
 
     }
 
+    private static ImageNetworkBuilder classifyRange(ImageNetworkBuilder builder, Object object, BufferedImage img, ZRect rect,
+                                              int windowStepX, int windowStepY) {
+        for (int y = rect.top; y <= rect.bottom; y += windowStepY) {
+            for (int x = rect.left; x <= rect.right; x += windowStepX) {
+                builder = builder.classify(object, builder.getAnalysis().imagePart(img, x, y));
+            }
+        }
+        return builder;
+    }
+
     private ImageNetwork learnFromMinesweeperBoard(MinesweeperTrainingBoard minesweeperTrainingBoard) {
         BufferedImage image = minesweeperTrainingBoard.getImage();
         ZRect rect = findEdges(edgeFind, image);
@@ -164,7 +177,10 @@ public class MinesweeperScan {
         ImagePainter.visualizeNetwork(vertical, vertical.getWidth(), vertical.getHeight(),
                 board.getImage(), ImagePainter::normalInput, out -> out[0]).save("vertical");
 
-        ZRect[][] gridLocations = findGrid(board.getImage(), rect);
+        ZRect copyRect = new ZRect(rect);
+        copyRect.expand(20);
+
+        ZRect[][] gridLocations = findGrid(board.getImage(), copyRect);
         ImagePainter painter = new ImagePainter(board.getImage());
         painter.drawGrids(gridLocations);
         painter.save("grids");
@@ -307,17 +323,55 @@ public class MinesweeperScan {
     }
 
     private ZRect[][] findGrid(BufferedImage runImage, ZRect rect) {
+        double THRESHOLD = 0.5;
+
         // Classify the line separator as true
         List<Integer> horizontalLines = new ArrayList<>();
-        for (int y = rect.top; y + horizontal.getHeight() < rect.bottom; y++) {
-            double[] input = horizontal.imagePart(runImage, rect.left + 10, y);
-            double[] output = horizontal.getNetwork().run(input);
-            double result = output[0];
-            if (result > 0.7) {
+        boolean wasLine = true;
+        for (int y = rect.top; y < rect.bottom; y++) {
+            final int yy = y;
+            IntStream stream = IntStream.range(0, rect.width() / 3);
+            DoubleStream results = stream.<double[]>mapToObj(i -> horizontal.imagePart(runImage, rect.left + i, yy))
+                .mapToDouble(input -> horizontal.getNetwork().run(input)[0]);
+            boolean isLine = results.allMatch(d -> d > THRESHOLD);
+            if (wasLine && !isLine) {
+                // begin a square
                 horizontalLines.add(y);
             }
+            if (!wasLine && isLine) {
+                // end square
+                horizontalLines.add(y);
+            }
+            wasLine = isLine;
         }
 
+
+        List<Integer> verticalLines = new ArrayList<>();
+        wasLine = true;
+        for (int x = rect.left; x < rect.right; x++) {
+            final int xx = x;
+            IntStream stream = IntStream.range(0, rect.height() / 4);
+            DoubleStream results = stream.<double[]>mapToObj(i -> vertical.imagePart(runImage, xx, rect.top + i))
+                .mapToDouble(input -> vertical.getNetwork().run(input)[0]);
+            boolean isLine = results.allMatch(d -> d > THRESHOLD);
+            if (wasLine && !isLine) {
+                // begin a square
+                verticalLines.add(x);
+            }
+            if (!wasLine && isLine) {
+                // end square
+                verticalLines.add(x);
+            }
+            wasLine = isLine;
+        }
+
+        int[] xBoxes = verticalLines.stream().mapToInt(i -> i).toArray();
+        int[] yBoxes = horizontalLines.stream().mapToInt(i -> i).toArray();
+        ZRect[][] squares = BineroScan.createRectsFromLines(xBoxes, yBoxes);
+        return squares;
+
+
+/*
         List<Integer> verticalLines = new ArrayList<>();
         for (int x = rect.left; x + vertical.getWidth() < rect.right; x++) {
             double[] input = vertical.imagePart(runImage, x, rect.top + 10);
@@ -353,7 +407,7 @@ public class MinesweeperScan {
         ZRect[][] gridLocations = grabRects(runImage, rect, horizontalLines, verticalLines, squareWidth, squareHeight);
         System.out.println("Square size = " + squareWidth + " x " + squareHeight);
         System.out.println("Squares found: " + gridLocations[0].length + " x " + gridLocations.length);
-        return gridLocations;
+        return gridLocations;*/
     }
 
     private static ZRect[][] grabRects(BufferedImage image, ZRect rect, List<Integer> horizontalLines, List<Integer> verticalLines,

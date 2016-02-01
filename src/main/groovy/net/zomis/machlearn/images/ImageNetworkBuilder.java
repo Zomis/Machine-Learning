@@ -75,4 +75,7 @@ public class ImageNetworkBuilder {
         return this;
     }
 
+    public ImageAnalysis getAnalysis() {
+        return analysis;
+    }
 }
