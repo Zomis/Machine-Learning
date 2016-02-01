@@ -6,6 +6,7 @@ import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Spinner;
+import javafx.scene.control.TextInputDialog;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
@@ -89,10 +90,15 @@ public class ImageGUI extends Application {
     }
 
     private void minesweeperScan() {
+        String defaultData = "challenge-press-26x14";
+        TextInputDialog dialog = new TextInputDialog(defaultData);
+        String dataSet = dialog.showAndWait().orElse(defaultData);
+        MinesweeperTrainingBoard board = MinesweeperTrainingBoard.fromResource(dataSet);
+
         if (minesweeperScan == null) {
             minesweeperScan = new MinesweeperScan();
         }
-        minesweeperScan.scan();
+        minesweeperScan.scan(board);
     }
 
     public static void main(String[] args) {

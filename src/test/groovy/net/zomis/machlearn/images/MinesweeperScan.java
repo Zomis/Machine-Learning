@@ -1,6 +1,5 @@
 package net.zomis.machlearn.images;
 
-import javafx.scene.control.TextInputDialog;
 import net.zomis.machlearn.neural.Backpropagation;
 import org.imgscalr.Scalr;
 
@@ -158,12 +157,7 @@ public class MinesweeperScan {
         return builder.learn(backprop, new Random(42));
     }
 
-    public void scan() {
-        String defaultData = "challenge-press-26x14";
-        TextInputDialog dialog = new TextInputDialog(defaultData);
-        String dataSet = dialog.showAndWait().orElse(defaultData);
-        MinesweeperTrainingBoard board = MinesweeperTrainingBoard.fromResource(dataSet);
-
+    public void scan(MinesweeperTrainingBoard board) {
         ZRect rect = findEdges(edgeFind, board.getImage());
         ImagePainter rectDraw = new ImagePainter(board.getImage());
         rectDraw.drawRect(rect, new Color(1, 1, 1, 0.6f));
