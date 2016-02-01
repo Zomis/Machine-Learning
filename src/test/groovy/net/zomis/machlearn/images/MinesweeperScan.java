@@ -333,8 +333,13 @@ public class MinesweeperScan {
                 horizontalLines.add(y);
             }
             if (!wasLine && isLine) {
-                // end square
-                horizontalLines.add(y);
+                int lineSize = y - horizontalLines.get(horizontalLines.size() - 1);
+                if (lineSize < 5) {
+                    horizontalLines.remove(horizontalLines.size() - 1);
+                } else {
+                    // end square
+                    horizontalLines.add(y);
+                }
             }
             wasLine = isLine;
         }
@@ -353,8 +358,13 @@ public class MinesweeperScan {
                 verticalLines.add(x);
             }
             if (!wasLine && isLine) {
-                // end square
-                verticalLines.add(x);
+                int lineSize = x - verticalLines.get(verticalLines.size() - 1);
+                if (lineSize < 5) {
+                    verticalLines.remove(verticalLines.size() - 1);
+                } else {
+                    // end square
+                    verticalLines.add(x);
+                }
             }
             wasLine = isLine;
         }
