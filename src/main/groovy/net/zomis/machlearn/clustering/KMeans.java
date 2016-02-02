@@ -16,15 +16,15 @@ public class KMeans {
         System.out.println("a = [");
         Arrays.stream(inputs).forEach(d -> System.out.println(Arrays.toString(d) + ";"));
         System.out.println(']');
-        int[] clusters = cluster(inputs, 2, 100, random);
-        System.out.println("clusters = " + Arrays.toString(clusters) + ';');
+        KMeansResult clusters = cluster(inputs, 2, 100, random);
+        System.out.println("clusters = " + Arrays.toString(clusters.getClusters()) + ';');
         System.out.println("a(:,4) = clusters'");
     }
 
-    public static int[] cluster(double[][] inputs, int clusterCount, int repetitions, Random random) {
+    public static KMeansResult cluster(double[][] inputs, int clusterCount, int repetitions, Random random) {
         // PERFORM FEATURE-SCALING ON INPUTS
 
-        int[] bestClusters = null;
+        KMeansResult bestClusters = null;
         double bestCost = 0;
         for (int iteration = 0; iteration < repetitions; iteration++) {
             KMeansResult result = performClustering(inputs, clusterCount, random);
@@ -40,7 +40,7 @@ public class KMeans {
             }
             if (bestClusters == null || totalCost < bestCost) {
                 bestCost = totalCost;
-                bestClusters = clusters;
+                bestClusters = result;
             }
         }
         return bestClusters;
