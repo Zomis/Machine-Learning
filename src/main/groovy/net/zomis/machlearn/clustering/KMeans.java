@@ -118,7 +118,7 @@ public class KMeans {
         return closestIndex;
     }
 
-    private static double eucledianDistanceSquared(double[] input, double[] centroid) {
+    public static double eucledianDistanceSquared(double[] input, double[] centroid) {
         if (input.length != centroid.length) {
             throw new IllegalArgumentException("Values must be of same length. Input has length " + input.length +
                     "while centroid has length " + centroid.length);
