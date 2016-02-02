@@ -46,7 +46,7 @@ public class BineroScan {
 
     public void run(BufferedImage image, boolean click) {
         ZRect[][] boardRects = imageToRects(imageToRects, imageToRects.flip(), image,
-            new ZRect(0, 0, image.getWidth(), image.getHeight()),
+            new ZRect(80, 80, image.getWidth() - 100, image.getHeight() - 100),
             image.getHeight() / 2);
         String board = valuesForBoard(image, boardRects);
         System.out.println(board);
