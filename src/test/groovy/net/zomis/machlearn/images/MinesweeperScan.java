@@ -137,7 +137,7 @@ public class MinesweeperScan {
         ImageAnalysis analysis = new ImageAnalysis(minWH, minWH, false);
         ImageNetworkBuilder builder = analysis.neuralNetwork(40);
 
-        String[] expectedRows = minesweeperTrainingBoard.getExpected().split("\n");
+        String[] expectedRows = board.getExpected().split("\n");
         Set<Character> trainingChars = new HashSet<>();
         for (int y = 0; y < expectedRows.length; y++) {
             String expectedRow = expectedRows[y].trim();
