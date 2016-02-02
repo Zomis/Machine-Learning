@@ -21,7 +21,7 @@ public class KMeans {
         System.out.println("a(:,4) = clusters'");
     }
 
-    private static int[] cluster(double[][] inputs, int clusterCount, int repetitions, Random random) {
+    public static int[] cluster(double[][] inputs, int clusterCount, int repetitions, Random random) {
         // PERFORM FEATURE-SCALING ON INPUTS
 
         int[] bestClusters = null;
