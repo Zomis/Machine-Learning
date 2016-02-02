@@ -122,7 +122,7 @@ public class BineroScan {
     }
 
     private static ImageNetwork constructRectToNumberNetwork() {
-        BufferedImage learningImage = MyImageUtil.resource("binero.png");
+        BufferedImage learningImage = MyImageUtil.resource("binero/binero.png");
         ImageAnalysis analysis = new ImageAnalysis(30, 30, true);
         Backpropagation backprop = new Backpropagation(0.1, 2000).setLogRate(400);
         return analysis.neuralNetwork(20)
@@ -234,7 +234,7 @@ public class BineroScan {
 
     private static ImageNetwork constructImageToRectsNetwork() {
         ImageAnalysis analysis = new ImageAnalysis(1, 50, true);
-        BufferedImage image = MyImageUtil.resource("binero.png");
+        BufferedImage image = MyImageUtil.resource("binero/binero.png");
         ZPoint yellow = new ZPoint(41, 400);
         ZPoint black1 = new ZPoint(47, 400);
         ZPoint black2 = new ZPoint(286, 400);
