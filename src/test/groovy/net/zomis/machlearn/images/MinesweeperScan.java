@@ -127,8 +127,8 @@ public class MinesweeperScan {
         return builder;
     }
 
-    private ImageNetwork learnFromMinesweeperBoard(MinesweeperTrainingBoard minesweeperTrainingBoard) {
-        BufferedImage image = minesweeperTrainingBoard.getImage();
+    private ImageNetwork learnFromMinesweeperBoard(MinesweeperTrainingBoard board) {
+        BufferedImage image = board.getImage();
         ZRect rect = findEdges(edgeFind, image);
         ZRect[][] gridLocations = findGrid(image, rect);
         int width = gridLocations[0][0].width();
