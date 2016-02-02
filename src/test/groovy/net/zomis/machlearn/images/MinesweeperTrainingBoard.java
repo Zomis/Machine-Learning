@@ -15,9 +15,9 @@ public class MinesweeperTrainingBoard {
     }
 
     public static MinesweeperTrainingBoard fromResource(String resourceName) {
-        BufferedImage image1 = MyImageUtil.resource(resourceName + ".png");
+        BufferedImage image1 = MyImageUtil.resource("minesweeper/" + resourceName + ".png");
         String expected = MyGroovyUtils.text(MinesweeperTrainingBoard.class
-            .getClassLoader().getResource(resourceName + ".txt"));
+            .getClassLoader().getResource("minesweeper/" + resourceName + ".txt"));
         return new MinesweeperTrainingBoard(resourceName, image1, expected);
     }
 

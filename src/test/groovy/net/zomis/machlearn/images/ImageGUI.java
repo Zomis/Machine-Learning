@@ -66,9 +66,9 @@ public class ImageGUI extends Application {
         **/
         BorderPane root = new BorderPane();
         Scene scene = new Scene(root);
-//        String file = "binero.png";
-        String file = "challenge-flags-16x16.png";
-//        String file = "challenge-press-26x14.png";
+//        String file = "binero/binero.png";
+        String file = "minesweeper/challenge-flags-16x16.png";
+//        String file = "minesweeper/challenge-press-26x14.png";
         bigImage = new Image(getClass().getClassLoader()
             .getResourceAsStream(file));
         imageView = new ImageView(bigImage);

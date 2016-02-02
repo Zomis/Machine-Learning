@@ -20,7 +20,7 @@ public class MinesweeperScan {
 
     private static final boolean SAVE_ERROR_SQUARES = true;
 
-    private static String LEARN_IMAGE = "challenge-flags-16x16.png";
+    private static String LEARN_IMAGE = "minesweeper/challenge-flags-16x16.png";
     private static BufferedImage img = MyImageUtil.resource(LEARN_IMAGE);
     private static double THRESHOLD = 0.3d;
 
@@ -72,7 +72,7 @@ public class MinesweeperScan {
                 .learn(fastBackprop, new Random(42));
 
 
-        String fileName = "challenge-flags-16x16.png";
+        String fileName = LEARN_IMAGE;
         BufferedImage image = MyImageUtil.resource(fileName);
         ImageAnalysis analyze = new ImageAnalysis(36, 36, false);
         Map<Character, ZPoint> trainingSet = new HashMap<>();
