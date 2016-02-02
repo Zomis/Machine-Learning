@@ -6,17 +6,19 @@ public class MinesweeperTrainingBoard {
 
     private final BufferedImage image;
     private final String expected;
+    private final String name;
 
-    public MinesweeperTrainingBoard(BufferedImage image, String expected) {
+    public MinesweeperTrainingBoard(String name, BufferedImage image, String expected) {
         this.image = image;
         this.expected = expected;
+        this.name = name;
     }
 
     public static MinesweeperTrainingBoard fromResource(String resourceName) {
         BufferedImage image1 = MyImageUtil.resource(resourceName + ".png");
         String expected = MyGroovyUtils.text(MinesweeperTrainingBoard.class
             .getClassLoader().getResource(resourceName + ".txt"));
-        return new MinesweeperTrainingBoard(image1, expected);
+        return new MinesweeperTrainingBoard(resourceName, image1, expected);
     }
 
     public BufferedImage getImage() {
@@ -25,6 +27,10 @@ public class MinesweeperTrainingBoard {
 
     public String getExpected() {
         return expected;
+    }
+
+    public String getName() {
+        return name;
     }
 
 }
