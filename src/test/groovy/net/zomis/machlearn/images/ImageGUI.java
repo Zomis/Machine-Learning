@@ -12,6 +12,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.FlowPane;
+import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
 import org.imgscalr.Scalr;
 
@@ -19,6 +20,8 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.stream.Stream;
 
 public class ImageGUI extends Application {
@@ -93,6 +96,26 @@ public class ImageGUI extends Application {
         String defaultData = "challenge-press-26x14";
         TextInputDialog dialog = new TextInputDialog(defaultData);
         String dataSet = dialog.showAndWait().orElse(defaultData);
+        if (dataSet.equals("*")) {
+            DirectoryChooser directoryChooser = new DirectoryChooser();
+            File directory = directoryChooser.showDialog(null);
+            Set<String> scanned = new HashSet<>();
+            for (File file : directory.listFiles()) {
+                String fileName = file.getName();
+                while (fileName.contains(".")) {
+                    fileName = fileName.substring(0, fileName.indexOf("."));
+                }
+                scanned.add(fileName);
+            }
+            if (minesweeperScan == null) {
+                minesweeperScan = new MinesweeperScan();
+            }
+            for (String name : scanned) {
+                MinesweeperTrainingBoard board = MinesweeperTrainingBoard.fromResource(name);
+                minesweeperScan.scan(board);
+            }
+            return;
+        }
         MinesweeperTrainingBoard board = MinesweeperTrainingBoard.fromResource(dataSet);
 
         if (minesweeperScan == null) {
