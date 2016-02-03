@@ -1,10 +1,14 @@
 package net.zomis.machlearn.images.minesweeper;
 
+import net.zomis.machlearn.clustering.KMeans;
+import net.zomis.machlearn.clustering.KMeansResult;
+import net.zomis.machlearn.images.ImageAnalysis;
 import net.zomis.machlearn.images.MinesweeperScan;
 import net.zomis.machlearn.images.ZPoint;
 import net.zomis.machlearn.images.ZRect;
 
 import java.awt.image.BufferedImage;
+import java.util.*;
 import java.util.function.Supplier;
 
 /**
@@ -14,8 +18,29 @@ public class MinesweeperBot {
 
     private final Supplier<BufferedImage> imageSupplier;
     private final MinesweeperScan minesweeperScan;
-    private ZRect[][] positions;
+    private MinesweeperSquare[][] positions;
     private ZRect boardArea;
+    private ImageAnalysis imageAnalysis;
+    private List<MinesweeperValueCluster> clusters;
+
+    static class MinesweeperValueCluster {
+        double[] centroid;
+        Set<MinesweeperSquare> rects = new HashSet<>();
+        ValueProbabilities probabilities;
+    }
+
+    static class ValueProbabilities {
+        double[] numbers;
+        double mine;
+        double unclicked;
+        double blocked;
+    }
+
+    static class MinesweeperSquare {
+        ZRect position;
+        int x, y;
+        double[] imageData;
+    }
 
     public MinesweeperBot(Supplier<BufferedImage> imageSupplier) {
         this.imageSupplier = imageSupplier;
@@ -30,8 +55,12 @@ public class MinesweeperBot {
 
     private ZPoint play() {
         BufferedImage image = imageSupplier.get();
-        initialize(image);
+        if (!initialize(image)) {
+//            reAnalyze(image);
+        }
 
+//        int[][] clusters = analyze(image);
+        findPossibleBoards();
 
         /*
         * Initialize:
@@ -73,22 +102,91 @@ public class MinesweeperBot {
         return null;
     }
 
-    private void initialize(BufferedImage image) {
+    private void findPossibleBoards() {
+        MinesweeperValueCluster popularCluster = clusters.stream().max(Comparator.comparingInt(cl -> cl.rects.size())).get();
+//        findPossibleValues(popularCluster);
+        Map<MinesweeperValueCluster, Character> assignments = new HashMap<>();
+        assignments.put(popularCluster, '8');
+//        double possibilities = test(assignments);
+
+
+    }
+
+    private boolean initialize(BufferedImage image) {
         if (boardArea == null) {
             boardArea = MinesweeperScan.findEdges(minesweeperScan.edgeFind, image);
             boardArea.expand(20);
-            this.positions = minesweeperScan.findGrid(image, boardArea);
+            ZRect[][] gridRects = minesweeperScan.findGrid(image, boardArea);
+            positions = new MinesweeperSquare[gridRects.length][gridRects[0].length];
+            for (int y = 0; y < gridRects.length; y++) {
+                for (int x = 0; x < gridRects[y].length; x++) {
+                    MinesweeperSquare sq = new MinesweeperSquare();
+                    positions[y][x] = sq;
+                    sq.x = x;
+                    sq.y = y;
+                    sq.position = gridRects[y][x];
+                    sq.imageData = imageAnalysis.imagePart(image, x, y);
+                }
+            }
 
             initializeClustersAndCentroids(20);
             combineClusters(50d);
+            return true;
         }
-    }
-
-    private void combineClusters(double maxDistance) {
-
+        return false;
     }
 
     private void initializeClustersAndCentroids(int clusterCount) {
+        if (this.clusters == null) {
+            this.clusters = new ArrayList<>(clusterCount);
+        }
+        while (this.clusters.size() < clusterCount) {
+            this.clusters.add(new MinesweeperValueCluster());
+        }
+        KMeansResult result = KMeans.cluster(getInputs(), clusterCount, 100, new Random());
+        double[][] centroids = result.getCentroids();
+        for (int i = 0; i < clusters.size(); i++) {
+            MinesweeperValueCluster cluster = clusters.get(i);
+            cluster.centroid = centroids[i];
+        }
+
+        int[] clusters = result.getClusters();
+        i2xy(clusters, getWidth(), (x, y, i) -> this.clusters.get(i).rects.add(this.positions[y][x]));
+    }
+
+    private static void i2xy(int[] array, int width, XYIConsumer consumer) {
+        int x = 0;
+        int y = 0;
+        for (int i = 0; i < array.length; i++) {
+            consumer.handle(x, y, i);
+            x++;
+            if (x == width) {
+                x = 0;
+                y++;
+            }
+        }
+    }
+
+    private double[][] getInputs() {
+        double[][] result = new double[getWidth() * getHeight()][];
+        int i = 0;
+        for (int y = 0; y < this.positions.length; y++) {
+            for (int x = 0; x < this.positions[y].length; x++) {
+                result[i] = this.positions[y][x].imageData;
+            }
+        }
+        return result;
+    }
+
+    public int getHeight() {
+        return this.positions.length;
+    }
+
+    public int getWidth() {
+        return this.positions[0].length;
+    }
+
+    private void combineClusters(double maxDistance) {
 
     }
 

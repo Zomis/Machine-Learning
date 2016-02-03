@@ -1,5 +1,7 @@
 package net.zomis.machlearn.images;
 
+import net.zomis.machlearn.clustering.KMeans;
+import net.zomis.machlearn.clustering.KMeansResult;
 import net.zomis.machlearn.neural.Backpropagation;
 import org.imgscalr.Scalr;
 
@@ -15,6 +17,25 @@ import java.util.stream.IntStream;
  * - Scan for grid edges
  * - Scan for square separators, construct ZRect[][]
  * - Scan each square to determine the value
+ *
+ * Grab grids. Compact and expand grids as needed, shrink the network range.
+ * Try to grab as close match as possible to the square.
+ *
+ * Use SVMs or anomaly detection. Create a training example for the first square that you see,
+ * then compare that against other squares. There's your A.
+ * Then create a training example for the next unlabeled square that you see, there's your B.
+ * Continue until all squares has been matched, then find out which one is which.
+ *
+ *
+ * Binero: Find game area by using average of all found lines (exclude those wider than x)
+ *
+ * Minesweeper: Use clustering. Use about 20 clusters, it doesn't matter if some clusters are the same
+ * -- the analysis code can figure that out later
+ * Minesweeper: Add similarity check. Compare cluster centroids to combine clusters.
+ * TODO: Minesweeper: Split some clusters (0 and 1 can be within the same cluster for example)
+ * Minesweeper: Detect the middle, what values are there? If those only exist in middle, then they might be blocked.
+ * Minesweeper: Find the most popular cluster. It's probably either open field, 1s, or unclicked.
+ *
  */
 public class MinesweeperScan {
 
@@ -24,7 +45,7 @@ public class MinesweeperScan {
     private static BufferedImage img = MyImageUtil.resource(LEARN_IMAGE);
     private static double THRESHOLD = 0.3d;
 
-    private final ImageNetwork edgeFind;
+    public final ImageNetwork edgeFind;
     private final ImageNetwork squareRecognition;
     private final ImageNetwork vertical;
     private final ImageNetwork horizontal;
@@ -86,7 +107,7 @@ public class MinesweeperScan {
         trainingSet.put('6', new ZPoint(707, 502));
         trainingSet.put('a', new ZPoint(793, 200));
 
-        Backpropagation slowBackprop = new Backpropagation(0.1, 4000);
+        Backpropagation slowBackprop = new Backpropagation(0.1, 5000);
         slowBackprop.setLogRate(100);
         ImageNetworkBuilder networkBuilder = analyze.neuralNetwork(40);
         for (Map.Entry<Character, ZPoint> ee : trainingSet.entrySet()) {
@@ -112,8 +133,8 @@ public class MinesweeperScan {
                 .classifyNone(analyze.imagePart(image, 921, 496))
                 .classifyNone(analyze.imagePart(image, 921, 536))
                 .classifyNone(analyze.imagePart(image, 963, 536));
-        squareRecognition = squareNetworkBuilder.learn(slowBackprop, new Random(42));
-//        squareRecognition = learnFromMinesweeperBoard(MinesweeperTrainingBoard.fromResource("challenge-flags-16x16"));
+//        squareRecognition = squareNetworkBuilder.learn(slowBackprop, new Random(42));
+        squareRecognition = null; // learnFromMinesweeperBoard(MinesweeperTrainingBoard.fromResource("challenge-flags-16x16"));
 
     }
 
@@ -137,17 +158,31 @@ public class MinesweeperScan {
         ImageAnalysis analysis = new ImageAnalysis(minWH, minWH, false);
         ImageNetworkBuilder builder = analysis.neuralNetwork(40);
 
+        ImagePainter.visualizeNetwork(horizontal, horizontal.getWidth(), horizontal.getHeight(),
+                board.getImage(), ImagePainter::normalInput, out -> out[0]).save("train-horizontal");
+
+        ImagePainter.visualizeNetwork(vertical, vertical.getWidth(), vertical.getHeight(),
+                board.getImage(), ImagePainter::normalInput, out -> out[0]).save("train-vertical");
+
+        ImagePainter gridBineroPainter = new ImagePainter(board.getImage());
+        gridBineroPainter.drawGrids(gridLocations);
+        gridBineroPainter.save("train-grids");
+
         String[] expectedRows = board.getExpected().split("\n");
         Set<Character> trainingChars = new HashSet<>();
         for (int y = 0; y < expectedRows.length; y++) {
             String expectedRow = expectedRows[y].trim();
             for (int x = 0; x < expectedRow.length(); x++) {
                 char expectedChar = expectedRow.charAt(x);
-                if (trainingChars.add(expectedChar)) {
+                if (trainingChars.add(expectedChar) || expectedChar == '#') {
                     ZRect runRect = gridLocations[y][x];
                     BufferedImage runImage = scaledRunImage(analysis, image, runRect);
-                    MyImageUtil.save(runImage, String.format("train-%d,%d-%s", x, y, expectedChar));
-                    builder = builder.classify(expectedChar, analysis.imagePart(runImage, 0, 0));
+                    MyImageUtil.save(runImage, String.format("train-x_%d,y_%d-char_%s-rect_%s", x, y, expectedChar, runRect));
+                    if (expectedChar == '#') {
+                        builder = builder.classifyNone(analysis.imagePart(runImage, 0, 0));
+                    } else {
+                        builder = builder.classify(expectedChar, analysis.imagePart(runImage, 0, 0));
+                    }
                 }
             }
         }
@@ -165,11 +200,11 @@ public class MinesweeperScan {
         System.out.println("Edges: " + rect);
         // also try find separations by scanning lines and finding the line with the lowest delta diff
 
-        ImagePainter.visualizeNetwork(horizontal, horizontal.getWidth(), horizontal.getHeight(),
-                board.getImage(), ImagePainter::normalInput, out -> out[0]).save("horizontal");
-
-        ImagePainter.visualizeNetwork(vertical, vertical.getWidth(), vertical.getHeight(),
-                board.getImage(), ImagePainter::normalInput, out -> out[0]).save("vertical");
+//        ImagePainter.visualizeNetwork(horizontal, horizontal.getWidth(), horizontal.getHeight(),
+//                board.getImage(), ImagePainter::normalInput, out -> out[0]).save("horizontal");
+//
+//        ImagePainter.visualizeNetwork(vertical, vertical.getWidth(), vertical.getHeight(),
+//                board.getImage(), ImagePainter::normalInput, out -> out[0]).save("vertical");
 
         ZRect copyRect = new ZRect(rect);
         copyRect.expand(20);
@@ -179,13 +214,123 @@ public class MinesweeperScan {
         painter.drawGrids(gridLocations);
         painter.save("grids");
 
-        char[][] gridValues = scanGrid(board.getImage(), gridLocations, board.getExpected());
+        System.out.println(board.getName());
+        char[][] gridValues = scanGrid2(board, gridLocations);
+        if (gridValues == null) {
+            return;
+        }
         for (int y = 0; y < gridValues.length; y++) {
             for (int x = 0; x < gridValues[y].length; x++) {
                 System.out.print(gridValues[y][x]);
             }
             System.out.println();
         }
+    }
+
+    private char[][] scanGrid2(MinesweeperTrainingBoard board, ZRect[][] gridLocations) {
+        BufferedImage image = board.getImage();
+        int minWidth = gridLocations[0][0].width();
+        int minHeight = gridLocations[0][0].height();
+        for (int y = 0; y < gridLocations.length; y++) {
+            for (int x = 0; x < gridLocations[y].length; x++) {
+                ZRect rect = gridLocations[y][x];
+                int width = rect.width();
+                int height = rect.height();
+                minWidth = Math.min(minWidth, width);
+                minHeight = Math.min(minHeight, height);
+//                System.out.printf("%d %d : %d %d%n", x, y, gridLocations[y][x].width(), gridLocations[y][x].height());
+            }
+        }
+        System.out.println("Widths: " + Arrays.toString(IntStream.range(0, gridLocations[0].length)
+                .map(i -> gridLocations[0][i].width()).toArray()));
+        System.out.println("Heights:  " + Arrays.toString(IntStream.range(0, gridLocations.length)
+                .map(i -> gridLocations[i][0].height()).toArray()));
+        int min = Math.min(minWidth, minHeight);
+        System.out.println("Min: " + min);
+
+        double[][] inputs = new double[gridLocations.length * gridLocations[0].length][];
+        ImageAnalysis analysis = new ImageAnalysis(min, min, false);
+        int i = 0;
+        for (int y = 0; y < gridLocations.length; y++) {
+            for (int x = 0; x < gridLocations[y].length; x++) {
+                ZRect rect = gridLocations[y][x];
+                double[] values = analysis.imagePart(image, rect.left, rect.top);
+                inputs[i] = values;
+                i++;
+            }
+        }
+
+        KMeansResult clusterResult = KMeans.cluster(inputs, 20, 100, new Random(42));
+        int[] clusters = clusterResult.getClusters();
+        double[][] centroids = clusterResult.getCentroids();
+
+        System.out.println(board.getName());
+        printClusterRect(clusters, gridLocations);
+
+        Map<Integer, Integer> remappedClusters = new HashMap<>();
+        for (int c1 = 0; c1 < centroids.length; c1++) {
+            double minDistance = 50;
+            int minCluster = c1;
+            for (int c2 = 0; c2 < c1; c2++) {
+                double distance = KMeans.eucledianDistanceSquared(centroids[c1], centroids[c2]);
+                System.out.printf("Distance between cluster %d and %d is %f%n", c1, c2, distance);
+                if (distance < minDistance) {
+                    minDistance = distance;
+                    minCluster = c2;
+                }
+            }
+            if (minCluster != c1) {
+                if (remappedClusters.containsKey(minCluster)) {
+                    minCluster = remappedClusters.get(minCluster);
+                }
+                System.out.printf("Remapping cluster %d to %d with distance %f%n", c1, minCluster, minDistance);
+                remappedClusters.put(c1, minCluster);
+                for (int t = 0; t < clusters.length; t++) {
+                    if (clusters[t] == c1) {
+                        clusters[t] = minCluster;
+                    }
+                }
+            }
+        }
+        System.out.println("Re-mapped clusters: " + remappedClusters);
+        if (!remappedClusters.isEmpty()) {
+            System.out.println(board.getName());
+            printClusterRect(clusters, gridLocations);
+        }
+
+        printDistancesFromClusterCentroid(inputs, clusters, clusterResult, gridLocations);
+
+        System.out.println();
+        System.out.println();
+        return null;
+    }
+
+    private void printDistancesFromClusterCentroid(double[][] inputs, int[] clusters, KMeansResult clusterResult, ZRect[][] gridLocations) {
+        int i = 0;
+        double[][] centroids = clusterResult.getCentroids();
+        System.out.println("Distances from centroids:");
+        for (int y = 0; y < gridLocations.length; y++) {
+            for (int x = 0; x < gridLocations[y].length; x++) {
+                double[] values = inputs[i];
+                int cluster = clusters[i];
+                double distanceFromCentroid = KMeans.eucledianDistanceSquared(values, centroids[cluster]);
+                i++;
+                String valueString = String.format("%.4f", distanceFromCentroid);
+                System.out.printf("%8s  ", valueString);
+            }
+            System.out.println();
+        }
+        System.out.println();
+    }
+
+    private void printClusterRect(int[] clusters, ZRect[][] gridLocations) {
+        for (int j = 0; j < clusters.length; j++) {
+            if (j % gridLocations[0].length == 0) {
+                System.out.println();
+            }
+            System.out.printf("%2d ", clusters[j]);
+        }
+        System.out.println();
     }
 
     private char[][] scanGrid(BufferedImage runImage, ZRect[][] gridLocations, String expected) {
@@ -316,7 +461,7 @@ public class MinesweeperScan {
         return Scalr.resize(image, min, min);
     }
 
-    private ZRect[][] findGrid(BufferedImage runImage, ZRect rect) {
+    public ZRect[][] findGrid(BufferedImage runImage, ZRect rect) {
         double THRESHOLD = 0.5;
 
         // Classify the line separator as true
@@ -505,7 +650,7 @@ public class MinesweeperScan {
         return images;
     }
 
-    private static ZRect findEdges(ImageNetwork network, BufferedImage runImage) {
+    public static ZRect findEdges(ImageNetwork network, BufferedImage runImage) {
         ZRect rect = new ZRect();
         int x = runImage.getWidth() - 1;
         int y = runImage.getHeight() / 2;

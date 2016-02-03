@@ -75,6 +75,7 @@ public class Backpropagation {
                 double[] expectedOutput = data.getOutputs();
                 neuronIndexInLayer = 0;
                 for (Neuron neuron : network.getOutputLayer()) {
+                    // TODO: What happens if we ignore the output for some neurons when training some training sets?
                     double neuronError = neuron.getOutput() - expectedOutput[neuronIndexInLayer];
                     deltas[network.getLayerCount() - 2][neuronIndexInLayer] = neuronError;
                     neuronIndexInLayer++;
