@@ -28,6 +28,25 @@ public class Backpropagation {
             network.links().forEach(it -> it.setWeight(random.nextDouble() / 2 - 0.25));
     }
 
+    public static Consumer<NeuralNetwork> initializeLayerSpecific(Random random) {
+        return network -> {
+            for (int l = 1; l < network.getLayerCount(); l++) {
+                NeuronLayer layer = network.getLayer(l);
+                int layerIn = network.getLayer(l - 1).size();
+                int layerOut = network.getLayer(l).size();
+                double epsilon = Math.sqrt(6) / Math.sqrt(layerIn + layerOut);
+                double epsilon2 = epsilon * 2;
+                for (Neuron neuron : layer.getNeurons()) {
+                    for (NeuronLink link : neuron.getInputs()) {
+                        double rand = random.nextDouble() * epsilon2 - epsilon;
+                        link.setWeight(rand);
+                        //System.out.println(rand + " for " + layerIn + " ---> " + layerOut + " eps " + epsilon);
+                    }
+                }
+            }
+        };
+    }
+
     public NeuralNetwork stohasticGradientDescent(List<LearningData> examples,
           NeuralNetwork network, Consumer<NeuralNetwork> weightsInitialization,
           Random random, int targetIterations) {
