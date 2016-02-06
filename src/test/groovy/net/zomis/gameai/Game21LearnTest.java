@@ -42,27 +42,31 @@ Calculate some expected win? (using logistic regression or Neural Network)
     public void gamePlay() {
         GameAI idiot = new GameAI();
         GameAI ai = new GameAI();
+//        ai.addFeatureExtractor(Game21.class, "mod4", g -> g.getState() % 4);
         for (int i = 0; i < 10000; i++) {
             Random random = new Random(i);
             // play a game
             Game21 game21 = new Game21(MAX, STEPS, true);
-            Runnable[] moves = new Runnable[STEPS];
+            GameMove[] moves = new GameMove[STEPS];
             for (int move = 0; move < moves.length; move++) {
                 final int steps = move + 1;
-                moves[move] = () -> game21.say(steps);
+                moves[move] = new GameMove(() -> game21.isMoveAllowed(steps), () -> game21.say(steps));
             }
 
             while (!game21.isFinished()) {
                 GameAI currentAI = game21.getCurrentPlayer() == 0 ? idiot : ai;
-                currentAI.makeMove(random, moves);
                 if (currentAI == ai) {
                     currentAI.inform(game21);
                 }
+                currentAI.makeMove(random, moves);
             }
             boolean smartAIwin = game21.getWinner() == 1;
+            idiot.inform(game21);
+            ai.inform(game21);
             idiot.endGameWithScore(smartAIwin ? 0 : 1);
             ai.endGameWithScore(smartAIwin ? 1 : 0);
         }
+        ai.learn();
     }
 
 }

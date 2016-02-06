@@ -136,4 +136,33 @@ public class NeuralNetwork {
         return getLayer(layers.size() - 1);
     }
 
+    public static NeuralNetwork createNetwork(int... layerSizes) {
+        if (layerSizes.length < 2) {
+            throw new IllegalArgumentException("Network layers must be at least 2");
+        }
+        NeuralNetwork network = new NeuralNetwork();
+        NeuronLayer layer = network.createLayer("INPUT");
+        for (int i = 0; i < layerSizes[0]; i++) {
+            layer.createNeuron();
+        }
+
+        int hiddenIndex = 1;
+        for (int layerIndex = 1; layerIndex < layerSizes.length - 1; layerIndex++) {
+            int layerSize = layerSizes[layerIndex];
+            NeuronLayer parentLayer = layer;
+            layer = network.createLayer("HIDDEN " + (hiddenIndex++));
+            for (int i = 0; i < layerSize; i++) {
+                layer.createNeuron().addInputs(parentLayer);
+            }
+        }
+
+        NeuronLayer parentLayer = network.getLastLayer();
+        layer = network.createLayer("OUTPUT");
+        int outputNodes = layerSizes[layerSizes.length - 1];
+        for (int i = 0; i < outputNodes; i++) {
+            layer.createNeuron().addInputs(parentLayer);
+        }
+
+        return network;
+    }
 }

@@ -47,4 +47,13 @@ public class Game21 {
     public boolean isFinished() {
         return this.state == this.max;
     }
+
+    public int getState() {
+        return state;
+    }
+
+    public boolean isMoveAllowed(int steps) {
+        return this.state + steps <= this.steps;
+    }
+
 }
