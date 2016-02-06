@@ -40,8 +40,8 @@ Calculate some expected win? (using logistic regression or Neural Network)
 */
     @Test
     public void gamePlay() {
-        GameAI idiot = new GameAI();
-        GameAI ai = new GameAI();
+        GameAI idiot = new GameAI("Idiot");
+        GameAI ai = new GameAI("SMART");
 //        ai.addFeatureExtractor(Game21.class, "mod4", Integer.class, g -> g.getState() % 4);
         ai.addFeatureExtractor(Game21.class, "state", Integer.class, Game21::getState);
         for (int i = 0; i < 10000; i++) {

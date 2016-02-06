@@ -100,7 +100,7 @@ public class GameAI {
         int hidden2 = (int) Math.ceil(inputs / 3d);
         NeuralNetwork nn = NeuralNetwork.createNetwork(inputs, hidden1, hidden2, 1);
         Backpropagation backprop = new Backpropagation(0.1, 1000);
-        backprop.setLogRate(10);
+        backprop.setLogRate(200);
 
         Collection<LearningData> data = featureValues.stream()
             .flatMap(List::stream)
