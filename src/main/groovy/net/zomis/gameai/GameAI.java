@@ -23,6 +23,43 @@ public class GameAI {
     }
 
     public GameMove makeMove(Random random, GameMove[] moves) {
+        if (network == null) {
+            return makeRandomMove(random, moves);
+        }
+        GameMove bestMove = null;
+        double bestScore = -1;
+        for (int i = 0; i < moves.length; i++) {
+            GameMove move = moves[i];
+            if (!move.isAllowed()) {
+                continue;
+            }
+            double score = evaluateMove(moves, i);
+            System.out.println("Score for move " + i + " is: " + score);
+            if (score > bestScore) {
+                bestMove = move;
+                bestScore = score;
+            }
+        }
+        if (bestMove == null) {
+            throw new IllegalStateException("No valid moves found");
+        }
+        bestMove.perform();
+        return bestMove;
+    }
+
+    public double evaluateMove(GameMove[] moves, int index) {
+        double[] oldX = this.currentGame.get(currentGame.size() - 1).getX();
+        double[] data = new double[moves.length];
+        data[index] = 1;
+        double[] x = Arrays.copyOf(oldX, oldX.length + data.length);
+        for (int i = oldX.length; i < x.length; i++) {
+            x[i] = data[i - oldX.length]; // TODO: Use System.arraycopy()
+        }
+        double[] output = network.run(x);
+        return output[0];
+    }
+
+    public GameMove makeRandomMove(Random random, GameMove[] moves) {
         List<GameMove> allowedMoves = Arrays.stream(moves)
             .filter(GameMove::isAllowed)
             .collect(Collectors.toList());
