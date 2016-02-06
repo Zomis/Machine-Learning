@@ -121,6 +121,7 @@ public class GameAI {
         }
         double[] y = { score };
         for (TrainingData data : currentGame) {
+            System.out.println("Training data size: " + data.getX().length);
             data.setY(y);
         }
         FeatureScaling.scale(currentGame);

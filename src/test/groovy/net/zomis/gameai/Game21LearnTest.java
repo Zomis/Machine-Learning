@@ -82,7 +82,9 @@ No need to calculate the average score, backpropagation will take care of that.
                 if (currentAI == ai) {
                     currentAI.inform(game21);
                 }
+                int previous = game21.getState();
                 currentAI.makeMove(random, moves);
+                System.out.println(currentAI + " made move at " + previous + " is now " + game21.getState());
             }
             boolean smartAIwin = game21.getWinner() == 1;
 //            idiot.inform(game21);
