@@ -10,6 +10,7 @@ import java.util.stream.Collectors;
 
 public class GameAI {
 
+    private final String name;
     private NeuralNetwork network;
     private final Map<Class<?>, FeatureExtractors<?>> extractors = new HashMap<>();
 
@@ -17,8 +18,8 @@ public class GameAI {
     private final List<List<TrainingData>> featureValues = new ArrayList<>();
     private List<TrainingData> currentGame;
 
-    public GameAI() {
-        
+    public GameAI(String name) {
+        this.name = name;
     }
 
     public GameMove makeMove(Random random, GameMove[] moves) {
@@ -136,6 +137,11 @@ public class GameAI {
                 }
             });
         }
+    }
+
+    @Override
+    public String toString() {
+        return name;
     }
 
 }
