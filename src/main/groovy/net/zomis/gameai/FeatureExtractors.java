@@ -19,4 +19,8 @@ public class FeatureExtractors<T> {
             .collect(Collectors.toList());
     }
 
+    public void add(FeatureExtractor<T> extractor) {
+        this.extractors.add(extractor);
+    }
+
 }

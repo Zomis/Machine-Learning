@@ -53,7 +53,7 @@ public class Game21 {
     }
 
     public boolean isMoveAllowed(int steps) {
-        return this.state + steps <= this.steps;
+        return this.state + steps <= this.max;
     }
 
 }
