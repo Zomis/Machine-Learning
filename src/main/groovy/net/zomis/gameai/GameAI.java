@@ -38,7 +38,7 @@ public class GameAI {
                 continue;
             }
             double score = evaluateMove(moves, i);
-            System.out.println("Score for move " + i + " is: " + score);
+            // System.out.println("Score for move " + i + " is: " + score);
             if (score > bestScore) {
                 bestMove = move;
                 bestScore = score;
@@ -62,6 +62,7 @@ public class GameAI {
             x[i] = data[i - oldX.length]; // TODO: Use System.arraycopy()
         }
         double[] output = network.run(x);
+        System.out.println("RUN: " + index + " INPUT: " + Arrays.toString(x) + " OUTPUT: " + Arrays.toString(output));
         return output[0];
     }
 
@@ -155,7 +156,7 @@ public class GameAI {
         int hidden2 = (int) Math.ceil(inputs / 3d);
         NeuralNetwork nn = NeuralNetwork.createNetwork(inputs, hidden1, hidden2, 1);
         Backpropagation backprop = new Backpropagation(0.1, 100000);
-//        backprop.setLogRate(200);
+        backprop.setLogRate(10);
 
         List<LearningData> data = featureValues.stream()
             .flatMap(List::stream)
@@ -194,7 +195,7 @@ public class GameAI {
                         }
                     };
 
-                    return new Feature<Integer>(2, name, value, ff);
+                    return new Feature<Integer>(6, name, value, ff);
                 }
             });
         }

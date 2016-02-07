@@ -45,8 +45,8 @@ Calculate some expected win? (using logistic regression or Neural Network)
     public void gamePlay() {
         GameAI idiot = new GameAI("Idiot");
         GameAI smartAI = new GameAI("SMART");
-        smartAI.addFeatureExtractor(Game21.class, "mod4", Integer.class, g -> g.getState() % 4);
-//        smartAI.addFeatureExtractor(Game21.class, "state", Integer.class, Game21::getState);
+//        smartAI.addFeatureExtractor(Game21.class, "mod4", Integer.class, g -> g.getState() % 4);
+        smartAI.addFeatureExtractor(Game21.class, "state", Integer.class, Game21::getState);
         playMultiplayer(idiot, smartAI);
     }
 
@@ -62,8 +62,8 @@ Calculate some expected win? (using logistic regression or Neural Network)
             winsLosses.winResult(winner == player2);
             all.winResult(winner == player2);
 
-            System.out.println("Recent X: " + winsLosses + " ALL: " + all);
             if (i % LEARN_FREQUENCY == 0) {
+                System.out.println("Recent X: " + winsLosses + " ALL: " + all);
                 if (random.nextDouble() >= winsLosses.getPercent()) {
                     player2.learn();
                 }
@@ -124,7 +124,8 @@ No need to calculate the average score, backpropagation will take care of that.
     public static void main(String[] args) {
         HumanPlayer human = new HumanPlayer("Human", new Scanner(System.in));
         GameAI smartAI = new GameAI("SMART");
-        smartAI.addFeatureExtractor(Game21.class, "mod4", Integer.class, g -> g.getState() % 4);
+        smartAI.addFeatureExtractor(Game21.class, "state", Integer.class, Game21::getState);
+//        smartAI.addFeatureExtractor(Game21.class, "mod4", Integer.class, g -> g.getState() % 4);
         new Game21LearnTest().playMultiplayer(human, smartAI);
     }
 
