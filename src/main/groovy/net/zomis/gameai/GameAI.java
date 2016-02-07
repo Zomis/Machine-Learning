@@ -157,7 +157,7 @@ public class GameAI {
         Backpropagation backprop = new Backpropagation(0.1, 100000);
 //        backprop.setLogRate(200);
 
-        Collection<LearningData> data = featureValues.stream()
+        List<LearningData> data = featureValues.stream()
             .flatMap(List::stream)
             .map(td -> new LearningData(td.getX(), td.getY()))
             .collect(Collectors.toList());
@@ -166,7 +166,7 @@ public class GameAI {
                 "Layer sizes are " + Arrays.toString(layers));
 
         Consumer<NeuralNetwork> initalization = Backpropagation.initializeRandom(random);
-        backprop.backPropagationLearning(data, nn, initalization);
+        backprop.stohasticGradientDescent(data, nn, initalization, random, 100);
         this.network = nn;
     }
 

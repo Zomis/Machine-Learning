@@ -9,7 +9,7 @@ public class Game21LearnTest {
 
     private static final int MAX = 21;
     private static final int STEPS = 3;
-    private static final int LEARN_FREQUENCY = 5;
+    private static final int LEARN_FREQUENCY = 50;
 
 /*
 @AIKnown
@@ -64,11 +64,9 @@ Calculate some expected win? (using logistic regression or Neural Network)
 
             System.out.println("Recent X: " + winsLosses + " ALL: " + all);
             if (i % LEARN_FREQUENCY == 0) {
-                if (random.nextDouble() >= all.getPercent()) {
+                if (random.nextDouble() >= winsLosses.getPercent()) {
                     player2.learn();
                 }
-            }
-            if (i % 50 == 0) {
                 winsLosses.reset();
             }
         }
