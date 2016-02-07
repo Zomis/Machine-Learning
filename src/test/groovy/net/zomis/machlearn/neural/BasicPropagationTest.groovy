@@ -31,6 +31,20 @@ class BasicPropagationTest {
                 new LearningData([1, 0] as double[], [1] as double[]),
                 new LearningData([1, 1] as double[], [1] as double[]),
         )
+        data << Arrays.asList(
+                new LearningData([0, 0, 1, 0, 0] as double[], [1] as double[]), // mod 4 == 0, best move = 1
+                new LearningData([0, 0, 0, 1, 0] as double[], [0] as double[]), // mod 4 == 0, best move = 1
+                new LearningData([0, 0, 0, 0, 1] as double[], [0] as double[]), // mod 4 == 0, best move = 1
+                new LearningData([1, 0, 1, 0, 0] as double[], [0] as double[]), // Nothing is possible
+                new LearningData([1, 0, 0, 1, 0] as double[], [0] as double[]), // Nothing is possible
+                new LearningData([1, 0, 0, 0, 1] as double[], [0] as double[]), // Nothing is possible
+                new LearningData([0, 1, 1, 0, 0] as double[], [0] as double[]),
+                new LearningData([0, 1, 0, 1, 0] as double[], [0] as double[]),
+                new LearningData([0, 1, 0, 0, 1] as double[], [1] as double[]),
+                new LearningData([1, 1, 1, 0, 0] as double[], [0] as double[]),
+                new LearningData([1, 1, 0, 1, 0] as double[], [1] as double[]),
+                new LearningData([1, 1, 0, 0, 1] as double[], [0] as double[])
+        )
 
         data.stream().map({[it] as Object[]}).collect(Collectors.toList())
     }
@@ -42,17 +56,10 @@ class BasicPropagationTest {
 
     @Before
     void createNetwork() {
-        network = new NeuralNetwork()
-        def inputLayer = network.createLayer('IN')
-        inputLayer.createNeuron()
-        inputLayer.createNeuron()
-
-        def middleLayer = network.createLayer('MIDDLE')
-        middleLayer.createNeuron().addInputs(inputLayer)
-        middleLayer.createNeuron().addInputs(inputLayer)
-
-        def outputLayer = network.createLayer('OUT')
-        outputLayer.createNeuron().addInputs(middleLayer)
+        int inputs = examples.get(0).inputs.length
+        int hidden = Math.ceil(inputs / 2d) + 1
+        int outputs = examples.get(0).outputs.length
+        network = NeuralNetwork.createNetwork(inputs, hidden, outputs)
     }
 
     @Test
