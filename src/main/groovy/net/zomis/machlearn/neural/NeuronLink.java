@@ -1,6 +1,6 @@
 package net.zomis.machlearn.neural;
 
-interface NeuronLink {
+public interface NeuronLink {
 
     double calculateInput();
     double getInputValue();

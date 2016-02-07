@@ -3,6 +3,7 @@ package net.zomis.gameai;
 import net.zomis.machlearn.neural.Backpropagation;
 import net.zomis.machlearn.neural.LearningData;
 import net.zomis.machlearn.neural.NeuralNetwork;
+import net.zomis.machlearn.neural.NeuronLayer;
 
 import java.util.*;
 import java.util.function.Function;
@@ -28,6 +29,7 @@ public class GameAI {
         }
         GameMove bestMove = null;
         double bestScore = -1;
+        int bestMoveIndex = 0;
         for (int i = 0; i < moves.length; i++) {
             GameMove move = moves[i];
             if (!move.isAllowed()) {
@@ -38,12 +40,14 @@ public class GameAI {
             if (score > bestScore) {
                 bestMove = move;
                 bestScore = score;
+                bestMoveIndex = i;
             }
         }
         if (bestMove == null) {
             throw new IllegalStateException("No valid moves found");
         }
         bestMove.perform();
+        storeAction(moves.length, bestMoveIndex);
         return bestMove;
     }
 
@@ -69,14 +73,18 @@ public class GameAI {
         int index = random.nextInt(allowedMoves.size());
         GameMove action = moves[index];
         action.perform();
-        double[] moveDouble = new double[moves.length];
         int moveIndex = indexOf(moves, action);
+        storeAction(moves.length, moveIndex);
+        return action;
+    }
+
+    private void storeAction(int moveCount, int moveIndex) {
+        double[] moveDouble = new double[moveCount];
         moveDouble[moveIndex] = 1;
         if (currentGame != null) {
             // Some AIs might make moves without having previously called `inform`
             currentGame.get(currentGame.size() - 1).expandX(moveDouble);
         }
-        return action;
     }
 
     private int indexOf(GameMove[] moves, GameMove action) {
@@ -121,7 +129,7 @@ public class GameAI {
         }
         double[] y = { score };
         for (TrainingData data : currentGame) {
-            System.out.println("Training data size: " + data.getX().length);
+//            System.out.println("Training data size: " + data.getX().length);
             data.setY(y);
         }
         FeatureScaling.scale(currentGame);
@@ -137,13 +145,16 @@ public class GameAI {
         int hidden1 = (int) Math.ceil(inputs / 2d);
         int hidden2 = (int) Math.ceil(inputs / 3d);
         NeuralNetwork nn = NeuralNetwork.createNetwork(inputs, hidden1, hidden2, 1);
-        Backpropagation backprop = new Backpropagation(0.1, 1000);
-        backprop.setLogRate(200);
+        Backpropagation backprop = new Backpropagation(0.1, 100000);
+//        backprop.setLogRate(200);
 
         Collection<LearningData> data = featureValues.stream()
             .flatMap(List::stream)
             .map(td -> new LearningData(td.getX(), td.getY()))
             .collect(Collectors.toList());
+        int[] layers = nn.layers.stream().mapToInt(NeuronLayer::size).toArray();
+        System.out.println("Learning using " + data.size() + " training examples. " +
+                "Layer sizes are " + Arrays.toString(layers));
         backprop.backPropagationLearning(data, nn, new Random(42));
         this.network = nn;
     }
@@ -161,17 +172,18 @@ public class GameAI {
                     FeatureFunction<Integer> ff = new FeatureFunction<Integer>() {
                         @Override
                         public double value(int index, Integer data) {
-                            if (index == 0) {
-                                return data;
-                            }
-                            int shiftLeft = index - 1;
+//                            if (index == 0) {
+//                                return data;
+//                            }
+                            int minus = 0;
+                            int shiftLeft = index - minus;
                             int shiftedLeft = 1 << shiftLeft;
                             int v = data & shiftedLeft;
                             return v >> shiftLeft;
                         }
                     };
 
-                    return new Feature<Integer>(9, name, value, ff);
+                    return new Feature<Integer>(2, name, value, ff);
                 }
             });
         }

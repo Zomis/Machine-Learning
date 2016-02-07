@@ -56,4 +56,19 @@ public class Game21 {
         return this.state + steps <= this.max;
     }
 
+    public void setState(int state) {
+        this.state = state;
+    }
+
+    public int getBestMove() {
+        // So far only adapted to if targetWins, and max == 21
+        int mod = steps + 1;
+        int stateMod = state % mod;
+        int result = (mod - stateMod) % mod + 1;
+        if (result == mod) {
+            return 0;
+        }
+        return result;
+    }
+
 }
