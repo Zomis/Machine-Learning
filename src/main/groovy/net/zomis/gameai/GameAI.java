@@ -18,6 +18,7 @@ public class GameAI {
 
     // use a flatMap of these featureValues to train on
     private final List<List<TrainingData>> featureValues = new ArrayList<>();
+    private final Random random = new Random(42);
     private List<TrainingData> currentGame;
 
     public GameAI(String name) {
@@ -156,8 +157,8 @@ public class GameAI {
         int[] layers = nn.layers.stream().mapToInt(NeuronLayer::size).toArray();
         System.out.println("Learning using " + data.size() + " training examples. " +
                 "Layer sizes are " + Arrays.toString(layers));
-        Consumer<NeuralNetwork> initalization = this.network == null ?
-            Backpropagation.initializeRandom(new Random(42)) : null;
+
+        Consumer<NeuralNetwork> initalization = Backpropagation.initializeRandom(random);
         backprop.backPropagationLearning(data, nn, initalization);
         this.network = nn;
     }

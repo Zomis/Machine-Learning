@@ -240,4 +240,9 @@ public class Backpropagation {
     public int getLogRate() {
         return logRate;
     }
+
+    public static Consumer<NeuralNetwork> initializeRandomOffset(Random random, double v) {
+        return network ->
+            network.links().forEach(it -> it.setWeight(it.getWeight() + random.nextDouble() * v * 2 - v));
+    }
 }
