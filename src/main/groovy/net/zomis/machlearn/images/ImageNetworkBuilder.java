@@ -64,7 +64,8 @@ public class ImageNetworkBuilder {
                 .map(inputs -> new LearningData(inputs, outputs))
                 .collect(Collectors.toList()));
         }
-        backprop.backPropagationLearning(learningData, network, random != null ? random : new Random());
+        backprop.backPropagationLearning(learningData, network,
+            Backpropagation.initializeRandom(random != null ? random : new Random()));
 
         return new ImageNetwork(analysis, network, objects);
     }

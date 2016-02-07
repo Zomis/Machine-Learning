@@ -6,6 +6,7 @@ import net.zomis.machlearn.neural.NeuralNetwork;
 import net.zomis.machlearn.neural.NeuronLayer;
 
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -155,7 +156,9 @@ public class GameAI {
         int[] layers = nn.layers.stream().mapToInt(NeuronLayer::size).toArray();
         System.out.println("Learning using " + data.size() + " training examples. " +
                 "Layer sizes are " + Arrays.toString(layers));
-        backprop.backPropagationLearning(data, nn, new Random(42));
+        Consumer<NeuralNetwork> initalization = this.network == null ?
+            Backpropagation.initializeRandom(new Random(42)) : null;
+        backprop.backPropagationLearning(data, nn, initalization);
         this.network = nn;
     }
 

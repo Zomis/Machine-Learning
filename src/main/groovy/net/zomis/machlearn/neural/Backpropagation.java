@@ -27,12 +27,6 @@ public class Backpropagation {
             network.links().forEach(it -> it.setWeight(random.nextDouble() / 2 - 0.25));
     }
 
-    @Deprecated
-    public NeuralNetwork backPropagationLearning(Collection<LearningData> examples,
-         NeuralNetwork network, Random random) {
-        return backPropagationLearning(examples, network, initializeRandom(random));
-    }
-
     public NeuralNetwork backPropagationLearning(Collection<LearningData> examples,
              NeuralNetwork network, Consumer<NeuralNetwork> weightsInitialization) {
         int[] layerSizes = network.getLayers().stream().mapToInt(it -> it.size()).toArray();
