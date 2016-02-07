@@ -6,10 +6,16 @@ public class LearningData {
 
     public final double[] inputs;
     public final double[] outputs;
+    public final double weight;
 
     public LearningData(double[] inputs, double[] outputs) {
+        this(inputs, outputs, 1);
+    }
+
+    public LearningData(double[] inputs, double[] outputs, double weight) {
         this.inputs = inputs;
         this.outputs = outputs;
+        this.weight = weight;
     }
 
     public double getInput(int i) {

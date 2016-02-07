@@ -6,6 +6,7 @@ public class TrainingData {
 
     private double[] x;
     private double[] y;
+    private double weight = 1;
 
     public TrainingData(double[] x) {
         this.x = x;
@@ -32,4 +33,7 @@ public class TrainingData {
         }
     }
 
+    public void setWeight(double weight) {
+        this.weight = weight;
+    }
 }

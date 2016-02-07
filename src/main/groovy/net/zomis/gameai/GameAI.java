@@ -129,11 +129,18 @@ public class GameAI {
         if (currentGame == null) {
             return;
         }
+
+        double min = 0.6;// Example indices:  0   1   2   3   4
+        double max = 1.0;// Example weights: 0.6 0.7 0.8 0.9 1.0
+        double increase = (max - min) / (currentGame.size() - 1);
         double[] y = { score };
-        for (TrainingData data : currentGame) {
-//            System.out.println("Training data size: " + data.getX().length);
+        for (int i = 0; i < currentGame.size(); i++) {
+            TrainingData data = currentGame.get(i);
             data.setY(y);
+            double weight = i * increase + min;
+            data.setWeight(weight);
         }
+
         FeatureScaling.scale(currentGame);
         this.featureValues.add(currentGame);
         currentGame = null;
