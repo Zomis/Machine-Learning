@@ -42,15 +42,40 @@ public class MyRobot {
     }
 
     public void clickOn(int x, int y) {
-//        int mouseX = BoardTopW + (int)(x*BoardPix);
-//        int mouseY = BoardTopH + (int)(y*BoardPix);
-//        moveMouse(mouseX, mouseY);
         moveMouse(x, y);
 
         robot.mousePress(16);
         sleep(5);
         robot.mouseRelease(16);
         sleep(10);
+    }
+
+    public void rightClickOn(int x, int y) {
+        moveMouse(x, y);
+
+        robot.mousePress(4);
+        sleep(5);
+        robot.mouseRelease(4);
+        sleep(10);
+    }
+
+    public void middleClickOn(int x, int y) {
+        moveMouse(x, y);
+
+        robot.mousePress(4);
+        robot.mousePress(16);
+        sleep(5);
+        robot.mouseRelease(4);
+        robot.mouseRelease(16);
+        sleep(10);
+    }
+
+    public int getScreenWidth() {
+        return screenWidth;
+    }
+
+    public int getScreenHeight() {
+        return screenHeight;
     }
 
     private static void sleep(int i) {
