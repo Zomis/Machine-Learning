@@ -150,14 +150,16 @@ public class Backpropagation {
             cost = (-cost / examples.size()) + regularizationTerm;
 
             if (iterations % logRate == 0) {
-                DoubleSummaryStatistics data = Arrays.asList(deltas).stream()
-                    .flatMapToDouble(Arrays::stream)
-                    .summaryStatistics();
-                DoubleSummaryStatistics capitalDeltaData = Arrays.asList(capitalDeltas).stream()
-                        .flatMap(it -> Arrays.asList(it).stream())
-                        .flatMapToDouble(Arrays::stream).summaryStatistics();
-                        System.out.printf("BackPropagation %s iteration %d : %s %s cost %s%n",
-                                Arrays.toString(layerSizes), iterations, data, capitalDeltaData, cost);
+//                DoubleSummaryStatistics data = Arrays.asList(deltas).stream()
+//                    .flatMapToDouble(Arrays::stream)
+//                    .summaryStatistics();
+//                DoubleSummaryStatistics capitalDeltaData = Arrays.asList(capitalDeltas).stream()
+//                        .flatMap(it -> Arrays.asList(it).stream())
+//                        .flatMapToDouble(Arrays::stream).summaryStatistics();
+//                System.out.printf("BackPropagation %s iteration %d : %s %s cost %s%n",
+//                        Arrays.toString(layerSizes), iterations, data, capitalDeltaData, cost);
+                System.out.printf("BackPropagation %s iteration %d : change %f, cost %f%n",
+                        Arrays.toString(layerSizes), iterations, totalChange, cost);
             }
             if (iterations > this.iterations) {
                 break;
