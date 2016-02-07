@@ -3,6 +3,7 @@ package net.zomis.gameai;
 import org.junit.Test;
 
 import java.util.Random;
+import java.util.Scanner;
 
 public class Game21LearnTest {
 
@@ -46,6 +47,10 @@ Calculate some expected win? (using logistic regression or Neural Network)
         GameAI ai = new GameAI("SMART");
         ai.addFeatureExtractor(Game21.class, "mod4", Integer.class, g -> g.getState() % 4);
 //        ai.addFeatureExtractor(Game21.class, "state", Integer.class, Game21::getState);
+        playMultiplayer(idiot, ai);
+    }
+
+    public void playMultiplayer(GameAI player1, GameAI player2) {
         WinsLosses winsLosses = new WinsLosses();
         WinsLosses all = new WinsLosses();
         for (int i = 1; i <= 10000; i++) {
@@ -53,13 +58,15 @@ Calculate some expected win? (using logistic regression or Neural Network)
             // play a game
             Game21 game21 = new Game21(MAX, STEPS, true);
 
-            GameAI winner = playGame(game21, random, idiot, ai);
-            winsLosses.winResult(winner == ai);
-            all.winResult(winner == ai);
+            GameAI winner = playGame(game21, random, player1, player2);
+            winsLosses.winResult(winner == player2);
+            all.winResult(winner == player2);
 
             System.out.println("Recent X: " + winsLosses + " ALL: " + all);
             if (i % LEARN_FREQUENCY == 0) {
-                ai.learn();
+                if (random.nextDouble() >= all.getPercent()) {
+                    player2.learn();
+                }
             }
             if (i % 50 == 0) {
                 winsLosses.reset();
@@ -117,15 +124,10 @@ No need to calculate the average score, backpropagation will take care of that.
     }
 
     public static void main(String[] args) {
-        Game21 game = new Game21(21, 3, true);
-        GameAI ai = new GameAI("TEST");
-        ai.addFeatureExtractor(Game21.class, "mod4", Integer.class, g -> g.getState() % 4);
-        for (int i = 0; i < 21; i++) {
-            game.setState(i);
-            ai.inform(game);
-            System.out.printf("State %d best move %d%n", game.getState(), game.getBestMove());
-        }
-//        new Game21LearnTest().gamePlay();
+        HumanPlayer human = new HumanPlayer("Human", new Scanner(System.in));
+        GameAI smartAI = new GameAI("SMART");
+        smartAI.addFeatureExtractor(Game21.class, "mod4", Integer.class, g -> g.getState() % 4);
+        new Game21LearnTest().playMultiplayer(human, smartAI);
     }
 
 }
