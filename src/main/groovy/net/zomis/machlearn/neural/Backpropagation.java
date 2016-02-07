@@ -1,6 +1,7 @@
 package net.zomis.machlearn.neural;
 
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.stream.DoubleStream;
 
 public class Backpropagation {
@@ -18,10 +19,22 @@ public class Backpropagation {
     }
 
     public NeuralNetwork backPropagationLearning(Collection<LearningData> examples, NeuralNetwork network) {
-        return backPropagationLearning(examples, network, new Random());
+        return backPropagationLearning(examples, network, initializeRandom(new Random()));
     }
 
-    public NeuralNetwork backPropagationLearning(Collection<LearningData> examples, NeuralNetwork network, Random random) {
+    public static Consumer<NeuralNetwork> initializeRandom(Random random) {
+        return network ->
+            network.links().forEach(it -> it.setWeight(random.nextDouble() / 2 - 0.25));
+    }
+
+    @Deprecated
+    public NeuralNetwork backPropagationLearning(Collection<LearningData> examples,
+         NeuralNetwork network, Random random) {
+        return backPropagationLearning(examples, network, initializeRandom(random));
+    }
+
+    public NeuralNetwork backPropagationLearning(Collection<LearningData> examples,
+             NeuralNetwork network, Consumer<NeuralNetwork> weightsInitialization) {
         int[] layerSizes = network.getLayers().stream().mapToInt(it -> it.size()).toArray();
 //        inputs: examples, a set of examples, each with input vector x and output vector y
 //        network , a multilayer network with L layers, weights wi,j , activation function g
@@ -29,7 +42,9 @@ public class Backpropagation {
         // local variables: Δ, a vector of errors, indexed by network node
         int iterations = 0;
 
-        network.links().forEach(it -> it.setWeight(random.nextDouble() / 2 - 0.25));
+        if (weightsInitialization != null) {
+            weightsInitialization.accept(network);
+        }
         double[][] deltas = new double[network.getLayerCount() - 1][];
         for (int layeri = 0; layeri < network.getLayerCount() - 1; layeri++) {
             NeuronLayer layer = network.getLayer(layeri + 1);
