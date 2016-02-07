@@ -9,6 +9,7 @@ public class Backpropagation {
     private final double learningRate;
     private final int iterations;
     private int logRate = Integer.MAX_VALUE;
+    private boolean costFunctionCheck;
 
     public Backpropagation(double learningRate, int iterations) {
         if (learningRate <= 0 || learningRate > 1) {
@@ -61,6 +62,7 @@ public class Backpropagation {
             }
         }
 
+        double previousCost = Double.MAX_VALUE;
         while (true) {
             zero(deltas); // TODO: Should the `deltas` array be zeroed here? Might not need zeroing
             zero(capitalDeltas);
@@ -159,6 +161,14 @@ public class Backpropagation {
             double regularizationTerm = 0;
             cost = (-cost / examples.size()) + regularizationTerm;
 
+            if (costFunctionCheck) {
+                if (cost > previousCost) {
+                    throw new IllegalStateException("Cost function increased from " + previousCost + " to " + cost +
+                            ": Network not learning correctly.");
+                }
+                previousCost = cost;
+            }
+
             if (iterations % logRate == 0) {
 //                DoubleSummaryStatistics data = Arrays.asList(deltas).stream()
 //                    .flatMapToDouble(Arrays::stream)
@@ -245,5 +255,9 @@ public class Backpropagation {
     public static Consumer<NeuralNetwork> initializeRandomOffset(Random random, double v) {
         return network ->
             network.links().forEach(it -> it.setWeight(it.getWeight() + random.nextDouble() * v * 2 - v));
+    }
+
+    public void setCostFunctionCheck(boolean costFunctionCheck) {
+        this.costFunctionCheck = costFunctionCheck;
     }
 }
