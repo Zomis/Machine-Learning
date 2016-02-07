@@ -5,9 +5,9 @@ import java.util.stream.DoubleStream;
 
 public class Backpropagation {
 
-    final double learningRate;
-    final int iterations;
-    int logRate = Integer.MAX_VALUE;
+    private final double learningRate;
+    private final int iterations;
+    private int logRate = Integer.MAX_VALUE;
 
     public Backpropagation(double learningRate, int iterations) {
         if (learningRate <= 0 || learningRate > 1) {
@@ -144,24 +144,9 @@ public class Backpropagation {
                 }
                 // println "Layer $l change $totalLayerChange"
             }
-            // println "lowercs deltas $deltas"
-            // println "capital deltas $capitalDeltas"
-/*            for (int i = 0; i < capitalDeltas.length; i++) {
-                for (int j = 0; j < capitalDeltas[i].length; j++) {
-                    println "capitalDeltas[$i][$j] = ${capitalDeltas[i][j]}"
-                }
-                new Scanner(System.in).nextLine()
-            }
 
-            for (int i = 0; i < deltas.length; i++) {
-                println "       deltas[$i] = ${deltas[i]}"
-            }
-            new Scanner(System.in).nextLine()
-
-            println "total change $totalChange"*/
 
             double regularizationTerm = 0;
-            // println "cost before avg $cost"
             cost = (-cost / examples.size()) + regularizationTerm;
 
             if (iterations % logRate == 0) {
