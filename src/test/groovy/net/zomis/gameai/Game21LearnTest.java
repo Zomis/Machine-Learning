@@ -1,7 +1,5 @@
 package net.zomis.gameai;
 
-import org.junit.Test;
-
 import java.util.Random;
 import java.util.Scanner;
 
@@ -41,7 +39,6 @@ TARGET: When state is 18, you should (or not) say 3 to get to 21
 
 Calculate some expected win? (using logistic regression or Neural Network)
 */
-    @Test
     public void gamePlay() {
         GameAI idiot = new GameAI("Idiot");
         GameAI smartAI = new GameAI("SMART");
@@ -126,7 +123,9 @@ No need to calculate the average score, backpropagation will take care of that.
         GameAI smartAI = new GameAI("SMART");
         smartAI.addFeatureExtractor(Game21.class, "state", Integer.class, Game21::getState);
 //        smartAI.addFeatureExtractor(Game21.class, "mod4", Integer.class, g -> g.getState() % 4);
-        new Game21LearnTest().playMultiplayer(human, smartAI);
+//        new Game21LearnTest().playMultiplayer(human, smartAI);
+        new Game21LearnTest().gamePlay();
+
     }
 
 }
