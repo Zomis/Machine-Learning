@@ -1,8 +1,10 @@
 package net.zomis.machlearn.text.duga;
 
+import net.zomis.machlearn.common.ClassifierFunction;
 import net.zomis.machlearn.common.LearningDataSet;
 import net.zomis.machlearn.common.PrecisionRecallF1;
 import net.zomis.machlearn.images.MyGroovyUtils;
+import net.zomis.machlearn.neural.LearningData;
 import net.zomis.machlearn.regression.ConvergenceIterations;
 import net.zomis.machlearn.regression.GradientDescent;
 import net.zomis.machlearn.regression.LogisticRegression;
@@ -55,10 +57,21 @@ public class ProgrammersCommentTest {
 
         double[] learnedTheta = GradientDescent.gradientDescent(
             LogisticRegression.costFunction(data.getXs(), data.getY()),
-            new ConvergenceIterations(10000),
+            new ConvergenceIterations(20000),
             new double[data.numFeaturesWithZero()], 0.01);
-        PrecisionRecallF1 score = data.precisionRecallF1(learnedTheta, (theta, x) ->
-            LogisticRegression.hypothesis(theta, x) >= 0.5);
+        double cost = LogisticRegression.costFunction(data.getXs(), data.getY()).apply(learnedTheta);
+
+        ClassifierFunction function = (theta, x) ->
+                LogisticRegression.hypothesis(theta, x) >= 0.3;
+
+        PrecisionRecallF1 score = data.precisionRecallF1(learnedTheta, function);
+
+        System.out.println("False negatives:");
+        data.stream()
+            .filter(LearningData::getOutputBoolean)
+            .filter(d -> !function.classify(learnedTheta, d.getInputs()))
+            .forEach(d -> System.out.println(d.getForData()));
+        System.out.println(cost);
         System.out.println(score);
 
         System.out.println(bowAll.getData());
