@@ -4,6 +4,7 @@ import net.zomis.gameai.features.IntegerFeature;
 
 import java.util.Random;
 import java.util.Scanner;
+import java.util.function.Function;
 
 public class Game21LearnTest {
 
@@ -44,7 +45,7 @@ Calculate some expected win? (using logistic regression or Neural Network)
     public void gamePlay() {
         GameAI idiot = new GameAI("Idiot");
         GameAI smartAI = new GameAI("SMART");
-//        smartAI.addFeatureExtractor(Game21.class, "mod4", Integer.class, g -> g.getState() % 4);
+//        smartAI.addFeatureExtractor(Game21.class, new IntegerFeature<>("mod4", g -> g.getState() % 8, 2, false));
         smartAI.addFeatureExtractor(Game21.class, new IntegerFeature<>("state", Game21::getState, 6, false));
         playMultiplayer(idiot, smartAI);
     }
@@ -52,30 +53,47 @@ Calculate some expected win? (using logistic regression or Neural Network)
     public void playMultiplayer(GameAI player1, GameAI player2) {
         WinsLosses winsLosses = new WinsLosses();
         WinsLosses all = new WinsLosses();
+        WinsLosses goodMoves = new WinsLosses();
         for (int i = 1; i <= 10000; i++) {
             Random random = new Random(i);
             // play a game
             Game21 game21 = new Game21(MAX, STEPS, true);
 
-            GameAI winner = playGame(game21, random, player1, player2);
+            GameAI winner = playGame(game21, random, player1, player2,
+                    Game21::getBestMove,
+                    (game, obj, move) -> {
+                if (game.getCurrentPlayer() == 0) {
+                    int actual = (Integer) move.getData();
+                    Integer bestMove = (Integer) obj;
+                    boolean goodMove = bestMove == actual || bestMove == 0;
+                    goodMoves.winResult(goodMove);
+                }
+            });
             winsLosses.winResult(winner == player2);
             all.winResult(winner == player2);
 
             if (i % LEARN_FREQUENCY == 0) {
                 System.out.println("Recent X: " + winsLosses + " ALL: " + all);
+                System.out.println("Good mov: " + goodMoves);
                 if (random.nextDouble() >= winsLosses.getPercent()) {
                     player2.learn();
                 }
                 winsLosses.reset();
+                goodMoves.reset();
             }
         }
     }
 
     private GameAI playGame(Game21 game21, Random random, GameAI ai1, GameAI ai2) {
+        return this.playGame(game21, random, ai1, ai2, e -> null, (game, obj, move) -> {});
+    }
+
+    private GameAI playGame(Game21 game21, Random random, GameAI ai1, GameAI ai2,
+            Function<Game21, Object> before, AfterMoveConsumer<Game21> afterMove) {
         GameMove[] moves = new GameMove[STEPS];
         for (int move = 0; move < moves.length; move++) {
             final int steps = move + 1;
-            moves[move] = new GameMove(() -> game21.isMoveAllowed(steps), () -> game21.say(steps));
+            moves[move] = new GameMove(steps, () -> game21.isMoveAllowed(steps), () -> game21.say(steps));
         }
 
         while (!game21.isFinished()) {
@@ -108,7 +126,9 @@ No need to calculate the average score, backpropagation will take care of that.
             }
             int previous = game21.getState();
             int bestMove = game21.getBestMove();
-            currentAI.makeMove(random, moves);
+            Object obj = before.apply(game21);
+            GameMove move = currentAI.makeMove(random, moves);
+            afterMove.afterMove(game21, obj, move);
             System.out.println(currentAI + " made move at " + previous + " is now " + game21.getState() +
               " Best move was " + bestMove);
         }
