@@ -1,5 +1,7 @@
 package net.zomis.gameai;
 
+import net.zomis.gameai.features.IntegerFeature;
+
 import java.util.Random;
 import java.util.Scanner;
 
@@ -43,7 +45,7 @@ Calculate some expected win? (using logistic regression or Neural Network)
         GameAI idiot = new GameAI("Idiot");
         GameAI smartAI = new GameAI("SMART");
 //        smartAI.addFeatureExtractor(Game21.class, "mod4", Integer.class, g -> g.getState() % 4);
-        smartAI.addFeatureExtractor(Game21.class, "state", Integer.class, Game21::getState);
+        smartAI.addFeatureExtractor(Game21.class, new IntegerFeature<>("state", Game21::getState, 6, false));
         playMultiplayer(idiot, smartAI);
     }
 

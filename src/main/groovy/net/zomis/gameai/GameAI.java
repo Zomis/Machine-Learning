@@ -1,5 +1,6 @@
 package net.zomis.gameai;
 
+import net.zomis.gameai.features.IntegerFeature;
 import net.zomis.machlearn.neural.Backpropagation;
 import net.zomis.machlearn.neural.LearningData;
 import net.zomis.machlearn.neural.NeuralNetwork;
@@ -173,37 +174,20 @@ public class GameAI {
 
     public <E, F> void addFeatureExtractor(Class<E> clazz, String name,
            Class<F> featureClass, Function<E, F> valueRetriever) {
-        extractors.putIfAbsent(clazz, new FeatureExtractors<>(clazz));
-        FeatureExtractors<E> fe = (FeatureExtractors<E>) extractors.get(clazz);
         if (featureClass == Integer.class) {
-            fe.add(new FeatureExtractor<E>() {
-                @Override
-                public Feature<Integer> extract(E object) {
-                    F featureValue = valueRetriever.apply(object);
-                    int value = (Integer)featureValue;
-                    FeatureFunction<Integer> ff = new FeatureFunction<Integer>() {
-                        @Override
-                        public double value(int index, Integer data) {
-//                            if (index == 0) {
-//                                return data;
-//                            }
-                            int minus = 0;
-                            int shiftLeft = index - minus;
-                            int shiftedLeft = 1 << shiftLeft;
-                            int v = data & shiftedLeft;
-                            return v >> shiftLeft;
-                        }
-                    };
-
-                    return new Feature<Integer>(6, name, value, ff);
-                }
-            });
+            this.addFeatureExtractor(clazz, new IntegerFeature<>(name, e -> (Integer) valueRetriever.apply(e), 6, false));
         }
     }
 
     @Override
     public String toString() {
         return name;
+    }
+
+    public <E> void addFeatureExtractor(Class<E> clazz, FeatureExtractor<E> feature) {
+        extractors.putIfAbsent(clazz, new FeatureExtractors<>(clazz));
+        FeatureExtractors<E> fe = (FeatureExtractors<E>) extractors.get(clazz);
+        fe.add(feature);
     }
 
 }
