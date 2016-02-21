@@ -1,6 +1,6 @@
 package net.zomis.machlearn.regression;
 
-class LogisticRegression {
+public class LogisticRegression {
 
     public static double sigmoid(double z) {
         double n = (1 + Math.exp(-z));
