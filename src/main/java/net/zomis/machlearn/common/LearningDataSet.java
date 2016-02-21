@@ -4,7 +4,9 @@ import net.zomis.machlearn.neural.LearningData;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class LearningDataSet {
 
@@ -47,4 +49,9 @@ public class LearningDataSet {
     public List<LearningData> getData() {
         return data;
     }
+
+    public Stream<LearningData> stream() {
+        return data.stream();
+    }
+
 }
