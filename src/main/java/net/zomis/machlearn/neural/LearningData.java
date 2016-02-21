@@ -47,4 +47,13 @@ public class LearningData {
     public double[] getInputs() {
         return inputs;
     }
+
+    public Object getForData() {
+        return forData;
+    }
+
+    public boolean getOutputBoolean() {
+        return outputs[0] >= 0.5;
+    }
+
 }
