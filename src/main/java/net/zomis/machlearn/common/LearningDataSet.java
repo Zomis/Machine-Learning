@@ -1,7 +1,6 @@
 package net.zomis.machlearn.common;
 
 import net.zomis.machlearn.neural.LearningData;
-import net.zomis.machlearn.text.duga.PrecisionRecallF1;
 
 import java.util.ArrayList;
 import java.util.List;
