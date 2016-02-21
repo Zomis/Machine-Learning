@@ -17,7 +17,7 @@ public class BagOfWords {
         return split;
     }
 
-    Map<String, Integer> getData() {
+    public Map<String, Integer> getData() {
         return new HashMap<>(counts);
     }
 
