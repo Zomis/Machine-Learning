@@ -1,9 +1,7 @@
 package net.zomis.machlearn.text;
 
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public class TextFeatureBuilder {
@@ -14,23 +12,30 @@ public class TextFeatureBuilder {
 
     private final int nGrams;
     private final Map<String, Integer> counts;
+    private final Predicate<String> featureFilter;
 
-    public TextFeatureBuilder(int nGrams) {
+    public TextFeatureBuilder(int nGrams, Predicate<String> featureFilter) {
         if (nGrams < 1) {
             throw new IllegalArgumentException("nGrams must be positive, was " + nGrams);
         }
         this.nGrams = nGrams;
         this.counts = new HashMap<>();
+        this.featureFilter = featureFilter;
     }
 
     public void add(String processed) {
-        String[] sections = processed.split(" ");
-        for (int i = 0; i <= sections.length - nGrams; i++) {
-            String[] values = Arrays.copyOfRange(sections, i, i + nGrams);
-            String value = String.join(" ", values);
-            counts.merge(value, 1, Integer::sum);
+        List<String> sections = Arrays.asList(processed.split(" "));
+        sections = sections.stream().filter(s -> !s.trim().isEmpty()).collect(Collectors.toList());
+        for (int i = 0; i <= sections.size() - nGrams; i++) {
+            List<String> values = sections.subList(i, i + nGrams);
+            String value = String.join(" ", values).trim();
+            if (value.isEmpty()) {
+                continue;
+            }
+            if (featureFilter.test(value)) {
+                counts.merge(value, 1, Integer::sum);
+            }
         }
-
     }
 
     public TextFeatureMapper mapper(int maxLimit) {

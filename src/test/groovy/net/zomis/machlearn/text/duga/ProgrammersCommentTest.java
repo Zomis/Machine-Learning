@@ -17,15 +17,21 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 public class ProgrammersCommentTest {
+
+    private static final Pattern PROG_LINK = Pattern.compile(Pattern.quote("<a href=\"http") + "s?"
+            + Pattern.quote("://programmers.stackexchange.com")
+            + "(/|/help/.*)?" + Pattern.quote("\">"));
 
     @Test
     public void commentLearning() {
         String source = MyGroovyUtils.text(getClass().getClassLoader()
             .getResource("trainingset-programmers-comments.txt"));
         String[] lines = source.split("\n");
-        TextFeatureBuilder textFeatures = new TextFeatureBuilder(2);
+        TextFeatureBuilder textFeatures = new TextFeatureBuilder(2, this::filter);
 
 
         TextFeatureMapper oldMapper = new TextFeatureMapper(
@@ -88,7 +94,24 @@ public class ProgrammersCommentTest {
             .forEach(d -> System.out.println(d.getForData()));
     }
 
+    private boolean filter(String feature) {
+        return feature.length() > 7;
+    }
+
     private String preprocess(String text) {
+        text = PROG_LINK.matcher(text).replaceAll("(link-to-programmers)");
+
+        text = text.replaceAll("<a href=\"([^\"]+)\">", "$1 "); // Extract links
+        text = text.replaceAll("<[^<>]+>", " "); // Remove HTML
+        text = text.replaceAll("\\d+", "(number)");
+        text = text.replaceAll("stack overflow", "stackoverflow");
+        text = text.replaceAll("stack exchange", "stackexchange");
+        text = text.replaceAll("programmers.stackexchange.com/q", "(progs-question) ");
+        text = text.replaceAll("programmers.stackexchange.com/t", "(progs-tag) ");
+        text = text.replaceAll("programmers.stackexchange.com/a", "(progs-answer) ");
+        text = text.replaceAll("(http|https)://[^\\s]*", "(unclassified-httpaddr)");
+        text = text.replaceAll("[\\.,]", " ");
+        text = text.replaceAll("\\(number\\) (secs?|mins?) ago", "");
         return text.toLowerCase().replace("\"", "");
     }
 
