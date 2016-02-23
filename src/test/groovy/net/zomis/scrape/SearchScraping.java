@@ -10,9 +10,11 @@ public class SearchScraping {
 
     private String nextLink;
     private Document document;
+    private String url;
 
-    public SearchScraping(String query, String room, String user) throws IOException {
-        String url = "/search?q=" + query;
+    public SearchScraping(String query, String room, String user,
+          int startPage) throws IOException {
+        String url = "/search?q=" + query + "&page=" + startPage;
         if (room != null) {
             url += "&Room=" + room;
         }
@@ -28,6 +30,7 @@ public class SearchScraping {
         url = "http://chat.stackexchange.com" + url;
 
         this.document = Jsoup.connect(url).get();
+        this.url = url;
 
         Element els = document.select(".pager a").last();
         String nextLink = els.attr("href");
@@ -47,4 +50,11 @@ public class SearchScraping {
         return document;
     }
 
+    public boolean hasNextPage() {
+        return nextLink != null;
+    }
+
+    public String getURL() {
+        return url;
+    }
 }
