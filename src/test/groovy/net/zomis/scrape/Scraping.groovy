@@ -1,14 +1,14 @@
 package net.zomis.scrape
 
-import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
+import org.jsoup.nodes.Element
 
 class Scraping {
 
     public static void main(String[] args) {
-        String search = "programmers"
-        Document doc = Jsoup.connect("http://chat.stackexchange.com/search?q=" + search +
-                "&Room=20298&User=125580&pagesize=50&sort=newest").get();
+        SearchScraping search = new SearchScraping("programmers", "20298", "125580");
+
+        Document doc = search.getDocument();
         def results = doc.select('.message .content .quote')
 
         // Remove time stamp and comment link
@@ -19,9 +19,10 @@ class Scraping {
             el.select('a').last().remove()
         }
 
-        println '------'
-        def first = results.first()
-        println first.html()
+        for (Element element : results) {
+            println element.html().replace("\n", "")
+        }
+
     }
 
 }
