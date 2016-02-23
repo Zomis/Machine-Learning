@@ -23,6 +23,11 @@ public class LogisticRegression {
         return sigmoid(thetaX);
     }
 
+    public static DoubleMatrix hypothesis(DoubleMatrix T, DoubleMatrix X) {
+        return sigmoid(X.mmul(T));
+    }
+    
+
     public static ModelFunction costFunction(double[][] x, double[] y) {
         if (x.length != y.length) {
             throw new IllegalArgumentException();
@@ -34,11 +39,7 @@ public class LogisticRegression {
             	DoubleMatrix X = DoubleMatrix.concatHorizontally(DoubleMatrix.ones(x.length,1),new DoubleMatrix(x));
             	DoubleMatrix Y = new DoubleMatrix(y);
             	DoubleMatrix T = new DoubleMatrix(theta);
-            	DoubleMatrix H = sigmoid(X.mmul(T));
-            	/*System.out.println("X="+X);
-            	System.out.println("Y="+Y);
-            	System.out.println("T="+T);
-            	System.out.println("H="+H);*/
+            	DoubleMatrix H = hypothesis(T,X);
             	int m = x.length;
             	// J = sum(-y' * log(H) - (1 - y')*log(1 - H)) / m;
             	
