@@ -27,12 +27,13 @@ public class ProgrammersCommentTestVect {
 	            + Pattern.quote("://programmers.stackexchange.com")
 	            + "(/|/help/.*)?" + Pattern.quote("\">"));
 	  
-	  	//@Test
+	  	@Test
 	    public void QuickTest() {
 	        String source = MyGroovyUtils.text(getClass().getClassLoader()
 	            .getResource("trainingset-programmers-comments.txt"));
 	        String[] lines = source.split("\n");
-	        TextFeatureBuilder textFeatures = new TextFeatureBuilder(2, this::filter);
+
+	        TextFeatureBuilder textFeatures = new TextFeatureBuilder(new int[]{1, 2}, this::filter);
 
 
 	        TextFeatureMapper oldMapper = new TextFeatureMapper(
@@ -63,12 +64,12 @@ public class ProgrammersCommentTestVect {
 	        }
 	   	}
 
-	    @Test
+	    //@Test
 	    public void commentLearning() {
 	        String source = MyGroovyUtils.text(getClass().getClassLoader()
 	            .getResource("trainingset-programmers-comments.txt"));
 	        String[] lines = source.split("\n");
-	        TextFeatureBuilder textFeatures = new TextFeatureBuilder(2, this::filter);
+	        TextFeatureBuilder textFeatures = new TextFeatureBuilder(new int[1], this::filter);
 
 
 	        TextFeatureMapper oldMapper = new TextFeatureMapper(
