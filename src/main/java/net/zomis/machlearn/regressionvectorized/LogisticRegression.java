@@ -50,7 +50,6 @@ public class LogisticRegression {
             	DoubleMatrix result2 = DoubleMatrix.ones(Y.columns,Y.rows).sub(Y.transpose()).mul(MatrixFunctions.log(DoubleMatrix.ones(H.rows,H.columns).sub(H)));
             	
             	Double result = result1.sub(result2).sum()/m;
-            	//System.out.println("Result="+result);
             	return result;
             	
             }

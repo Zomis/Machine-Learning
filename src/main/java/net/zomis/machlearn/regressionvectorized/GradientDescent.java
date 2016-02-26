@@ -28,11 +28,9 @@ public class GradientDescent {
             double[] initialTheta, double alpha) {
     	X = DoubleMatrix.concatHorizontally(DoubleMatrix.ones(X.rows,1),X);
     	DoubleMatrix theta = new DoubleMatrix(initialTheta);
-    	//TODO: convergence test doesn't use initialTheta. Should take into account the current Theta value I guess.
 		while (!convergenceCondition.test(initialTheta)) {
 			DoubleMatrix derivative = X.transpose().mmul(LogisticRegression.hypothesis(theta,X).sub(Y));
 			theta = theta.sub(derivative.mul(alpha/X.rows));
-
 		}
 		return theta;
     }

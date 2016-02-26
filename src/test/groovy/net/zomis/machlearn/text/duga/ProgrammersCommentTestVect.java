@@ -22,6 +22,7 @@ import java.util.List;
 
 public class ProgrammersCommentTestVect {
 		
+		@Test
 	    public void commentLearning() {
 	        String source = MyGroovyUtils.text(getClass().getClassLoader()
 	            .getResource("trainingset-programmers-comments.txt"));
