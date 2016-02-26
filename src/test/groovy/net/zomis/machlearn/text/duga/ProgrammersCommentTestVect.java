@@ -26,6 +26,42 @@ public class ProgrammersCommentTestVect {
 	  private static final Pattern PROG_LINK = Pattern.compile(Pattern.quote("<a href=\"http") + "s?"
 	            + Pattern.quote("://programmers.stackexchange.com")
 	            + "(/|/help/.*)?" + Pattern.quote("\">"));
+	  
+	  	//@Test
+	    public void QuickTest() {
+	        String source = MyGroovyUtils.text(getClass().getClassLoader()
+	            .getResource("trainingset-programmers-comments.txt"));
+	        String[] lines = source.split("\n");
+	        TextFeatureBuilder textFeatures = new TextFeatureBuilder(2, this::filter);
+
+
+	        TextFeatureMapper oldMapper = new TextFeatureMapper(
+	                "better fit", "better suited", "better place",
+	                "close", "off-topic", "design", "whiteboard", "this question", "this site",
+	                "programmers.se", "help at", "place to ask", "migrate", "belong",
+	                "instead", "the place for", "try programmers", "for programmers",
+	                "on programmers", "at programmers", "to programmers");
+
+	        LearningDataSet data = new LearningDataSet();
+	        List<String> processedStrings = new ArrayList<>();
+	        int i = 0;
+	        for (String str : lines) {
+	            if (!str.startsWith("0 ") && !str.startsWith("1 ")) {
+	                continue;
+	            }
+	            boolean expected = str.startsWith("1");
+	            String text = str.substring(2);
+	            String processed = preprocess(text);
+	            char expectedChar = expected ? '1' : '0';
+	            processedStrings.add(expectedChar + processed);
+	            textFeatures.add(processed);
+	            System.out.println("Original="+str);
+	            System.out.println("processed="+processed);
+	            if(i++>10){
+	            	break;
+	            }
+	        }
+	   	}
 
 	    @Test
 	    public void commentLearning() {
@@ -146,8 +182,8 @@ public class ProgrammersCommentTestVect {
     }
 
     private String preprocess(String text) {
+    	text = text.toLowerCase();
         text = PROG_LINK.matcher(text).replaceAll("(link-to-programmers)");
-
         text = text.replaceAll("<a href=\"([^\"]+)\">", "$1 "); // Extract links
         text = text.replaceAll("<[^<>]+>", " "); // Remove HTML
         text = text.replaceAll("\\d+", "(number)");
@@ -157,9 +193,26 @@ public class ProgrammersCommentTestVect {
         text = text.replaceAll("programmers.stackexchange.com/t", "(progs-tag) ");
         text = text.replaceAll("programmers.stackexchange.com/a", "(progs-answer) ");
         text = text.replaceAll("(http|https)://[^\\s]*", "(unclassified-httpaddr)");
-        text = text.replaceAll("[\\.,]", " ");
+        text = text.replaceAll("[\\.?!,]", " ");
         text = text.replaceAll("\\(number\\) (secs?|mins?) ago", "");
-        return text.toLowerCase().replace("\"", "");
-    }
 
+        text = text.replaceAll("i'm ", "i am ");
+        text = text.replaceAll("we're ", "we are ");
+        text = text.replaceAll("i've ", "i have ");
+        text = text.replaceAll("you've ", "you have ");
+        text = text.replaceAll("you're ", "you are ");
+        text = text.replaceAll("i'll ", "i will ");       
+        text = text.replaceAll("can't ", "can not ");
+        text = text.replaceAll("won't ", "will not ");
+        text = text.replaceAll("he's ", "he is ");
+        text = text.replaceAll("she's ", "she is ");
+        text = text.replaceAll("it's ", "it is ");
+        text = text.replaceAll("she'll ", "she will ");       
+        text = text.replaceAll("he'll ", "he will ");
+        text = text.replaceAll("it'll ", "it will ");
+        text = text.replaceAll("what's ", "what is ");
+        text = text.replaceAll("who's ", "who is ");
+        return text.replace("\"", "");
+    }
+    
 }
