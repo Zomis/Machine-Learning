@@ -17,10 +17,11 @@ import org.jblas.DoubleMatrix;
 import org.junit.Test;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class ProgrammersCommentTestVect {
-		@Test
+		
 	    public void commentLearning() {
 	        String source = MyGroovyUtils.text(getClass().getClassLoader()
 	            .getResource("trainingset-programmers-comments.txt"));
@@ -88,21 +89,35 @@ public class ProgrammersCommentTestVect {
 
 
     @Test
-    public void gradientDescent() {
-    	double[] result = GradientDescent.gradientDescentOld(
-                LogisticRegression.costFunctionOld(new double[][]{{2,3},{2,2}}, new double[]{1,0}),
+    public void gradientDescentTest() {
+    	double[][] x= {{2,3},{2,2}};
+    	double[] y = {1,0};
+    	
+    	double[] resultOld = GradientDescent.gradientDescentOld(
+                LogisticRegression.costFunctionOld(x, y),
                 new ConvergenceIterations(20000),
                 new double[3], 0.01);
-    	System.out.println("result="+result);
     	
-    	DoubleMatrix result2 = GradientDescent.gradientDescent(new DoubleMatrix(new double[][]{{2,3},{2,2}}), new DoubleMatrix(new double[]{1,0}),
-                new ConvergenceIterations(3),
+    	DoubleMatrix resultNew = GradientDescent.gradientDescent(new DoubleMatrix(x), new DoubleMatrix(y),
+                new ConvergenceIterations(20000),
                 new double[3], 0.01);
-    	System.out.println("result="+result2);
+
+    	assert roundDown4(LogisticRegression.costFunction(x, y).apply(resultNew.toArray())) == 
+    			roundDown4(LogisticRegression.costFunction(x, y).apply(resultOld));
+    	
+    	for(int i = 0; i < resultOld.length; i++){
+    		assert roundDown4(resultOld[i]) == roundDown4(resultNew.toArray()[i]);
+    	}
+    }
+    
+    
+    
+    public static double roundDown4(double d) {
+        return (long) (d * 1e4) / 1e4;
     }
     
     @Test
-    public void checksigmoid() {
+    public void sigmoidTest() {
     	// Check if sigmoid returns correct value (oracle used)
     	DoubleMatrix XT = new DoubleMatrix(new double[][]{{1},{2},{3}});
     	DoubleMatrix expected = new DoubleMatrix(new double[][]{{0.731059},{0.880797},{0.952574}});
@@ -110,7 +125,7 @@ public class ProgrammersCommentTestVect {
     }
     
     @Test
-    public void checkCostFunction() {
+    public void CostFunctionTest() {
     	// check if vectorized costfunction returns same value as old one.
     	assert LogisticRegression.costFunction(new double[][]{{2,3},{2,2}}, new double[]{1,0}).apply(new double[]{1,1,1}) ==
     			LogisticRegression.costFunctionOld(new double[][]{{2,3},{2,2}}, new double[]{1,0}).apply(new double[]{1,1,1});

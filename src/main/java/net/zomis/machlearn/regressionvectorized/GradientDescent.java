@@ -26,27 +26,13 @@ public class GradientDescent {
     
     public static DoubleMatrix gradientDescent(DoubleMatrix X,DoubleMatrix Y, Predicate<double[]> convergenceCondition,
             double[] initialTheta, double alpha) {
-    	DoubleMatrix Xold = X;
     	X = DoubleMatrix.concatHorizontally(DoubleMatrix.ones(X.rows,1),X);
-    	//System.out.println("X="+X);
     	DoubleMatrix theta = new DoubleMatrix(initialTheta);
-    	//System.out.println("THETA="+theta);
     	//TODO: convergence test doesn't use initialTheta. Should take into account the current Theta value I guess.
 		while (!convergenceCondition.test(initialTheta)) {
-			//System.out.println("I="+theta);
-			//System.out.println("h="+LogisticRegression.hypothesis(theta,X));
-			//System.out.println("h-1="+LogisticRegression.hypothesis(theta,X).sub(Y));
-			// [0.5;0.5]
-			//System.out.println("D="+X.transpose().mmul(LogisticRegression.hypothesis(theta,X).sub(Y)));
 			DoubleMatrix derivative = X.transpose().mmul(LogisticRegression.hypothesis(theta,X).sub(Y));
-			//System.out.print("der="+derivative);
-			//System.out.println("cost="+LogisticRegression.costFunction(Xold.toArray2(), Y.toArray()).apply(theta.toArray()));
-			//System.out.println("derxalpha="+derivative.mul(alpha));
-			//System.out.println("Theta="+theta);
-			//System.out.println("theta-derxalpha="+theta.sub(derivative.mul(alpha)));
-			DoubleMatrix thetanew = theta.sub(derivative.mul(alpha));
-			theta = thetanew;
-			//System.out.println("t-ader-after="+theta);
+			theta = theta.sub(derivative.mul(alpha/X.rows));
+
 		}
 		return theta;
     }
