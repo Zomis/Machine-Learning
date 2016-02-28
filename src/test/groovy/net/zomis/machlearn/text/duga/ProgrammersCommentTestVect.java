@@ -27,49 +27,13 @@ public class ProgrammersCommentTestVect {
 	            + Pattern.quote("://programmers.stackexchange.com")
 	            + "(/|/help/.*)?" + Pattern.quote("\">"));
 	  
-	  	@Test
-	    public void QuickTest() {
-	        String source = MyGroovyUtils.text(getClass().getClassLoader()
-	            .getResource("trainingset-programmers-comments.txt"));
-	        String[] lines = source.split("\n");
 
-	        TextFeatureBuilder textFeatures = new TextFeatureBuilder(new int[]{1, 2}, this::filter);
-
-
-	        TextFeatureMapper oldMapper = new TextFeatureMapper(
-	                "better fit", "better suited", "better place",
-	                "close", "off-topic", "design", "whiteboard", "this question", "this site",
-	                "programmers.se", "help at", "place to ask", "migrate", "belong",
-	                "instead", "the place for", "try programmers", "for programmers",
-	                "on programmers", "at programmers", "to programmers");
-
-	        LearningDataSet data = new LearningDataSet();
-	        List<String> processedStrings = new ArrayList<>();
-	        int i = 0;
-	        for (String str : lines) {
-	            if (!str.startsWith("0 ") && !str.startsWith("1 ")) {
-	                continue;
-	            }
-	            boolean expected = str.startsWith("1");
-	            String text = str.substring(2);
-	            String processed = preprocess(text);
-	            char expectedChar = expected ? '1' : '0';
-	            processedStrings.add(expectedChar + processed);
-	            textFeatures.add(processed);
-	            System.out.println("Original="+str);
-	            System.out.println("processed="+processed);
-	            if(i++>10){
-	            	break;
-	            }
-	        }
-	   	}
-
-	    //@Test
+	    @Test
 	    public void commentLearning() {
 	        String source = MyGroovyUtils.text(getClass().getClassLoader()
 	            .getResource("trainingset-programmers-comments.txt"));
 	        String[] lines = source.split("\n");
-	        TextFeatureBuilder textFeatures = new TextFeatureBuilder(new int[1], this::filter);
+	        TextFeatureBuilder textFeatures = new TextFeatureBuilder(new int[]{1, 2}, this::filter);
 
 
 	        TextFeatureMapper oldMapper = new TextFeatureMapper(
@@ -95,9 +59,9 @@ public class ProgrammersCommentTestVect {
 
 	        TextFeatureMapper mapper = textFeatures.mapper(50);
 	        System.out.println("Counts:");
-	        textFeatures.getCounts().entrySet().stream()
+	        /*textFeatures.getCounts().entrySet().stream()
 	            .sorted(TextFeatureBuilder.SORT_BY_VALUE)
-	            .forEach(System.out::println);
+	            .forEach(System.out::println);*/
 	        System.out.println();
 	        System.out.println();
 	        System.out.println("Mapper features:");
@@ -108,8 +72,8 @@ public class ProgrammersCommentTestVect {
 	            data.add(str, mapper.toFeatures(str), expectTrue ? 1 : 0);
 	        }
 
-	        System.out.println("Data is:");
-	        data.getData().stream().forEach(System.out::println);
+	        //System.out.println("Data is:");
+	        //data.getData().stream().forEach(System.out::println);
 
 	        DoubleMatrix learnedT = GradientDescent.gradientDescent(
 	            new DoubleMatrix(data.getXs()), new DoubleMatrix(data.getY()),
@@ -134,7 +98,7 @@ public class ProgrammersCommentTestVect {
 	    }
 
 	    private boolean filter(String feature) {
-	        return feature.length() > 7;
+	        return feature.trim().length() > 2;
 	    }
 		
 
@@ -213,6 +177,10 @@ public class ProgrammersCommentTestVect {
         text = text.replaceAll("it'll ", "it will ");
         text = text.replaceAll("what's ", "what is ");
         text = text.replaceAll("who's ", "who is ");
+        text = text.replaceAll("shouldn't ", "should not ");
+        text = text.replaceAll("wouldn't ", "would not ");
+        text = text.replaceAll("couldn't ", "could not ");
+        text = text.replaceAll(" don't ", " do not ");
         return text.replace("\"", "");
     }
     

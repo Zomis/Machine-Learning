@@ -27,7 +27,6 @@ public class TextFeatureBuilder {
     public void add(String processed) {
         List<String> sections = Arrays.asList(processed.split(" "));
         sections = sections.stream().filter(s -> !s.trim().isEmpty()).collect(Collectors.toList());
-        System.out.println("S="+sections);
         for(int n : nGrams){
 	        for (int i = 0; i <= sections.size() - n; i++) {
 	            List<String> values = sections.subList(i, i + n);
@@ -35,8 +34,8 @@ public class TextFeatureBuilder {
 	            if (value.isEmpty()) {
 	                continue;
 	            }
-	            else{
-	            	System.out.println(value);
+	            if (featureFilter.test(value)) {
+	            	//System.out.println(value);
 	                counts.merge(value, 1, Integer::sum);
 	            }
 	            /*if (featureFilter.test(value)) {
@@ -53,6 +52,7 @@ public class TextFeatureBuilder {
             .limit(maxLimit).map(Map.Entry::getKey)
             .collect(Collectors.toList())
             .toArray(new String[maxLimit]);
+        	System.out.println("=====================================>"+features);
         return new TextFeatureMapper(features);
     }
 
