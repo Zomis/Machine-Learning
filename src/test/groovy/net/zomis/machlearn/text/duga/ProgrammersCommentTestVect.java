@@ -97,8 +97,8 @@ public class ProgrammersCommentTestVect {
 	            .forEach(d -> System.out.println(d.getForData()));
 	    }
 
-	    private boolean filter(String feature) {
-	        return feature.trim().length() > 2;
+	    private boolean filter(String feature, Integer nGram) {
+	        return feature.trim().length() > ((nGram > 1) ? 7 : 2);
 	    }
 		
 

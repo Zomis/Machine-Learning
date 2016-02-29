@@ -1,7 +1,7 @@
 package net.zomis.machlearn.text;
 
 import java.util.*;
-import java.util.function.Predicate;
+import java.util.function.BiPredicate;
 import java.util.stream.Collectors;
 
 public class TextFeatureBuilder {
@@ -12,9 +12,9 @@ public class TextFeatureBuilder {
 
     private final int[] nGrams;
     private final Map<String, Integer> counts;
-    private final Predicate<String> featureFilter;
+    private final BiPredicate<String, Integer> featureFilter;
 
-    public TextFeatureBuilder(int[] nGrams, Predicate<String> featureFilter) {
+    public TextFeatureBuilder(int[] nGrams, BiPredicate<String, Integer> featureFilter) {
     	System.out.println(nGrams.toString());
         if (nGrams != null && nGrams.length < 0) {
             throw new IllegalArgumentException("nGrams must have at least one value");
@@ -34,7 +34,7 @@ public class TextFeatureBuilder {
 	            if (value.isEmpty()) {
 	                continue;
 	            }
-	            if (featureFilter.test(value)) {
+	            if (featureFilter.test(value,n)) {
 	            	//System.out.println(value);
 	                counts.merge(value, 1, Integer::sum);
 	            }

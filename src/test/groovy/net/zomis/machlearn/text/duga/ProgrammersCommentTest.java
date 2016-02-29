@@ -94,7 +94,7 @@ public class ProgrammersCommentTest {
             .forEach(d -> System.out.println(d.getForData()));
     }
 
-    private boolean filter(String feature) {
+    private boolean filter(String feature, Integer n) {
         return feature.length() > 7;
     }
 
