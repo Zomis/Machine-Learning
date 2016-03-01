@@ -12,7 +12,15 @@ import java.util.stream.Stream;
 
 public class LearningDataSet {
 
-    private final List<LearningData> data = new ArrayList<>();
+    private final List<LearningData> data;
+
+    public LearningDataSet() {
+        this(new ArrayList<>());
+    }
+
+    public LearningDataSet(List<LearningData> data) {
+        this.data = new ArrayList<>(data);
+    }
 
     public void add(Object representation, double[] x, double y) {
         this.add(representation, x, new double[]{y});

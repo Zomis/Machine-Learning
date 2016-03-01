@@ -2,7 +2,6 @@ package net.zomis.machlearn.common;
 
 import net.zomis.machlearn.neural.LearningData;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -10,27 +9,27 @@ import java.util.List;
  */
 public class PartitionedDataSet {
 
-    private final List<LearningData> trainingSet;
-    private final List<LearningData> crossValidationSet;
-    private final List<LearningData> testSet;
+    private final LearningDataSet trainingSet;
+    private final LearningDataSet crossValidationSet;
+    private final LearningDataSet testSet;
 
     public PartitionedDataSet(List<LearningData> trainingSet, List<LearningData> crossValidationSet,
                               List<LearningData> testSet) {
-        this.trainingSet = new ArrayList<>(trainingSet);
-        this.crossValidationSet = new ArrayList<>(crossValidationSet);
-        this.testSet = new ArrayList<>(testSet);
+        this.trainingSet = new LearningDataSet(trainingSet);
+        this.crossValidationSet = new LearningDataSet(crossValidationSet);
+        this.testSet = new LearningDataSet(testSet);
     }
 
-    public List<LearningData> getCrossValidationSet() {
-        return new ArrayList<>(crossValidationSet);
+    public LearningDataSet getCrossValidationSet() {
+        return crossValidationSet;
     }
 
-    public List<LearningData> getTestSet() {
-        return new ArrayList<>(testSet);
+    public LearningDataSet getTestSet() {
+        return testSet;
     }
 
-    public List<LearningData> getTrainingSet() {
-        return new ArrayList<>(trainingSet);
+    public LearningDataSet getTrainingSet() {
+        return trainingSet;
     }
 
 }
