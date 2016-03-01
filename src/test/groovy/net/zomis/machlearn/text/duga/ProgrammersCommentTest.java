@@ -2,6 +2,7 @@ package net.zomis.machlearn.text.duga;
 
 import net.zomis.machlearn.common.ClassifierFunction;
 import net.zomis.machlearn.common.LearningDataSet;
+import net.zomis.machlearn.common.PartitionedDataSet;
 import net.zomis.machlearn.common.PrecisionRecallF1;
 import net.zomis.machlearn.images.MyGroovyUtils;
 import net.zomis.machlearn.neural.LearningData;
@@ -13,10 +14,7 @@ import net.zomis.machlearn.text.TextFeatureBuilder;
 import net.zomis.machlearn.text.TextFeatureMapper;
 import org.junit.Test;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -74,11 +72,15 @@ public class ProgrammersCommentTest {
         System.out.println("Data is:");
         data.getData().stream().forEach(System.out::println);
 
+        PartitionedDataSet partitionedData = data.partition(0.6, 0.2, 0.2, new Random(42));
+        LearningDataSet trainingSet = partitionedData.getTrainingSet();
+
         double[] learnedTheta = GradientDescent.gradientDescent(
-            LogisticRegression.costFunction(data.getXs(), data.getY()),
+            LogisticRegression.costFunction(trainingSet.getXs(), trainingSet.getY()),
             new ConvergenceIterations(20000),
             new double[data.numFeaturesWithZero()], 0.01);
-        double cost = LogisticRegression.costFunction(data.getXs(), data.getY()).apply(learnedTheta);
+
+        double cost = LogisticRegression.costFunction(trainingSet.getXs(), trainingSet.getY()).apply(learnedTheta);
         System.out.println("Cost: " + cost);
 
         ClassifierFunction function = (theta, x) ->
