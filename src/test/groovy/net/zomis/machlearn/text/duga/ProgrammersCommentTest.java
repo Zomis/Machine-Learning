@@ -93,7 +93,7 @@ public class ProgrammersCommentTest {
         ClassifierFunction function = (theta, x) ->
                 LogisticRegression.hypothesis(theta, x) >= 0.3;
         System.out.println("ALL Score: " + data.precisionRecallF1(learnedTheta, function));
-        System.out.println("Training Score: " + data.precisionRecallF1(learnedTheta, function));
+        System.out.println("Training Score: " + trainingSet.precisionRecallF1(learnedTheta, function));
         System.out.println("CrossVal Score: " + crossValidSet.precisionRecallF1(learnedTheta, function));
         System.out.println("TestSet  Score: " + testSet.precisionRecallF1(learnedTheta, function));
 
