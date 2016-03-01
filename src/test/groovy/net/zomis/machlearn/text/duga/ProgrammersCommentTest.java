@@ -74,20 +74,28 @@ public class ProgrammersCommentTest {
 
         PartitionedDataSet partitionedData = data.partition(0.6, 0.2, 0.2, new Random(42));
         LearningDataSet trainingSet = partitionedData.getTrainingSet();
+        LearningDataSet crossValidSet = partitionedData.getCrossValidationSet();
+        LearningDataSet testSet = partitionedData.getTestSet();
 
         double[] learnedTheta = GradientDescent.gradientDescent(
             LogisticRegression.costFunction(trainingSet.getXs(), trainingSet.getY()),
             new ConvergenceIterations(20000),
             new double[data.numFeaturesWithZero()], 0.01);
 
-        double cost = LogisticRegression.costFunction(trainingSet.getXs(), trainingSet.getY()).apply(learnedTheta);
-        System.out.println("Cost: " + cost);
+        double cost = LogisticRegression.costFunction(trainingSet.getXs(), trainingSet.getY())
+            .apply(learnedTheta);
+        System.out.println("Training Set Cost: " + cost);
+
+        double crossCost = LogisticRegression.costFunction(crossValidSet.getXs(), crossValidSet.getY())
+            .apply(learnedTheta);
+        System.out.println("CrossValidation Cost: " + crossCost);
 
         ClassifierFunction function = (theta, x) ->
                 LogisticRegression.hypothesis(theta, x) >= 0.3;
-
-        PrecisionRecallF1 score = data.precisionRecallF1(learnedTheta, function);
-        System.out.println(score);
+        System.out.println("ALL Score: " + data.precisionRecallF1(learnedTheta, function));
+        System.out.println("Training Score: " + data.precisionRecallF1(learnedTheta, function));
+        System.out.println("CrossVal Score: " + crossValidSet.precisionRecallF1(learnedTheta, function));
+        System.out.println("TestSet  Score: " + testSet.precisionRecallF1(learnedTheta, function));
 
         System.out.println("False negatives:");
         data.stream()
