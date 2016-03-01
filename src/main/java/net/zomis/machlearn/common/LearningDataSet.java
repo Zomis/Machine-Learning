@@ -3,7 +3,9 @@ package net.zomis.machlearn.common;
 import net.zomis.machlearn.neural.LearningData;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Random;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -52,6 +54,24 @@ public class LearningDataSet {
 
     public Stream<LearningData> stream() {
         return data.stream();
+    }
+
+    public PartitionedDataSet partition(double trainingSetRatio,
+        double crossValidationSetRatio, double testSetRatio, Random random) {
+        List<LearningData> shuffledData = new ArrayList<>(this.data);
+        Collections.shuffle(shuffledData, random);
+        // Calculate the sum to support ratios like 0.1, 0.2, 0.3
+        double sum = trainingSetRatio + crossValidationSetRatio + testSetRatio;
+        int size = shuffledData.size();
+        int indexSplit1 = (int) (trainingSetRatio / sum * size);
+        int indexSplit2 = indexSplit1 + (int) (crossValidationSetRatio / sum * size);
+        List<LearningData> trainingSet =
+            new ArrayList<>(shuffledData.subList(0, indexSplit1));
+        List<LearningData> crossValidationSet =
+                new ArrayList<>(shuffledData.subList(indexSplit1, indexSplit2));
+        List<LearningData> testSet =
+                new ArrayList<>(shuffledData.subList(indexSplit2, size));
+        return new PartitionedDataSet(trainingSet, crossValidationSet, testSet);
     }
 
 }
