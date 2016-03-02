@@ -15,7 +15,6 @@ public class TextFeatureBuilder {
     private final BiPredicate<String, Integer> featureFilter;
 
     public TextFeatureBuilder(int[] nGrams, BiPredicate<String, Integer> featureFilter) {
-    	System.out.println(nGrams.toString());
         if (nGrams != null && nGrams.length < 0) {
             throw new IllegalArgumentException("nGrams must have at least one value");
         }
@@ -35,13 +34,8 @@ public class TextFeatureBuilder {
 	                continue;
 	            }
 	            if (featureFilter.test(value,n)) {
-	            	//System.out.println(value);
 	                counts.merge(value, 1, Integer::sum);
 	            }
-	            /*if (featureFilter.test(value)) {
-	            	System.out.println(value);
-	                counts.merge(value, 1, Integer::sum);
-	            }*/
 	        }
         }
     }
@@ -52,7 +46,6 @@ public class TextFeatureBuilder {
             .limit(maxLimit).map(Map.Entry::getKey)
             .collect(Collectors.toList())
             .toArray(new String[maxLimit]);
-        	System.out.println("=====================================>"+features);
         return new TextFeatureMapper(features);
     }
 
