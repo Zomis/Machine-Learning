@@ -1,7 +1,7 @@
 package net.zomis.machlearn.text;
 
 import java.util.*;
-import java.util.function.Predicate;
+import java.util.function.BiPredicate;
 import java.util.stream.Collectors;
 
 public class TextFeatureBuilder {
@@ -10,13 +10,13 @@ public class TextFeatureBuilder {
         Comparator.<Map.Entry<String, Integer>, Integer>comparing(Map.Entry::getValue)
             .reversed();
 
-    private final int nGrams;
+    private final int[] nGrams;
     private final Map<String, Integer> counts;
-    private final Predicate<String> featureFilter;
+    private final BiPredicate<String, Integer> featureFilter;
 
-    public TextFeatureBuilder(int nGrams, Predicate<String> featureFilter) {
-        if (nGrams < 1) {
-            throw new IllegalArgumentException("nGrams must be positive, was " + nGrams);
+    public TextFeatureBuilder(int[] nGrams, BiPredicate<String, Integer> featureFilter) {
+        if (nGrams != null && nGrams.length < 0) {
+            throw new IllegalArgumentException("nGrams must have at least one value");
         }
         this.nGrams = nGrams;
         this.counts = new HashMap<>();
@@ -26,15 +26,17 @@ public class TextFeatureBuilder {
     public void add(String processed) {
         List<String> sections = Arrays.asList(processed.split(" "));
         sections = sections.stream().filter(s -> !s.trim().isEmpty()).collect(Collectors.toList());
-        for (int i = 0; i <= sections.size() - nGrams; i++) {
-            List<String> values = sections.subList(i, i + nGrams);
-            String value = String.join(" ", values).trim();
-            if (value.isEmpty()) {
-                continue;
-            }
-            if (featureFilter.test(value)) {
-                counts.merge(value, 1, Integer::sum);
-            }
+        for(int n : nGrams){
+	        for (int i = 0; i <= sections.size() - n; i++) {
+	            List<String> values = sections.subList(i, i + n);
+	            String value = String.join(" ", values).trim();
+	            if (value.isEmpty()) {
+	                continue;
+	            }
+	            if (featureFilter.test(value,n)) {
+	                counts.merge(value, 1, Integer::sum);
+	            }
+	        }
         }
     }
 

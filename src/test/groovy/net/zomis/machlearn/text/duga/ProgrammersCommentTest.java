@@ -29,7 +29,7 @@ public class ProgrammersCommentTest {
         String source = MyGroovyUtils.text(getClass().getClassLoader()
             .getResource("trainingset-programmers-comments.txt"));
         String[] lines = source.split("\n");
-        TextFeatureBuilder textFeatures = new TextFeatureBuilder(2, this::filter);
+        TextFeatureBuilder textFeatures = new TextFeatureBuilder(new int[]{2}, this::filter);
 
 
         TextFeatureMapper oldMapper = new TextFeatureMapper(
@@ -104,7 +104,7 @@ public class ProgrammersCommentTest {
             .forEach(d -> System.out.println(d.getForData()));
     }
 
-    private boolean filter(String feature) {
+    private boolean filter(String feature, Integer n) {
         return feature.length() > 7;
     }
 
