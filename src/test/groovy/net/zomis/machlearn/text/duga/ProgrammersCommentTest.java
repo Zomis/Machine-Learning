@@ -2,6 +2,7 @@ package net.zomis.machlearn.text.duga;
 
 import net.zomis.machlearn.common.ClassifierFunction;
 import net.zomis.machlearn.common.LearningDataSet;
+import net.zomis.machlearn.common.PartitionedDataSet;
 import net.zomis.machlearn.common.PrecisionRecallF1;
 import net.zomis.machlearn.images.MyGroovyUtils;
 import net.zomis.machlearn.neural.LearningData;
@@ -13,10 +14,7 @@ import net.zomis.machlearn.text.TextFeatureBuilder;
 import net.zomis.machlearn.text.TextFeatureMapper;
 import org.junit.Test;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -74,18 +72,30 @@ public class ProgrammersCommentTest {
         System.out.println("Data is:");
         data.getData().stream().forEach(System.out::println);
 
+        PartitionedDataSet partitionedData = data.partition(0.6, 0.2, 0.2, new Random(42));
+        LearningDataSet trainingSet = partitionedData.getTrainingSet();
+        LearningDataSet crossValidSet = partitionedData.getCrossValidationSet();
+        LearningDataSet testSet = partitionedData.getTestSet();
+
         double[] learnedTheta = GradientDescent.gradientDescent(
-            LogisticRegression.costFunction(data.getXs(), data.getY()),
+            LogisticRegression.costFunction(trainingSet.getXs(), trainingSet.getY()),
             new ConvergenceIterations(20000),
             new double[data.numFeaturesWithZero()], 0.01);
-        double cost = LogisticRegression.costFunction(data.getXs(), data.getY()).apply(learnedTheta);
-        System.out.println("Cost: " + cost);
+
+        double cost = LogisticRegression.costFunction(trainingSet.getXs(), trainingSet.getY())
+            .apply(learnedTheta);
+        System.out.println("Training Set Cost: " + cost);
+
+        double crossCost = LogisticRegression.costFunction(crossValidSet.getXs(), crossValidSet.getY())
+            .apply(learnedTheta);
+        System.out.println("CrossValidation Cost: " + crossCost);
 
         ClassifierFunction function = (theta, x) ->
                 LogisticRegression.hypothesis(theta, x) >= 0.3;
-
-        PrecisionRecallF1 score = data.precisionRecallF1(learnedTheta, function);
-        System.out.println(score);
+        System.out.println("ALL Score: " + data.precisionRecallF1(learnedTheta, function));
+        System.out.println("Training Score: " + trainingSet.precisionRecallF1(learnedTheta, function));
+        System.out.println("CrossVal Score: " + crossValidSet.precisionRecallF1(learnedTheta, function));
+        System.out.println("TestSet  Score: " + testSet.precisionRecallF1(learnedTheta, function));
 
         System.out.println("False negatives:");
         data.stream()
