@@ -1,5 +1,6 @@
 package net.zomis.machlearn.text.duga;
 
+import net.tuis.ubench.UBench;
 import net.zomis.machlearn.common.ClassifierFunction;
 import net.zomis.machlearn.common.LearningDataSet;
 import net.zomis.machlearn.common.PrecisionRecallF1;
@@ -27,9 +28,57 @@ public class ProgrammersCommentTestVect {
 	            + Pattern.quote("://programmers.stackexchange.com")
 	            + "(/|/help/.*)?" + Pattern.quote("\">"));
 	  
+	  
+	  	@Test
+	  	public void performanceTest(){
+	  		String source = MyGroovyUtils.text(getClass().getClassLoader()
+		            .getResource("trainingset-programmers-comments.txt"));
+		        String[] lines = source.split("\n");
+		        TextFeatureBuilder textFeatures = new TextFeatureBuilder(new int[]{1, 2}, this::filter);
 
-	    @Test
-	    public void commentLearning() {
+		        LearningDataSet data = new LearningDataSet();
+		        List<String> processedStrings = new ArrayList<>();
+		        for (String str : lines) {
+		            if (!str.startsWith("0 ") && !str.startsWith("1 ")) {
+		                continue;
+		            }
+		            boolean expected = str.startsWith("1");
+		            String text = str.substring(2);
+		            String processed = preprocess(text);
+		            char expectedChar = expected ? '1' : '0';
+		            processedStrings.add(expectedChar + processed);
+		            textFeatures.add(processed);
+		        }
+
+		        TextFeatureMapper mapper = textFeatures.mapper(50);
+		        for (String str : processedStrings) {
+		            boolean expectTrue = str.charAt(0) == '1';
+		            data.add(str, mapper.toFeatures(str), expectTrue ? 1 : 0);
+		        }
+
+		        new UBench("Comparative Performance")
+		          .addTask("Vectorized",() -> GradientDescent.gradientDescent(
+				            new DoubleMatrix(data.getXs()), new DoubleMatrix(data.getY()),
+				            new ConvergenceIterations(20000),
+				            new double[data.numFeaturesWithZero()], 0.01))
+		          .addTask("None-Vectorized",() -> GradientDescent.gradientDescentOld(
+		                  LogisticRegression.costFunctionOld(data.getXs(), data.getY()),
+		                  new ConvergenceIterations(20000),
+		                  new double[data.numFeaturesWithZero()], 0.01))
+		          .press(100)
+		          .report("Comparing vectorization");
+		        
+		        
+		        DoubleMatrix learnedT = GradientDescent.gradientDescent(
+		            new DoubleMatrix(data.getXs()), new DoubleMatrix(data.getY()),
+		            new ConvergenceIterations(20000),
+		            new double[data.numFeaturesWithZero()], 0.01);
+		        double[] learnedTheta = learnedT.toArray();
+	  	}
+	  
+
+	    //@Test
+	    public void commentLearning(){
 	        String source = MyGroovyUtils.text(getClass().getClassLoader()
 	            .getResource("trainingset-programmers-comments.txt"));
 	        String[] lines = source.split("\n");
