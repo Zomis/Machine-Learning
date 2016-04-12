@@ -3,7 +3,7 @@ package net.zomis.machlearn.regressionvectorized;
 import org.jblas.DoubleMatrix;
 import org.jblas.MatrixFunctions;
 
-import net.zomis.machlearn.regressionvectorized.ModelFunction;
+import net.zomis.machlearn.regression.ModelFunction;
 
 public class LogisticRegression {
 

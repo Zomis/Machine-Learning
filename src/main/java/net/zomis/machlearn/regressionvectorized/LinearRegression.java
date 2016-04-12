@@ -1,5 +1,7 @@
 package net.zomis.machlearn.regressionvectorized;
 
+import net.zomis.machlearn.regression.ModelFunction;
+
 import java.util.Arrays;
 
 public class LinearRegression {

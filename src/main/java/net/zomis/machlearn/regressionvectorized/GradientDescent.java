@@ -3,6 +3,7 @@ package net.zomis.machlearn.regressionvectorized;
 import java.util.Arrays;
 import java.util.function.Predicate;
 
+import net.zomis.machlearn.regression.ModelFunction;
 import org.jblas.DoubleMatrix;
 
 public class GradientDescent {
