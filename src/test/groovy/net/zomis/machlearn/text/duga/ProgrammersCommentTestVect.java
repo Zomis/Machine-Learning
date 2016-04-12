@@ -9,6 +9,7 @@ import net.zomis.machlearn.neural.LearningData;
 import net.zomis.machlearn.regression.ConvergenceIterations;
 import net.zomis.machlearn.regressionvectorized.GradientDescent;
 import net.zomis.machlearn.regressionvectorized.LogisticRegression;
+import net.zomis.machlearn.text.TextFeatureWeights;
 import net.zomis.machlearn.text.TextFeatureBuilder;
 import net.zomis.machlearn.text.TextFeatureMapper;
 
@@ -85,8 +86,10 @@ public class ProgrammersCommentTestVect {
 	            new ConvergenceIterations(20000),
 	            new double[data.numFeaturesWithZero()], 0.01);
 	        double[] learnedTheta = learnedT.toArray();
-	        
-	        double cost = LogisticRegression.costFunction(trainingSet.getXs(), trainingSet.getY()).apply(learnedTheta);
+			TextFeatureWeights weights = new TextFeatureWeights(mapper.getFeatures(), learnedTheta);
+			weights.getMapByValue().stream().forEach(System.out::println);
+
+			double cost = LogisticRegression.costFunction(trainingSet.getXs(), trainingSet.getY()).apply(learnedTheta);
 	        System.out.println("Training Set Cost: " + cost);
 	        
 	        double crossCost = LogisticRegression.costFunction(crossValidSet.getXs(), crossValidSet.getY()).apply(learnedTheta);
