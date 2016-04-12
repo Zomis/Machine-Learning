@@ -17,3 +17,5 @@ install: ":"
 before_script:
 - export GRADLE_OPTS='-Dorg.gradle.daemon=false'
 - chmod +x gradlew
+
+script: ./gradlew check --stacktrace --debug
