@@ -4,14 +4,11 @@ import net.tuis.ubench.UBench;
 import net.zomis.machlearn.common.ClassifierFunction;
 import net.zomis.machlearn.common.LearningDataSet;
 import net.zomis.machlearn.common.PartitionedDataSet;
-import net.zomis.machlearn.common.PrecisionRecallF1;
 import net.zomis.machlearn.images.MyGroovyUtils;
 import net.zomis.machlearn.neural.LearningData;
 import net.zomis.machlearn.regression.ConvergenceIterations;
 import net.zomis.machlearn.regressionvectorized.GradientDescent;
 import net.zomis.machlearn.regressionvectorized.LogisticRegression;
-import net.zomis.machlearn.regressionvectorized.ModelFunction;
-import net.zomis.machlearn.text.BagOfWords;
 import net.zomis.machlearn.text.TextFeatureBuilder;
 import net.zomis.machlearn.text.TextFeatureMapper;
 
