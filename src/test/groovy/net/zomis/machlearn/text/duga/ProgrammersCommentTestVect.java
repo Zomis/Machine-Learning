@@ -9,6 +9,7 @@ import net.zomis.machlearn.neural.LearningData;
 import net.zomis.machlearn.regression.ConvergenceIterations;
 import net.zomis.machlearn.regressionvectorized.GradientDescent;
 import net.zomis.machlearn.regressionvectorized.LogisticRegression;
+import net.zomis.machlearn.text.TextClassification;
 import net.zomis.machlearn.text.TextFeatureWeights;
 import net.zomis.machlearn.text.TextFeatureBuilder;
 import net.zomis.machlearn.text.TextFeatureMapper;
@@ -109,7 +110,12 @@ public class ProgrammersCommentTestVect {
 	            .filter(LearningData::getOutputBoolean)
 	            .filter(d -> !function.classify(learnedTheta, d.getInputs()))
 	            .forEach(d -> System.out.println(d.getForData()));
-	    }
+
+			TextClassification classification = new TextClassification(this::preprocess, mapper, learnedTheta, 0.4);
+			String text = "I wrote an <a href=\"http://programmers.stackexchange.com/a/313903/60357\">answer on Programmers.SE</a> that touches on this point. In short, the GoF design patterns book literally includes example code that returns arbitrary objects. This has largely gone unnoticed because that code is in Smalltalk, using dynamic typing. The C++ example code has to use void because semantic restrictions of that language, not because a void return type is a central feature of the Visitor Pattern. In Java, we can use generics for non-void return types in a type-safe manner. —";
+
+			System.out.println(classification.score(text));
+		}
 
 	    private boolean filter(String feature, Integer nGram) {
 	        return feature.trim().length() > ((nGram > 1) ? 7 : 2);
