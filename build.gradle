@@ -16,7 +16,7 @@ apply plugin: 'groovy'
 group = 'net.zomis'
 version = '0.1.0-SNAPSHOT'
 
-description = "Just trying out Neural Networks"
+description = "Home-made Machine Learning"
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
@@ -28,6 +28,10 @@ repositories {
     maven { url "http://www.zomis.net/maven" }
 }
 
+configurations {
+    deployerJars
+}
+
 dependencies {
     compile group: 'org.codehaus.groovy', name: 'groovy-all', version:'2.4.3'
     compile 'org.imgscalr:imgscalr-lib:4.2'
@@ -37,4 +41,41 @@ dependencies {
 	compile 'org.jblas:jblas:1.2.3'
 	compile 'net.tuis.ubench:ubench:0.2.0'
     testCompile group: 'junit', name: 'junit', version: '4.11'
+    deployerJars 'org.apache.maven.wagon:wagon-ftp:2.2'
+}
+
+def getMavenSettingsCredentials() {
+    String userHome = System.getProperty('user.home')
+    File mavenSettings = new File(userHome, '.m2/settings.xml')
+    if (!mavenSettings.exists()) {
+        return []
+    }
+    def xmlSlurper = new XmlSlurper()
+    def output = xmlSlurper.parse(mavenSettings)
+    return output."servers"."server"
+}
+
+def getCredentials() {
+    def entries = getMavenSettingsCredentials()
+    for (entry in entries) {
+        if (entry."id".text() == 'zomisnet') {
+            return [username: entry.username.text(), password: entry.password.text()]
+        }
+    }
+    return [username: 'invalid', password: 'invalid']
+}
+
+uploadArchives {
+    def creds = getCredentials()
+    if (!creds) {
+        return;
+    }
+    repositories {
+        mavenDeployer {
+            configuration = configurations.deployerJars
+            repository(url: "ftp://www.zomis.net/public_html/maven") {
+                authentication(userName: creds["username"], password: creds["password"])
+            }
+        }
+    }
 }
