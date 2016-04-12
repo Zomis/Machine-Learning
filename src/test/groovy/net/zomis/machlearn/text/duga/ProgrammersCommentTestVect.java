@@ -58,7 +58,7 @@ public class ProgrammersCommentTestVect {
 	            textFeatures.add(processed);
 	        }
 
-	        TextFeatureMapper mapper = textFeatures.mapper(50);
+	        TextFeatureMapper mapper = textFeatures.mapper(500);
 	        /*System.out.println("Counts:");
 	        textFeatures.getCounts().entrySet().stream()
 	            .sorted(TextFeatureBuilder.SORT_BY_VALUE)
