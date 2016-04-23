@@ -3,6 +3,8 @@ package net.zomis.machlearn.text;
 import net.zomis.machlearn.regression.LogisticRegression;
 
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.function.UnaryOperator;
 
 public class TextClassification {
@@ -23,6 +25,25 @@ public class TextClassification {
     public double score(String text) {
         double[] features = mapper.toFeatures(preprocess.apply(text));
         return LogisticRegression.hypothesis(theta, features);
+    }
+
+    public Map<String, Double> getFeatures(String text) {
+        String[] features = mapper.getFeatures();
+        double[] mapFeatures = mapper.toFeatures(text);
+        int featureCount = features.length;
+
+        Map<String, Double> result = new HashMap<>();
+        for (int i = 0; i < featureCount; i++) {
+            if (mapFeatures[i] != 0) {
+                // theta[0] is the bias value
+                result.put(features[i], mapFeatures[i] * theta[i + 1]);
+            }
+        }
+        return result;
+    }
+
+    public String preprocess(String text) {
+        return preprocess.apply(text);
     }
 
     public boolean classify(String text) {
