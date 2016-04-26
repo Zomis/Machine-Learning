@@ -59,4 +59,8 @@ public class TextClassification {
         return threshold;
     }
 
+    public TextFeatureMapper getMapper() {
+        return this.mapper;
+    }
+
 }
