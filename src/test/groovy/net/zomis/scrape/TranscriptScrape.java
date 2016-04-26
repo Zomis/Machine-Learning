@@ -26,6 +26,7 @@ public class TranscriptScrape {
             messageId + "#" + messageId;
         System.out.println("Fetching URL " + url);
         Document doc = Jsoup.connect(url).get();
+        doc.select(".message:not(.highlight)").remove();
         List<String> texts = Scraping.texts(doc);
         texts.forEach(System.out::println);
     }
