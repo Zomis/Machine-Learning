@@ -1,6 +1,7 @@
 package net.zomis.machlearn.text;
 
 import java.util.Arrays;
+import java.util.regex.Pattern;
 import java.util.stream.IntStream;
 
 public class TextFeatureMapper {
@@ -17,7 +18,9 @@ public class TextFeatureMapper {
     
     public double[] toFeatures(String str) {
         return IntStream.range(0, features.length)
-            .mapToDouble(i -> str.contains(features[i]) ? 1 : 0)
+            .mapToObj(i -> features[i])
+            .map(s -> Pattern.compile("\\b" + s + "\\b"))
+            .mapToDouble(p -> p.matcher(str).find() ? 1 : 0)
             .toArray();
     }
 
