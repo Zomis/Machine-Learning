@@ -22,7 +22,10 @@ class Scraping {
     }
 
     static List<String> texts(Document doc) {
-        Elements results = doc.select('.message .content .quote')
+        Elements results = doc.select('.message .content')
+        if (results.select('.quote').size() > 0) {
+            results = results.select('.quote')
+        }
 
         // Remove time stamp and comment link
         results.select('span.relativetime').parents().remove()
