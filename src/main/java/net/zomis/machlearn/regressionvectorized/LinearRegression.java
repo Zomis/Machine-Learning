@@ -8,8 +8,8 @@ public class LinearRegression {
 
     public static double linearHypothesis(double[] theta, double[] x) {
         if (x.length != theta.length - 1) {
-            throw new IllegalArgumentException("Number of features " + Arrays.toString(x) +
-                    " does not match the number of theta parameters " + Arrays.toString(theta));
+            throw new IllegalArgumentException("Number of features (" + x.length +
+                    ") does not match the number of theta parameters (" + theta.length + ")");
         }
         double sum = theta[0];
         for (int i = 0; i < x.length; i++) {

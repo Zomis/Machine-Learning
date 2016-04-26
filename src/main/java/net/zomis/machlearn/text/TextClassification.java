@@ -20,6 +20,11 @@ public class TextClassification {
         this.mapper = mapper;
         this.theta = Arrays.copyOf(theta, theta.length);
         this.threshold = threshold;
+        int featureCount = mapper.getFeatures().length;
+        if (theta.length != featureCount + 1) {
+            throw new IllegalArgumentException("Expects theta length (" + theta.length + ") to be " +
+                    "equal to feature length (" + featureCount + ") + 1.");
+        }
     }
 
     public double score(String text) {
