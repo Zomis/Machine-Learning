@@ -19,7 +19,7 @@ public class TextFeatureMapper {
     public double[] toFeatures(String str) {
         return IntStream.range(0, features.length)
             .mapToObj(i -> features[i])
-            .map(s -> Pattern.compile("\\b" + s + "\\b"))
+            .map(s -> Pattern.compile("\\b" + Pattern.quote(s) + "\\b"))
             .mapToDouble(p -> p.matcher(str).find() ? 1 : 0)
             .toArray();
     }
