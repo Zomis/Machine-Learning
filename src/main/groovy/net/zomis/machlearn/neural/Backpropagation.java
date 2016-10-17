@@ -31,7 +31,7 @@ public class Backpropagation {
     public NeuralNetwork stohasticGradientDescent(List<LearningData> examples,
           NeuralNetwork network, Consumer<NeuralNetwork> weightsInitialization,
           Random random, int targetIterations) {
-        int[] layerSizes = network.getLayers().stream().mapToInt(it -> it.size()).toArray();
+        int[] layerSizes = network.getLayers().stream().mapToInt(NeuronLayer::size).toArray();
 
         if (weightsInitialization != null) {
             weightsInitialization.accept(network);
@@ -39,11 +39,7 @@ public class Backpropagation {
 
         Collections.shuffle(examples, random);
 
-        double[][] deltas = new double[network.getLayerCount() - 1][];
-        for (int layeri = 0; layeri < network.getLayerCount() - 1; layeri++) {
-            NeuronLayer layer = network.getLayer(layeri + 1);
-            deltas[layeri] = new double[layer.size()];
-        }
+        double[][] deltas = createDeltasArray(network);
 
         double previousCost = Double.MAX_VALUE;
         int iterations = 0;
@@ -53,70 +49,7 @@ public class Backpropagation {
             iterations++;
             double cost = 0;
             for (LearningData data : examples) {
-                /* Propagate the inputs forward to compute the outputs */
-                int neuronIndexInLayer = 0;
-                for (Neuron neuron : network.getInputLayer()) {
-                    neuron.setOutput(data.getInput(neuronIndexInLayer++));
-                }
-                for (int layerIndex = 1; layerIndex < network.getLayerCount(); layerIndex++) {
-                    NeuronLayer layer = network.getLayer(layerIndex);
-                    for (Neuron node : layer) {
-                        node.process();
-                    }
-                }
-
-                /* Using y(t) compute delta(L) = a(L) - y(t) */
-                double[] expectedOutput = data.getOutputs();
-                neuronIndexInLayer = 0;
-                for (Neuron neuron : network.getOutputLayer()) {
-                    double neuronError = neuron.getOutput() - expectedOutput[neuronIndexInLayer];
-                    neuronError = neuronError * data.weight;
-                    deltas[network.getLayerCount() - 2][neuronIndexInLayer] = neuronError;
-                    neuronIndexInLayer++;
-                }
-
-                /* Propagate deltas backward from output layer to input layer
-                 * Compute delta(L-1), delta(L-2), ..., delta(2)
-                  * using delta(l) = ((theta(l)' * delta(l+1) .* a(l) .* (1-a(l)) */
-                for (int layerIndex = network.getLayerCount() - 2; layerIndex >= 1; layerIndex--) {
-                    final int layerIdx = layerIndex;
-                    NeuronLayer layer = network.getLayer(layerIndex);
-                    for (int nodei = 0; nodei < layer.size(); nodei++) {
-                        Neuron neuron = layer.getNeurons().get(nodei);
-                        double sum = neuron.getOutputs().stream().mapToDouble(link ->
-                                        link.getWeight() * deltas[layerIdx][link.getTo().indexInLayer]
-                        ).sum();
-                        double gPrim = neuron.getOutput() * (1 - neuron.getOutput());
-                        double delta = sum * gPrim;
-                        deltas[layerIndex - 1][nodei] = delta;
-                        // println "deltas[$layerIndex - 1][$nodei] = $sum * $gPrim = $delta"
-                    }
-                }
-
-                /* capitalDelta(l, i, j) += a(l, j) * delta(l+1, i) */
-                for (int layerIndex = 0; layerIndex < network.getLayerCount() - 1; layerIndex++) {
-                    NeuronLayer layer = network.getLayer(layerIndex);
-                    NeuronLayer nextLayer = network.getLayer(layerIndex + 1);
-                    for (int i = 0; i < nextLayer.getNeurons().size(); i++) {
-                        for (int j = 0; j < layer.getNeurons().size() + 1; j++) {
-                            /* capitalDeltas[L][i][j] =
-                             * delta between layer L and layer L + 1, including input layer, excluding ooutput layer
-                             * node i in layer L+1
-                             * if j == 0, bias unit in layer L
-                             * otherwise, node j (1-indexed) in layer L
-                             **/
-                            double wantedDeltaValue = deltas[layerIndex][i];
-                            double value = 1;
-                            if (j > 0) {
-                                value = layer.getNeurons().get(j-1).getOutput();
-                            }
-                            double capitalD = value * wantedDeltaValue;
-                            NeuronLink link = nextLayer.getNeurons().get(i).getInputs().get(j);
-                            link.setWeight(link.getWeight() - learningRate * capitalD);
-                        }
-                    }
-                }
-
+                learnFromExample(network, data, deltas, null);
                 cost += costFunction(network, data);
             }
 
@@ -134,9 +67,91 @@ public class Backpropagation {
         return network;
     }
 
+    public static double[][] createDeltasArray(NeuralNetwork network) {
+        double[][] deltas = new double[network.getLayerCount() - 1][];
+        for (int layeri = 0; layeri < network.getLayerCount() - 1; layeri++) {
+            NeuronLayer layer = network.getLayer(layeri + 1);
+            deltas[layeri] = new double[layer.size()];
+        }
+        return deltas;
+    }
+
+    public void learnFromExample(NeuralNetwork network, LearningData data, double[][] deltas,
+          double[][][] capitalDeltas) {
+        /* Propagate the inputs forward to compute the outputs */
+        int neuronIndexInLayer = 0;
+        for (Neuron neuron : network.getInputLayer()) {
+            neuron.setOutput(data.getInput(neuronIndexInLayer++));
+        }
+        for (int layerIndex = 1; layerIndex < network.getLayerCount(); layerIndex++) {
+            NeuronLayer layer = network.getLayer(layerIndex);
+            for (Neuron node : layer) {
+                node.process();
+            }
+        }
+
+        /* Using y(t) compute delta(L) = a(L) - y(t) */
+        double[] expectedOutput = data.getOutputs();
+        neuronIndexInLayer = 0;
+        for (Neuron neuron : network.getOutputLayer()) {
+            double neuronError = neuron.getOutput() - expectedOutput[neuronIndexInLayer];
+            neuronError = neuronError * data.weight;
+            deltas[network.getLayerCount() - 2][neuronIndexInLayer] = neuronError;
+            neuronIndexInLayer++;
+        }
+
+        /* Propagate deltas backward from output layer to input layer
+         * Compute delta(L-1), delta(L-2), ..., delta(2)
+         * using delta(l) = ((theta(l)' * delta(l+1) .* a(l) .* (1-a(l)) */
+        for (int layerIndex = network.getLayerCount() - 2; layerIndex >= 1; layerIndex--) {
+            final int layerIdx = layerIndex;
+            NeuronLayer layer = network.getLayer(layerIndex);
+            for (int nodei = 0; nodei < layer.size(); nodei++) {
+                Neuron neuron = layer.getNeurons().get(nodei);
+                double sum = neuron.getOutputs().stream().mapToDouble(link ->
+                        link.getWeight() * deltas[layerIdx][link.getTo().indexInLayer]
+                ).sum();
+                double gPrim = neuron.getOutput() * (1 - neuron.getOutput());
+                double delta = sum * gPrim;
+                deltas[layerIndex - 1][nodei] = delta;
+                // println "deltas[$layerIndex - 1][$nodei] = $sum * $gPrim = $delta"
+            }
+        }
+
+        /* capitalDelta(l, i, j) += a(l, j) * delta(l+1, i) */
+        for (int layerIndex = 0; layerIndex < network.getLayerCount() - 1; layerIndex++) {
+            NeuronLayer layer = network.getLayer(layerIndex);
+            NeuronLayer nextLayer = network.getLayer(layerIndex + 1);
+            for (int i = 0; i < nextLayer.getNeurons().size(); i++) {
+                for (int j = 0; j < layer.getNeurons().size() + 1; j++) {
+                    /* capitalDeltas[L][i][j] =
+                     * delta between layer L and layer L + 1, including input layer, excluding ooutput layer
+                     * node i in layer L+1
+                     * if j == 0, bias unit in layer L
+                     * otherwise, node j (1-indexed) in layer L
+                     **/
+                    double wantedDeltaValue = deltas[layerIndex][i];
+                    double value = 1;
+                    if (j > 0) {
+                        value = layer.getNeurons().get(j-1).getOutput();
+                    }
+
+                    if (capitalDeltas == null) {
+                        double capitalD = value * wantedDeltaValue;
+                        NeuronLink link = nextLayer.getNeurons().get(i).getInputs().get(j);
+                        link.setWeight(link.getWeight() - learningRate * capitalD);
+                    } else {
+                        capitalDeltas[layerIndex][i][j] += value * wantedDeltaValue;
+                    }
+                }
+            }
+        }
+
+    }
+
     public NeuralNetwork backPropagationLearning(Collection<LearningData> examples,
              NeuralNetwork network, Consumer<NeuralNetwork> weightsInitialization) {
-        int[] layerSizes = network.getLayers().stream().mapToInt(it -> it.size()).toArray();
+        int[] layerSizes = network.getLayers().stream().mapToInt(NeuronLayer::size).toArray();
 //        inputs: examples, a set of examples, each with input vector x and output vector y
 //        network , a multilayer network with L layers, weights wi,j , activation function g
 
@@ -176,69 +191,7 @@ public class Backpropagation {
             iterations++;
             double cost = 0;
             for (LearningData data : examples) {
-                /* Propagate the inputs forward to compute the outputs */
-                int neuronIndexInLayer = 0;
-                for (Neuron neuron : network.getInputLayer()) {
-                    neuron.setOutput(data.getInput(neuronIndexInLayer++));
-                }
-                for (int layerIndex = 1; layerIndex < network.getLayerCount(); layerIndex++) {
-                    NeuronLayer layer = network.getLayer(layerIndex);
-                    for (Neuron node : layer) {
-                        node.process();
-                    }
-                }
-
-                /* Using y(t) compute delta(L) = a(L) - y(t) */
-                double[] expectedOutput = data.getOutputs();
-                neuronIndexInLayer = 0;
-                for (Neuron neuron : network.getOutputLayer()) {
-                    // TODO: What happens if we ignore the output for some neurons when training some training sets?
-                    double neuronError = neuron.getOutput() - expectedOutput[neuronIndexInLayer];
-                    neuronError = neuronError * data.weight;
-                    deltas[network.getLayerCount() - 2][neuronIndexInLayer] = neuronError;
-                    neuronIndexInLayer++;
-                }
-
-                /* Propagate deltas backward from output layer to input layer
-                 * Compute delta(L-1), delta(L-2), ..., delta(2)
-                  * using delta(l) = ((theta(l)' * delta(l+1) .* a(l) .* (1-a(l)) */
-                for (int layerIndex = network.getLayerCount() - 2; layerIndex >= 1; layerIndex--) {
-                    final int layerIdx = layerIndex;
-                    NeuronLayer layer = network.getLayer(layerIndex);
-                    for (int nodei = 0; nodei < layer.size(); nodei++) {
-                        Neuron neuron = layer.getNeurons().get(nodei);
-                        double sum = neuron.getOutputs().stream().mapToDouble(link ->
-                            link.getWeight() * deltas[layerIdx][link.getTo().indexInLayer]
-                        ).sum();
-                        double gPrim = neuron.getOutput() * (1 - neuron.getOutput());
-                        double delta = sum * gPrim;
-                        deltas[layerIndex - 1][nodei] = delta;
-                        // println "deltas[$layerIndex - 1][$nodei] = $sum * $gPrim = $delta"
-                    }
-                }
-
-                /* capitalDelta(l, i, j) += a(l, j) * delta(l+1, i) */
-                for (int layerIndex = 0; layerIndex < network.getLayerCount() - 1; layerIndex++) {
-                    NeuronLayer layer = network.getLayer(layerIndex);
-                    NeuronLayer nextLayer = network.getLayer(layerIndex + 1);
-                    for (int i = 0; i < nextLayer.getNeurons().size(); i++) {
-                        for (int j = 0; j < layer.getNeurons().size() + 1; j++) {
-                            /* capitalDeltas[L][i][j] =
-                             * delta between layer L and layer L + 1, including input layer, excluding ooutput layer
-                             * node i in layer L+1
-                             * if j == 0, bias unit in layer L
-                             * otherwise, node j (1-indexed) in layer L
-                             **/
-                            double wantedDeltaValue = deltas[layerIndex][i];
-                            double value = 1;
-                            if (j > 0) {
-                                value = layer.getNeurons().get(j-1).getOutput();
-                            }
-                            capitalDeltas[layerIndex][i][j] += value * wantedDeltaValue;
-                        }
-                    }
-                }
-
+                learnFromExample(network, data, deltas, capitalDeltas);
                 cost += costFunction(network, data);
             }
 
@@ -310,19 +263,19 @@ public class Backpropagation {
         return (costPlus - costMinus) / (2 * EPSILON);
     }
 
-    static void zero(double[][] doubles) {
+    private static void zero(double[][] doubles) {
         for (double[] layer : doubles) {
             Arrays.fill(layer, 0);
         }
     }
 
-    static void zero(double[][][] doubles) {
+    private static void zero(double[][][] doubles) {
         for (double[][] layer : doubles) {
             zero(layer);
         }
     }
 
-    static double costFunction(NeuralNetwork network, Collection<LearningData> datas) {
+    private static double costFunction(NeuralNetwork network, Collection<LearningData> datas) {
         double sum = 0;
         for (LearningData data : datas) {
             network.run(data.getInputs());
@@ -332,7 +285,7 @@ public class Backpropagation {
         return (-1d / datas.size()) * sum;
     }
 
-    static double costFunction(NeuralNetwork network, LearningData learningData) {
+    private static double costFunction(NeuralNetwork network, LearningData learningData) {
         double sum = 0;
         double[] out = learningData.getOutputs();
 
@@ -345,7 +298,7 @@ public class Backpropagation {
         return sum;
     }
 
-    static double logisticCost(double expected, double actual) {
+    private static double logisticCost(double expected, double actual) {
         return expected * Math.log(actual) + (1 - expected) * Math.log(1 - actual);
     }
 
