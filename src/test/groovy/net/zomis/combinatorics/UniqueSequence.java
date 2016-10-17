@@ -11,6 +11,7 @@ import net.zomis.minesweeper.analyze.FieldGroup;
 import net.zomis.minesweeper.analyze.FieldRule;
 import net.zomis.minesweeper.analyze.GroupValues;
 import net.zomis.minesweeper.analyze.SimplifyResult;
+import net.zomis.minesweeper.analyze.listener.RuleListener;
 
 public class UniqueSequence<T> extends FieldRule<T> {
 
@@ -32,7 +33,7 @@ public class UniqueSequence<T> extends FieldRule<T> {
 	}
 
 	@Override
-	public SimplifyResult simplify(GroupValues<T> knownValues) {
+	public SimplifyResult simplify(GroupValues<T> knownValues, RuleListener<T> listener) {
 		// TODO: Listener for when something is added to knownValues? To be able to detect directly if rule is still OK or not. Likely speed-up.
 		Set<Set<Integer>> setValues = new HashSet<Set<Integer>>();
 		for (List<T> row : list) {
